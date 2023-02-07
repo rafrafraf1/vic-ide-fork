@@ -1,0 +1,27 @@
+.Vic-Simulator {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.Vic-Input input {
+  height: 32px;
+  margin-bottom: 2px;
+}
+
+.Vic-Input-Active {
+  background-color: rgb(110, 88, 25);
+}
+
+.Vic-Output-Active {
+  background-color: rgb(110, 88, 25);
+}
+
+.Vic-Memory-Cell {
+  display: flex;
+  align-items: center;
+}
+
+.Vic-Memory-Cell input {
+  margin-bottom: 0;
+  height: 32px;
+}

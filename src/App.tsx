@@ -6,8 +6,14 @@ function App() {
   return (
     <div className="App">
       <main className="container">
-        <h1>The Visual Computer</h1>
-        <Cpu />
+        <div className="Vic-Simulator">
+          <div>
+            <InputIo />
+            <OutputIo />
+          </div>
+          <Cpu />
+          <MemorySegment />
+        </div>
       </main>
     </div>
   );
@@ -33,6 +39,59 @@ function CpuRegister(props: CpuRegisterProps) {
     <article>
       <div>{props.name}</div>
       <input value={props.value} />
+    </article>
+  );
+}
+
+function InputIo() {
+  return (
+    <article className="Vic-Input">
+      <h6>Input</h6>
+      <input className="Vic-Input-Active" value="" />
+      <input value="" />
+      <input value="" />
+      <input value="" />
+      <input value="" />
+      <input value="" />
+    </article>
+  );
+}
+
+function OutputIo() {
+  return (
+    <article className="Vic-Input">
+      <h6>Output</h6>
+      <input className="Vic-Output-Active" value="" />
+      <input value="" />
+      <input value="" />
+      <input value="" />
+      <input value="" />
+      <input value="" />
+    </article>
+  );
+}
+
+function MemorySegment() {
+  return (
+    <article>
+      <h6>Main Memory</h6>
+      <div className="Vic-Memory-Cell"><label>00</label><input value="800" /></div>
+      <div className="Vic-Memory-Cell"><label>01</label><input value="900" /></div>
+      <div className="Vic-Memory-Cell"><label>02</label><input value="500" /></div>
+      <div className="Vic-Memory-Cell"><label>03</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>04</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>05</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>06</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>07</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>08</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>09</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>10</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>11</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>12</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>13</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>14</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>15</label><input value="0" /></div>
+      <div className="Vic-Memory-Cell"><label>16</label><input value="0" /></div>
     </article>
   );
 }
