@@ -21,14 +21,9 @@
         "title": "Hello World"
       },
       {
-        "command": "catCoding.start",
-        "title": "Start cat coding session",
-        "category": "Cat Coding"
-      },
-      {
-        "command": "catCoding.doRefactor",
-        "title": "Do some refactoring",
-        "category": "Cat Coding"
+        "command": "vic-ide.openSimulator",
+        "title": "Open Vic Simulator",
+        "category": "Vic"
       }
     ]
   },

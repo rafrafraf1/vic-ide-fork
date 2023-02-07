@@ -2,12 +2,6 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-const cats = {
-	'Coding Cat': 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
-	'Compiling Cat': 'https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif',
-	'Testing Cat': 'https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif'
-};
-
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -28,206 +22,169 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(disposable);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('catCoding.start', () => {
-			CatCodingPanel.createOrShow(context.extensionUri);
+		vscode.commands.registerCommand('vic-ide.openSimulator', () => {
+			showVicSimulator(context.extensionUri);
 		})
 	);
-
-	context.subscriptions.push(
-		vscode.commands.registerCommand('catCoding.doRefactor', () => {
-			if (CatCodingPanel.currentPanel) {
-				CatCodingPanel.currentPanel.doRefactor();
-			}
-		})
-	);
-
-	if (vscode.window.registerWebviewPanelSerializer) {
-		context.subscriptions.push(
-			vscode.window.registerWebviewPanelSerializer(CatCodingPanel.viewType, {
-				async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
-					console.log(`Got state: ${state}`);
-					// Reset the webview options so we use latest uri for `localResourceRoots`.
-					webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
-					CatCodingPanel.revive(webviewPanel, context.extensionUri);
-				}
-			}));
-	}
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {}
+
+const vicViewType = "vic";
+
+class AssetManifest {
+	static load(fileContents: string): AssetManifest | string {
+		let json;
+		try {
+			json = JSON.parse(fileContents);
+		}
+		catch (err) {
+			return `Error parsing JSON: ${err}`;
+		}
+		const files = AssetManifest.loadFiles(json);
+		if (typeof files === "string") {
+			return files;
+		}
+		const entrypoints = AssetManifest.loadEntrypoints(json);
+		if (typeof entrypoints === "string") {
+			return entrypoints;
+		}
+		return new AssetManifest(files, entrypoints);
+	}
+
+	private static loadFiles(json: any): Map<string, string> | string {
+		const result = new Map<string, string>();
+		// TODO Proper validation
+		for (const key in json["files"]) {
+			result.set(key, json["files"][key]);
+		}
+		return result;
+	}
+
+	private static loadEntrypoints(json: any): Array<string> | string {
+		// TODO Proper validation
+		return json["entrypoints"];
+	}
+
+	private constructor(
+		private files: Map<string, string>,
+		private entrypoints: Array<string>) {
+	}
+
+	public getFile(file: string): string | null {
+		const result = this.files.get(file);
+		if (result !== undefined) {
+			return result;
+		} else {
+			return null;
+		}
+	}
+
+	public getEntryPoints(): Array<string> {
+		return this.entrypoints;
+	}
+}
+
+function entrypointUri(extensionUri: vscode.Uri, webview: vscode.Webview, entrypoint: string): vscode.Uri {
+	const pathOnDisk = vscode.Uri.joinPath(extensionUri, 'build', entrypoint);
+	return webview.asWebviewUri(pathOnDisk);
+}
+
+function entrypointHtml(scriptNonce: string, entrypoint: vscode.Uri): string {
+	const entrypointStr = `${entrypoint}`;
+	if (entrypointStr.endsWith(".css")) {
+		return entrypointCssHtml(entrypointStr);
+	} else if (entrypointStr.endsWith(".js")) {
+		return entrypointJsHtml(scriptNonce, entrypointStr);
+	} else {
+		// TODO
+		return "";
+	}
+}
+
+function entrypointCssHtml(entrypoint: string): string {
+	return `<link href="${entrypoint}" rel="stylesheet">`;
+}
+
+function entrypointJsHtml(scriptNonce: string, entrypoint: string): string {
+	return `<script nonce="${scriptNonce}" defer="defer" src="${entrypoint}"></script>`;
+}
+
+function showVicSimulator(extensionUri: vscode.Uri) {
+	const panel = vscode.window.createWebviewPanel(
+		vicViewType,
+		'Vic Simulator',
+		vscode.ViewColumn.One,
+		getWebviewOptions(extensionUri),
+	);
+
+	const assetMannifestPath = vscode.Uri.joinPath(extensionUri, 'build', 'asset-manifest.json');
+
+	vscode.workspace.fs.readFile(assetMannifestPath).then(contents => {
+		const assetManifest = AssetManifest.load(`${contents}`);
+		if (typeof assetManifest === "string") {
+			vscode.window.showErrorMessage(`Error loading asset-manifest.json:\n${assetManifest}`);
+		} else {
+			// Use a nonce to only allow specific scripts to be run
+			const nonce = getNonce();
+
+			const entrypointsHtml = assetManifest.getEntryPoints().map(e => entrypointUri(extensionUri, panel.webview, e)).map(e => entrypointHtml(nonce, e)).join("\n");
+
+			const pageHtml = `
+				<!doctype html>
+				<html lang="en">
+				<head>
+					<meta charset="utf-8" />
+					<!--
+						Use a content security policy to only allow loading images from https or from our extension directory,
+						and only allow scripts that have a specific nonce.
+					-->
+					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; img-src ${panel.webview.cspSource} https:; script-src 'nonce-${nonce}';">
+					<meta name="viewport" content="width=device-width,initial-scale=1" />
+					<title>Vic Simulator</title>
+					${entrypointsHtml}
+				</head>
+				<body>
+					<div id="root"></div>
+				</body>
+				</html>`;
+
+			vscode.window.showInformationMessage(pageHtml);
+
+			panel.webview.html = pageHtml;
+		}
+	}, err => {
+		vscode.window.showErrorMessage(`Error loading asset-manifest.json:\n${err}`);
+	});
+
+	// setTimeout(() => {
+	// panel.webview.html = `<!DOCTYPE html>
+	// 	<html lang="en">
+	// 	<head>
+	// 		<meta charset="UTF-8">
+	// 		<!--
+	// 			Use a content security policy to only allow loading images from https or from our extension directory,
+	// 			and only allow scripts that have a specific nonce.
+	// 		-->
+	// 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	// 		<title>Vic</title>
+	// 	</head>
+	// 	<body>
+	// 		<h1 id>Vic</h1>
+	// 	</body>
+	// 	</html>`;
+	// }, 2000);
+}
 
 function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
 	return {
 		// Enable javascript in the webview
 		enableScripts: true,
 
-		// And restrict the webview to only loading content from our extension's `media` directory.
-		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
+		// And restrict the webview to only loading content from the specified directories.
+		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'build')]
 	};
-}
-
-/**
- * Manages cat coding webview panels
- */
-class CatCodingPanel {
-	/**
-	 * Track the currently panel. Only allow a single panel to exist at a time.
-	 */
-	public static currentPanel: CatCodingPanel | undefined;
-
-	public static readonly viewType = 'catCoding';
-
-	private readonly _panel: vscode.WebviewPanel;
-	private readonly _extensionUri: vscode.Uri;
-	private _disposables: vscode.Disposable[] = [];
-
-	public static createOrShow(extensionUri: vscode.Uri) {
-		const column = vscode.window.activeTextEditor
-			? vscode.window.activeTextEditor.viewColumn
-			: undefined;
-
-		// If we already have a panel, show it.
-		if (CatCodingPanel.currentPanel) {
-			CatCodingPanel.currentPanel._panel.reveal(column);
-			return;
-		}
-
-		// Otherwise, create a new panel.
-		const panel = vscode.window.createWebviewPanel(
-			CatCodingPanel.viewType,
-			'Cat Coding',
-			column || vscode.ViewColumn.One,
-			getWebviewOptions(extensionUri),
-		);
-
-		CatCodingPanel.currentPanel = new CatCodingPanel(panel, extensionUri);
-	}
-
-	public static revive(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		CatCodingPanel.currentPanel = new CatCodingPanel(panel, extensionUri);
-	}
-
-	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-		this._panel = panel;
-		this._extensionUri = extensionUri;
-
-		// Set the webview's initial html content
-		this._update();
-
-		// Listen for when the panel is disposed
-		// This happens when the user closes the panel or when the panel is closed programmatically
-		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-
-		// Update the content based on view changes
-		this._panel.onDidChangeViewState(
-			e => {
-				if (this._panel.visible) {
-					this._update();
-				}
-			},
-			null,
-			this._disposables
-		);
-
-		// Handle messages from the webview
-		this._panel.webview.onDidReceiveMessage(
-			message => {
-				switch (message.command) {
-					case 'alert':
-						vscode.window.showErrorMessage(message.text);
-						return;
-				}
-			},
-			null,
-			this._disposables
-		);
-	}
-
-	public doRefactor() {
-		// Send a message to the webview webview.
-		// You can send any JSON serializable data.
-		this._panel.webview.postMessage({ command: 'refactor' });
-	}
-
-	public dispose() {
-		CatCodingPanel.currentPanel = undefined;
-
-		// Clean up our resources
-		this._panel.dispose();
-
-		while (this._disposables.length) {
-			const x = this._disposables.pop();
-			if (x) {
-				x.dispose();
-			}
-		}
-	}
-
-	private _update() {
-		const webview = this._panel.webview;
-
-		// Vary the webview's content based on where it is located in the editor.
-		switch (this._panel.viewColumn) {
-			case vscode.ViewColumn.Two:
-				this._updateForCat(webview, 'Compiling Cat');
-				return;
-
-			case vscode.ViewColumn.Three:
-				this._updateForCat(webview, 'Testing Cat');
-				return;
-
-			case vscode.ViewColumn.One:
-			default:
-				this._updateForCat(webview, 'Coding Cat');
-				return;
-		}
-	}
-
-	private _updateForCat(webview: vscode.Webview, catName: keyof typeof cats) {
-		this._panel.title = catName;
-		this._panel.webview.html = this._getHtmlForWebview(webview, cats[catName]);
-	}
-
-	private _getHtmlForWebview(webview: vscode.Webview, catGifPath: string) {
-		// Local path to main script run in the webview
-		const scriptPathOnDisk = vscode.Uri.joinPath(this._extensionUri, 'media', 'main.js');
-
-		// And the uri we use to load this script in the webview
-		const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
-
-		// Local path to css styles
-		const styleResetPath = vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css');
-		const stylesPathMainPath = vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css');
-
-		// Uri to load styles into webview
-		const stylesResetUri = webview.asWebviewUri(styleResetPath);
-		const stylesMainUri = webview.asWebviewUri(stylesPathMainPath);
-
-		// Use a nonce to only allow specific scripts to be run
-		const nonce = getNonce();
-
-		return `<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<!--
-					Use a content security policy to only allow loading images from https or from our extension directory,
-					and only allow scripts that have a specific nonce.
-				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<link href="${stylesResetUri}" rel="stylesheet">
-				<link href="${stylesMainUri}" rel="stylesheet">
-				<title>Cat Coding</title>
-			</head>
-			<body>
-				<img src="${catGifPath}" width="300" />
-				<h1 id="lines-of-code-counter">0</h1>
-				<script nonce="${nonce}" src="${scriptUri}"></script>
-			</body>
-			</html>`;
-	}
 }
 
 function getNonce() {
