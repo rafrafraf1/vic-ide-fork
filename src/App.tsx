@@ -1,10 +1,14 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { ValueCellInput } from './UI/ValueCellInput';
 
 function App() {
   return (
     <div className="App">
+      <ValueCellInput
+        value={323}
+      />
       <main className="container">
         <div className="Vic-Simulator">
           <div>

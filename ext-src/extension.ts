@@ -133,7 +133,7 @@ function showVicSimulator(extensionUri: vscode.Uri) {
 
 			const pageHtml = `
 				<!doctype html>
-				<html lang="en" data-theme="dark">
+				<html lang="en">
 				<head>
 					<meta charset="utf-8" />
 					<!--

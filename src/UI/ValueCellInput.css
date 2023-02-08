@@ -1,0 +1,15 @@
+.ValueCellInput input {
+  border: 1px solid red;
+  font-size: 140%;
+  font-family: monospace;
+  font-weight: bold;
+  width: 80px;
+  height: 32px;
+  padding-right: 12px;
+  text-align: right;
+}
+
+.ValueCellInput input:focus {
+    outline-width: 0;
+    background: #ff8;
+}

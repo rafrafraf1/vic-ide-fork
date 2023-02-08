@@ -1,9 +1,5 @@
 import { Instruction, Address } from "./Instruction";
-
-/**
- * A value that can be stored by the Vic computer. Must be in the range [0..999]
- */
-type Value = number;
+import { Value } from "./Value";
 
 type Register = Value;
 

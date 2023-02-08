@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import './pico.min.css';
+import "modern-css-reset";
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
