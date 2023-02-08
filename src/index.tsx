@@ -1,5 +1,5 @@
-import "modern-css-reset";
-import "./index.css";
+import "modern-css-reset"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import App from "./App";
 import React from "react";
 import ReactDOM from "react-dom/client";

@@ -2,7 +2,7 @@ import * as Mocha from "mocha";
 import * as glob from "glob";
 import * as path from "path";
 
-export function run(): Promise<void> {
+export async function run(): Promise<void> {
   // Create the mocha test
   const mocha = new Mocha({
     ui: "tdd",
@@ -11,9 +11,9 @@ export function run(): Promise<void> {
 
   const testsRoot = path.resolve(__dirname, "..");
 
-  return new Promise((c, e) => {
+  await new Promise<void>((c, e) => {
     glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
-      if (err) {
+      if (err !== null) {
         e(err);
         return;
       }

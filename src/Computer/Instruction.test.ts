@@ -1,5 +1,5 @@
 import {
-  Instruction,
+  type Instruction,
   assembleInstruction,
   parseInstruction,
 } from "./Instruction";

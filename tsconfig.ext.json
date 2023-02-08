@@ -11,8 +11,16 @@
 		"rootDir": "ext-src",
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
+		"exactOptionalPropertyTypes": true,
+		"importsNotUsedAsValues": "error",
 		"noFallthroughCasesInSwitch": true,
-		"useUnknownInCatchVariables": true
+		"noImplicitOverride": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"noUnusedLocals": true,
+		"useUnknownInCatchVariables": true,
+		// "verbatimModuleSyntax": true
+		"isolatedModules": true,
 	},
 	"include": [
 		"ext-src"

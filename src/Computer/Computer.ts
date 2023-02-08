@@ -1,5 +1,5 @@
-import { Address, Instruction } from "./Instruction";
-import { Value } from "./Value";
+import type { Address, Instruction } from "./Instruction";
+import type { Value } from "./Value";
 import { assertNever } from "assert-never";
 
 type Register = Value;
@@ -39,7 +39,13 @@ export function writeMemory(
 }
 
 export function readMemory(computer: ComputerState, address: Address): Value {
-  return computer.memory[address];
+  const value = computer.memory[address];
+  if (value === undefined) {
+    throw new Error(
+      `Address out of range: ${address} (Array length: ${computer.memory.length})`
+    );
+  }
+  return value;
 }
 
 export function add(a: Value, b: Value): Value {

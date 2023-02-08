@@ -1,5 +1,4 @@
-import "./App.css";
-import React from "react";
+import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import { ValueCellInput } from "./UI/ValueCellInput";
 
 function App(): JSX.Element {

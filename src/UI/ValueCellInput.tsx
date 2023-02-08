@@ -1,6 +1,6 @@
-import "./ValueCellInput.css";
-import { ChangeEvent, FormEvent, createRef, useState } from "react";
-import { Value } from "../Computer/Value";
+import "./ValueCellInput.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import { type ChangeEvent, type FormEvent, createRef, useState } from "react";
+import type { Value } from "../Computer/Value";
 
 export interface ValueCellInputProps {
   value: Value;
