@@ -34,6 +34,8 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint ext-src --ext ts",
     "format": "prettier --write ./src ./ext-src",
+    "check:format": "prettier --check ./src ./ext-src",
+    "check": "npm run check:format",
     "test-ext": "node ./out/test/runTest.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
