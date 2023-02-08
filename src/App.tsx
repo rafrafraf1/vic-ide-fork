@@ -6,7 +6,9 @@ import { ValueCellInput } from "./UI/ValueCellInput";
 function App() {
   return (
     <div className="App">
-      <ValueCellInput value={323} />
+      <div style={{ margin: "20px" }}>
+        <ValueCellInput value={323} />
+      </div>
       <main className="container">
         <div className="Vic-Simulator">
           <div>

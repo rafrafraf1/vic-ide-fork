@@ -1,5 +1,7 @@
 .ValueCellInput input {
-  border: 1px solid red;
+  background-color: var(--vscode-editorWidget-background);
+  color: var(--vscode-editorWidget-foreground);
+  border: 1px solid var(--vscode-editorWidget-border);
   font-size: 140%;
   font-family: monospace;
   font-weight: bold;
@@ -11,5 +13,5 @@
 
 .ValueCellInput input:focus {
   outline-width: 0;
-  background: #ff8;
+  background-color: var(--vscode-inputOption-activeBackground);
 }
