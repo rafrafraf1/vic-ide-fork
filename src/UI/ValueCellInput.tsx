@@ -1,6 +1,6 @@
-import { ChangeEvent, createRef, FormEvent, useState } from "react";
-import { Value } from "../Computer/Value";
 import "./ValueCellInput.css";
+import { ChangeEvent, FormEvent, createRef, useState } from "react";
+import { Value } from "../Computer/Value";
 
 export interface ValueCellInputProps {
   value: Value;
@@ -11,24 +11,24 @@ export interface ValueCellInputProps {
   onValueChange?: (value: Value) => void;
 }
 
-export function ValueCellInput(props: ValueCellInputProps) {
+export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
   const [inputStr, setInputStr] = useState<string>(`${props.value}`);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setInputStr(sanitizeValue(e.target.value));
   };
 
-  const handleFocus = () => {
+  const handleFocus = (): void => {
     if (inputRef.current !== null) {
       inputRef.current.select();
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (): void => {
     console.log("BLUR");
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     console.log("SUBMIT");
     if (inputRef.current !== null) {

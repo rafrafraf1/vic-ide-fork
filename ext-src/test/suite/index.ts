@@ -1,6 +1,6 @@
-import * as path from "path";
 import * as Mocha from "mocha";
 import * as glob from "glob";
+import * as path from "path";
 
 export function run(): Promise<void> {
   // Create the mocha test
@@ -14,7 +14,8 @@ export function run(): Promise<void> {
   return new Promise((c, e) => {
     glob("**/**.test.js", { cwd: testsRoot }, (err, files) => {
       if (err) {
-        return e(err);
+        e(err);
+        return;
       }
 
       // Add files to the test suite
@@ -29,7 +30,7 @@ export function run(): Promise<void> {
             c();
           }
         });
-      } catch (err) {
+      } catch (err: unknown) {
         console.error(err);
         e(err);
       }

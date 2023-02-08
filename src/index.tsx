@@ -1,13 +1,19 @@
+import "modern-css-reset";
+import "./index.css";
+import App from "./App";
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
-import "modern-css-reset";
-import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
+function getRequiredElement(elementId: string): HTMLElement {
+  const rootElem = document.getElementById(elementId);
+  if (rootElem === null) {
+    throw new Error(`Element "${elementId}" not found`);
+  }
+  return rootElem;
+}
+
+const root = ReactDOM.createRoot(getRequiredElement("root"));
 root.render(
   <React.StrictMode>
     <App />

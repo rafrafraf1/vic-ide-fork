@@ -1,3 +1,5 @@
+import { assertNever } from "assert-never";
+
 /**
  * A value representing a memory address in the Vic computer.
  *
@@ -126,6 +128,8 @@ export function assembleInstruction(instruction: Instruction): number {
       return 900;
     case "STOP":
       return 0;
+    default:
+      return assertNever(instruction);
   }
 }
 

@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "vic-ide" is now active!');
@@ -12,11 +12,14 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand("vic-ide.helloWorld", () => {
-    // The code you place here will be executed every time your command is executed
-    // Display a message box to the user
-    vscode.window.showInformationMessage("Hello World from vic-ide!");
-  });
+  const disposable = vscode.commands.registerCommand(
+    "vic-ide.helloWorld",
+    () => {
+      // The code you place here will be executed every time your command is executed
+      // Display a message box to the user
+      void vscode.window.showInformationMessage("Hello World from vic-ide!");
+    }
+  );
 
   context.subscriptions.push(disposable);
 
@@ -28,17 +31,25 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate(): void {
+  // TODO ...
+}
 
 const vicViewType = "vic";
 
 class AssetManifest {
   static load(fileContents: string): AssetManifest | string {
-    let json;
+    let json: unknown;
     try {
       json = JSON.parse(fileContents);
-    } catch (err) {
-      return `Error parsing JSON: ${err}`;
+    } catch (err: unknown) {
+      return `Error parsing JSON: ${err as string}`;
+    }
+    if (Array.isArray(json)) {
+      return `Expected JSON object, got array: ${json as unknown as string}`;
+    }
+    if (typeof json !== "object" || json === null) {
+      return `Error parsing JSON: ${json as string}`;
     }
     const files = AssetManifest.loadFiles(json);
     if (typeof files === "string") {
@@ -51,24 +62,48 @@ class AssetManifest {
     return new AssetManifest(files, entrypoints);
   }
 
-  private static loadFiles(json: any): Map<string, string> | string {
+  private static loadFiles(json: object): Map<string, string> | string {
     const result = new Map<string, string>();
-    // TODO Proper validation
-    for (const key in json["files"]) {
-      result.set(key, json["files"][key]);
+    if (!("files" in json)) {
+      return 'Missing key: "files"';
+    }
+    const files = json.files;
+    if (files === null || typeof files !== "object" || Array.isArray(files)) {
+      return `Invalid value for "files": ${files as string}`;
+    }
+    for (const key of Object.keys(files)) {
+      const value: unknown = files[key];
+      if (typeof value !== "string") {
+        return `Invalid value for key "${key}": ${value as string}`;
+      }
+      result.set(key, value);
     }
     return result;
   }
 
-  private static loadEntrypoints(json: any): Array<string> | string {
-    // TODO Proper validation
-    return json["entrypoints"];
+  private static loadEntrypoints(json: object): string[] | string {
+    const result: string[] = [];
+    if (!("entrypoints" in json)) {
+      return 'Missing key: "entrypoints"';
+    }
+    if (!Array.isArray(json.entrypoints)) {
+      return `Invalid value for "entrypoints": ${json.entrypoints as string}`;
+    }
+    for (const entrypoint of json.entrypoints) {
+      if (typeof entrypoint !== "string") {
+        return `Invalid "entrypoint": ${entrypoint as string}`;
+      }
+      result.push(entrypoint);
+    }
+    return result;
   }
 
   private constructor(
     private files: Map<string, string>,
-    private entrypoints: Array<string>
-  ) {}
+    private entrypoints: string[]
+  ) {
+    // Nothing
+  }
 
   public getFile(file: string): string | null {
     const result = this.files.get(file);
@@ -79,7 +114,7 @@ class AssetManifest {
     }
   }
 
-  public getEntryPoints(): Array<string> {
+  public getEntryPoints(): string[] {
     return this.entrypoints;
   }
 }
@@ -94,7 +129,7 @@ function entrypointUri(
 }
 
 function entrypointHtml(scriptNonce: string, entrypoint: vscode.Uri): string {
-  const entrypointStr = `${entrypoint}`;
+  const entrypointStr = entrypoint.toString();
   if (entrypointStr.endsWith(".css")) {
     return entrypointCssHtml(entrypointStr);
   } else if (entrypointStr.endsWith(".js")) {
@@ -113,7 +148,7 @@ function entrypointJsHtml(scriptNonce: string, entrypoint: string): string {
   return `<script nonce="${scriptNonce}" defer="defer" src="${entrypoint}"></script>`;
 }
 
-function showVicSimulator(extensionUri: vscode.Uri) {
+function showVicSimulator(extensionUri: vscode.Uri): void {
   const panel = vscode.window.createWebviewPanel(
     vicViewType,
     "Vic Simulator",
@@ -129,9 +164,9 @@ function showVicSimulator(extensionUri: vscode.Uri) {
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
     (contents) => {
-      const assetManifest = AssetManifest.load(`${contents}`);
+      const assetManifest = AssetManifest.load(contents.toString());
       if (typeof assetManifest === "string") {
-        vscode.window.showErrorMessage(
+        void vscode.window.showErrorMessage(
           `Error loading asset-manifest.json:\n${assetManifest}`
         );
       } else {
@@ -163,14 +198,14 @@ function showVicSimulator(extensionUri: vscode.Uri) {
 				</body>
 				</html>`;
 
-        vscode.window.showInformationMessage(pageHtml);
+        void vscode.window.showInformationMessage(pageHtml);
 
         panel.webview.html = pageHtml;
       }
     },
     (err) => {
-      vscode.window.showErrorMessage(
-        `Error loading asset-manifest.json:\n${err}`
+      void vscode.window.showErrorMessage(
+        `Error loading asset-manifest.json:\n${err as string}`
       );
     }
   );
@@ -204,7 +239,7 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
   };
 }
 
-function getNonce() {
+function getNonce(): string {
   let text = "";
   const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

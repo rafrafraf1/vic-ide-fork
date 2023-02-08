@@ -1,9 +1,8 @@
-import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import React from "react";
 import { ValueCellInput } from "./UI/ValueCellInput";
 
-function App() {
+function App(): JSX.Element {
   return (
     <div className="App">
       <div style={{ margin: "20px" }}>
@@ -23,7 +22,7 @@ function App() {
   );
 }
 
-function Cpu() {
+function Cpu(): JSX.Element {
   return (
     <div>
       <CpuRegister name="Instruction Register" value={0} />
@@ -38,7 +37,7 @@ interface CpuRegisterProps {
   value: number;
 }
 
-function CpuRegister(props: CpuRegisterProps) {
+function CpuRegister(props: CpuRegisterProps): JSX.Element {
   return (
     <article>
       <div>{props.name}</div>
@@ -47,7 +46,7 @@ function CpuRegister(props: CpuRegisterProps) {
   );
 }
 
-function InputIo() {
+function InputIo(): JSX.Element {
   return (
     <article className="Vic-Input">
       <h6>Input</h6>
@@ -61,7 +60,7 @@ function InputIo() {
   );
 }
 
-function OutputIo() {
+function OutputIo(): JSX.Element {
   return (
     <article className="Vic-Input">
       <h6>Output</h6>
@@ -75,7 +74,7 @@ function OutputIo() {
   );
 }
 
-function MemorySegment() {
+function MemorySegment(): JSX.Element {
   return (
     <article>
       <h6>Main Memory</h6>

@@ -1,6 +1,6 @@
 import {
-  assembleInstruction,
   Instruction,
+  assembleInstruction,
   parseInstruction,
 } from "./Instruction";
 

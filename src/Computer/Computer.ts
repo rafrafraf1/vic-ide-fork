@@ -1,5 +1,6 @@
-import { Instruction, Address } from "./Instruction";
+import { Address, Instruction } from "./Instruction";
 import { Value } from "./Value";
+import { assertNever } from "assert-never";
 
 type Register = Value;
 
@@ -25,7 +26,7 @@ export interface ComputerState {
   /**
    * The size of the memory is MEMORY_SIZE (equal to 100)
    */
-  memory: Array<MemoryCell>;
+  memory: MemoryCell[];
 }
 
 export function writeMemory(
@@ -69,7 +70,7 @@ export function newComputerState(): ComputerState {
 /**
  * @returns an array of size MEMORY_SIZE with all elements set to 0.
  */
-export function newBlankMemory(): Array<MemoryCell> {
+export function newBlankMemory(): MemoryCell[] {
   const memory = [];
   for (let i = 0; i < MEMORY_SIZE; i++) {
     memory.push(0);
@@ -95,46 +96,53 @@ export function executeInstruction(
   nextInput: Value
 ): ExecuteResult {
   switch (instruction.kind) {
-    case "ADD":
+    case "ADD": {
       computer.dataRegister = add(
         computer.dataRegister,
         readMemory(computer, instruction.address)
       );
       computer.programCounter++;
       return nullExecuteResult;
-    case "SUB":
+    }
+    case "SUB": {
       computer.dataRegister = sub(
         computer.dataRegister,
         readMemory(computer, instruction.address)
       );
       computer.programCounter++;
       return nullExecuteResult;
-    case "LOAD":
+    }
+    case "LOAD": {
       computer.dataRegister = readMemory(computer, instruction.address);
       computer.programCounter++;
       return nullExecuteResult;
-    case "STORE":
+    }
+    case "STORE": {
       writeMemory(computer, instruction.address, computer.dataRegister);
       computer.programCounter++;
       return nullExecuteResult;
-    case "GOTO":
+    }
+    case "GOTO": {
       computer.programCounter = instruction.address;
       return nullExecuteResult;
-    case "GOTOZ":
+    }
+    case "GOTOZ": {
       if (computer.dataRegister === 0) {
         computer.programCounter = instruction.address;
       } else {
         computer.programCounter++;
       }
       return nullExecuteResult;
-    case "GOTOP":
+    }
+    case "GOTOP": {
       if (computer.dataRegister > 0) {
         computer.programCounter = instruction.address;
       } else {
         computer.programCounter++;
       }
       return nullExecuteResult;
-    case "READ":
+    }
+    case "READ": {
       computer.dataRegister = nextInput;
       computer.programCounter++;
       return {
@@ -142,7 +150,8 @@ export function executeInstruction(
         output: null,
         stop: false,
       };
-    case "WRITE":
+    }
+    case "WRITE": {
       const output = computer.dataRegister;
       computer.programCounter++;
       return {
@@ -150,11 +159,15 @@ export function executeInstruction(
         output: output,
         stop: false,
       };
-    case "STOP":
+    }
+    case "STOP": {
       return {
         consumedInput: false,
         output: null,
         stop: true,
       };
+    }
+    default:
+      return assertNever(instruction);
   }
 }
