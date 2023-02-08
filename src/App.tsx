@@ -1,12 +1,18 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import * as React from "react";
+import { type ComputerState, newComputerState } from "./Computer/Computer";
+import { Computer } from "./UI/Computer";
 import { ValueCellInput } from "./UI/ValueCellInput";
 
 function App(): JSX.Element {
+  const computer = React.useRef<ComputerState>(newComputerState());
+
   return (
     <div className="App">
       <div style={{ margin: "20px" }}>
         <ValueCellInput value={323} />
       </div>
+      <Computer computer={computer.current} />
       <main className="container">
         <div className="Vic-Simulator">
           <div>

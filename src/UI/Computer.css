@@ -1,0 +1,23 @@
+.Computer-MainMemory {
+  height: 500px;
+  border: 1px solid green;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.Computer-MemorySegment {
+  border: 1px solid red;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+.Computer-MemoryAddress {
+  color: var(--vscode-foreground);
+  font-family: monospace;
+  font-size: 132%;
+  text-align: right;
+  padding-right: 6px;
+  align-self: center;
+  line-height: 0;
+}

@@ -2,9 +2,9 @@ import type { Address, Instruction } from "./Instruction";
 import type { Value } from "./Value";
 import { assertNever } from "assert-never";
 
-type Register = Value;
+export type Register = Value;
 
-type MemoryCell = Value;
+export type MemoryCell = Value;
 
 /**
  * The amount of memory available in the Vic computer.
@@ -38,14 +38,18 @@ export function writeMemory(
   computer.memory[address] = value;
 }
 
-export function readMemory(computer: ComputerState, address: Address): Value {
-  const value = computer.memory[address];
+export function memoryRead(memory: MemoryCell[], address: Address): Value {
+  const value = memory[address];
   if (value === undefined) {
     throw new Error(
-      `Address out of range: ${address} (Array length: ${computer.memory.length})`
+      `Address out of range: ${address} (Array length: ${memory.length})`
     );
   }
   return value;
+}
+
+export function readMemory(computer: ComputerState, address: Address): Value {
+  return memoryRead(computer.memory, address);
 }
 
 export function add(a: Value, b: Value): Value {
