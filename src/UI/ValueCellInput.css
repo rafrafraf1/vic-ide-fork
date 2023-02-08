@@ -10,6 +10,6 @@
 }
 
 .ValueCellInput input:focus {
-    outline-width: 0;
-    background: #ff8;
+  outline-width: 0;
+  background: #ff8;
 }
