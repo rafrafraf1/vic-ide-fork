@@ -33,7 +33,7 @@ export class AssetManifest {
       return `Invalid value for "files": ${files as string}`;
     }
     for (const key of Object.keys(files)) {
-      const value: unknown = files[key];
+      const value: unknown = files[key as keyof typeof files];
       if (typeof value !== "string") {
         return `Invalid value for key "${key}": ${value as string}`;
       }
