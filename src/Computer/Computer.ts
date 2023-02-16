@@ -88,22 +88,24 @@ export function newBlankMemory(): MemoryCell[] {
   return memory;
 }
 
+export type StopResult = "STOP" | "NO_INPUT";
+
 export interface ExecuteResult {
   consumedInput: boolean;
   output: Value | null;
-  stop: boolean;
+  stop: StopResult | null;
 }
 
 export const nullExecuteResult: ExecuteResult = {
   consumedInput: false,
   output: null,
-  stop: false,
+  stop: null,
 };
 
 export function executeInstruction(
   computer: ComputerState,
   instruction: Instruction,
-  nextInput: Value
+  nextInput: Value | null
 ): ExecuteResult {
   switch (instruction.kind) {
     case "ADD": {
@@ -153,12 +155,19 @@ export function executeInstruction(
       return nullExecuteResult;
     }
     case "READ": {
+      if (nextInput === null) {
+        return {
+          consumedInput: false,
+          output: null,
+          stop: "NO_INPUT",
+        };
+      }
       computer.dataRegister = nextInput;
       computer.programCounter++;
       return {
         consumedInput: true,
         output: null,
-        stop: false,
+        stop: null,
       };
     }
     case "WRITE": {
@@ -167,14 +176,14 @@ export function executeInstruction(
       return {
         consumedInput: false,
         output: output,
-        stop: false,
+        stop: null,
       };
     }
     case "STOP": {
       return {
         consumedInput: false,
         output: null,
-        stop: true,
+        stop: "STOP",
       };
     }
     default:
