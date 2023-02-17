@@ -13,7 +13,9 @@ export interface ValueCellInputProps {
   onValueChange?: (value: Value) => void;
 }
 
-export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
+export const ValueCellInput = React.memo(function ValueCellInput(
+  props: ValueCellInputProps
+): JSX.Element {
   const { value, onValueChange } = props;
 
   const [inputStr, setInputStr] = React.useState<string>(`${value}`);
@@ -132,7 +134,7 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
       />
     </form>
   );
-}
+});
 
 const ASCII0 = "0".charCodeAt(0);
 const ASCII9 = "9".charCodeAt(0);
