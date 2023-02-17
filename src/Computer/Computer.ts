@@ -73,7 +73,7 @@ export function newComputerState(): ComputerState {
     // TODO:
     // instructionRegister: 0,
     programCounter: 0,
-    memory: newBlankMemory(),
+    memory: memory,
   };
 }
 
