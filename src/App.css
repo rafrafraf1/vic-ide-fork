@@ -1,27 +1,17 @@
-.Vic-Simulator {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.Vic-Input input {
-  height: 32px;
-  margin-bottom: 2px;
-}
-
-.Vic-Input-Active {
-  background-color: rgb(110, 88, 25);
-}
-
-.Vic-Output-Active {
-  background-color: rgb(110, 88, 25);
-}
-
-.Vic-Memory-Cell {
+.App-Root {
+  height: 100vh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
 
-.Vic-Memory-Cell input {
-  margin-bottom: 0;
-  height: 32px;
+.App-Toolbar-Cont {
+  flex: 0 0 auto;
+  align-self: stretch;
+  height: 64px;
+}
+
+.App-Computer-Cont {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
 }
