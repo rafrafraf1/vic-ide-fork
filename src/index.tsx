@@ -1,7 +1,7 @@
 import "modern-css-reset"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import * as React from "react";
 import App from "./App";
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { ValueCellInputPlayground } from "./Playgrounds/ValueCellInputPlayground";
 import reportWebVitals from "./reportWebVitals";
