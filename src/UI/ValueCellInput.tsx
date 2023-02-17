@@ -1,6 +1,7 @@
 import "./ValueCellInput.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { type FocusableElement, tabbable } from "tabbable";
 import type { Value } from "../Computer/Value";
 
 export interface ValueCellInputProps {
@@ -61,7 +62,6 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
   // This happens when the user tabs out of the input element, or clicks
   // outside of it.
   const handleBlur = React.useCallback((): void => {
-    console.log("BLUR");
     updateValue();
   }, [updateValue]);
 
@@ -72,10 +72,13 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
       // Prevent the default behaviour of a page refresh:
       e.preventDefault();
 
-      console.log("SUBMIT");
       if (inputRef.current !== null) {
-        // TODO Select next input (according to tab order) instead of "blur"
-        inputRef.current.blur();
+        const nextElem = nextTabbableElement(inputRef.current);
+        if (nextElem !== null) {
+          nextElem.focus();
+        } else {
+          inputRef.current.blur();
+        }
       }
     },
     [inputRef]
@@ -106,4 +109,24 @@ export function sanitizeValue(value: string): string {
   }
   sanitized = sanitized.substring(0, 3);
   return sanitized;
+}
+
+/**
+ * @returns the Element that comes after the target element in the tab-order
+ * of the document (The element that would be focused if the user were to
+ * press the "Tab" key). Returns `null` if a next element could not be found.
+ */
+function nextTabbableElement(elem: HTMLElement): FocusableElement | null {
+  const allElements = tabbable(document.body);
+  for (let i = 0; i < allElements.length; ++i) {
+    if (allElements[i] === elem) {
+      const nextElem = allElements[i + 1];
+      if (nextElem === undefined) {
+        // The target element is the last one in the document
+        return null;
+      }
+      return nextElem;
+    }
+  }
+  return null;
 }
