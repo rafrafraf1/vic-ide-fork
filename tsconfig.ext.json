@@ -11,7 +11,7 @@
 		"rootDir": "ext-src",
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
-		"exactOptionalPropertyTypes": true,
+		"exactOptionalPropertyTypes": false,
 		"importsNotUsedAsValues": "error",
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitOverride": true,
