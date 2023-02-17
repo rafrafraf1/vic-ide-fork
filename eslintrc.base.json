@@ -106,7 +106,6 @@
         "no-useless-return": "error",
         "no-var": "error",
         "one-var-declaration-per-line": "error",
-        "prefer-arrow-callback": "error",
         "prefer-const": "error",
         "prefer-exponentiation-operator": "error",
         "prefer-named-capture-group": "error",
