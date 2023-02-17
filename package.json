@@ -37,7 +37,7 @@
     "check:format": "prettier --check ./src ./ext-src ./public",
     "check": "npm run check:format",
     "test-ext": "node ./out/test/runTest.js",
-    "start": "react-scripts start",
+    "start": "TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
