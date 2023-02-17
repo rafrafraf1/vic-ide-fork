@@ -134,13 +134,18 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
   );
 }
 
-const ascii0 = "0".charCodeAt(0);
-const ascii9 = "9".charCodeAt(0);
+const ASCII0 = "0".charCodeAt(0);
+const ASCII9 = "9".charCodeAt(0);
 
+/**
+ * @returns the given string, but stripped of any letters or non-digit
+ * characters, such that the returned string is an integer in the range
+ * [0..999]. It may have leading zero characters.
+ */
 export function sanitizeValue(value: string): string {
   let sanitized = "";
   for (const char of value) {
-    if (char.charCodeAt(0) >= ascii0 && char.charCodeAt(0) <= ascii9) {
+    if (char.charCodeAt(0) >= ASCII0 && char.charCodeAt(0) <= ASCII9) {
       sanitized += char;
     }
   }
