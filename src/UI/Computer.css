@@ -97,6 +97,11 @@
   line-height: 0;
 }
 
+.Computer-MemoryAddress-Active {
+  font-weight: bold;
+  color: var(--vscode-editorWarning-foreground);
+}
+
 .Computer-Cpu {
   display: grid;
   grid-template-columns: auto;

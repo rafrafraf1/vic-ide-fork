@@ -1,4 +1,5 @@
 import "./Computer.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import * as React from "react";
 import {
   type ComputerState,
   type MemoryCell,
@@ -12,21 +13,39 @@ import classNames from "classnames";
 export interface ComputerProps {
   className?: string;
   computer: ComputerState;
+  onMemoryCellChange?: (address: Address, value: Value) => void;
+  onDataRegisterChange?: (value: Value) => void;
+  onProgramCounterChange?: (value: Value) => void;
 }
 
 export function Computer(props: ComputerProps): JSX.Element {
+  const {
+    className,
+    computer,
+    onMemoryCellChange,
+    onDataRegisterChange,
+    onProgramCounterChange,
+  } = props;
+
   return (
-    <div className={classNames(props.className, "Computer-Root")}>
+    <div className={classNames(className, "Computer-Root")}>
       <div className="Computer-Io">IO</div>
       <div className="Computer-Divider Computer-Divider1"></div>
       <Cpu
         className="Computer-Cpu"
-        instructionRegister={0}
-        dataRegister={0}
-        programCounter={0}
+        instructionRegister={/* TODO */ 0}
+        dataRegister={computer.dataRegister}
+        programCounter={computer.programCounter}
+        onDataRegisterChange={onDataRegisterChange}
+        onProgramCounterChange={onProgramCounterChange}
       />
       <div className="Computer-Divider Computer-Divider2"></div>
-      <MainMemory className="Computer-Memory" memory={props.computer.memory} />
+      <MainMemory
+        className="Computer-Memory"
+        memory={computer.memory}
+        programCounter={computer.programCounter}
+        onMemoryCellChange={onMemoryCellChange}
+      />
       <div className="Computer-Io-Label Computer-Label">I/O Units</div>
       <div className="Computer-Cpu-Label Computer-Label">CPU</div>
       <div className="Computer-Memory-Label Computer-Label">Memory</div>
@@ -37,31 +56,92 @@ export function Computer(props: ComputerProps): JSX.Element {
 export interface MainMemoryProps {
   className?: string;
   memory: MemoryCell[];
+  programCounter: Value;
+  onMemoryCellChange?: (address: Address, value: Value) => void;
 }
 
 export function MainMemory(props: MainMemoryProps): JSX.Element {
+  const { className, memory, programCounter, onMemoryCellChange } = props;
+
   return (
-    <div className={classNames(props.className, "Computer-MainMemory")}>
-      <MemorySegment memory={props.memory} segmentStart={0} segmentEnd={49} />
-      <MemorySegment memory={props.memory} segmentStart={50} segmentEnd={99} />
+    <div className={classNames(className, "Computer-MainMemory")}>
+      <MemorySegment
+        memory={memory}
+        programCounter={programCounter}
+        segmentStart={0}
+        segmentEnd={49}
+        onMemoryCellChange={onMemoryCellChange}
+      />
+      <MemorySegment
+        memory={memory}
+        programCounter={programCounter}
+        segmentStart={50}
+        segmentEnd={99}
+        onMemoryCellChange={onMemoryCellChange}
+      />
     </div>
   );
 }
 
 export interface MemorySegmentProps {
   memory: MemoryCell[];
+  programCounter: Value;
   segmentStart: Address;
   segmentEnd: Address;
+  onMemoryCellChange?: (address: Address, value: Value) => void;
 }
 
 export function MemorySegment(props: MemorySegmentProps): JSX.Element {
+  const {
+    memory,
+    programCounter,
+    segmentStart,
+    segmentEnd,
+    onMemoryCellChange,
+  } = props;
+
+  const MemoryValueCellInput = (props: {
+    address: Address;
+    value: Value;
+    onValueChange: (address: Address, value: Value) => void;
+  }): JSX.Element => {
+    const { address, value, onValueChange } = props;
+
+    const handleValueChange = React.useCallback(
+      (newValue: Value): void => {
+        onValueChange(address, newValue);
+      },
+      [address, onValueChange]
+    );
+    return <ValueCellInput value={value} onValueChange={handleValueChange} />;
+  };
+
+  const handleValueChange = React.useCallback(
+    (address: Address, value: Value) => {
+      if (onMemoryCellChange !== undefined) {
+        onMemoryCellChange(address, value);
+      }
+    },
+    [onMemoryCellChange]
+  );
+
   return (
     <div className="Computer-MemorySegment">
-      {addressRange(props.segmentStart, props.segmentEnd).map((i) => (
-        <>
-          <span className="Computer-MemoryAddress">{i}</span>
-          <ValueCellInput key={i} value={memoryRead(props.memory, i)} />
-        </>
+      {addressRange(segmentStart, segmentEnd).map((i) => (
+        <React.Fragment key={i}>
+          <span
+            className={classNames("Computer-MemoryAddress", {
+              "Computer-MemoryAddress-Active": i === programCounter,
+            })}
+          >
+            {i}
+          </span>
+          <MemoryValueCellInput
+            value={memoryRead(memory, i)}
+            address={i}
+            onValueChange={handleValueChange}
+          />
+        </React.Fragment>
       ))}
     </div>
   );
@@ -80,19 +160,36 @@ interface CpuProps {
   instructionRegister: Value;
   dataRegister: Value;
   programCounter: Value;
+  onDataRegisterChange?: (value: Value) => void;
+  onProgramCounterChange?: (value: Value) => void;
 }
 
 export function Cpu(props: CpuProps): JSX.Element {
+  const {
+    className,
+    instructionRegister,
+    dataRegister,
+    programCounter,
+    onDataRegisterChange,
+    onProgramCounterChange,
+  } = props;
+
   return (
-    <div className={classNames(props.className, "Computer-Cpu")}>
+    <div className={classNames(className, "Computer-Cpu")}>
       <CpuRegister label="Instruction Register">
-        <ValueCellInput value={props.instructionRegister} />
+        <ValueCellInput value={instructionRegister} />
       </CpuRegister>
       <CpuRegister label="Data Register">
-        <ValueCellInput value={props.dataRegister} />
+        <ValueCellInput
+          value={dataRegister}
+          onValueChange={onDataRegisterChange}
+        />
       </CpuRegister>
       <CpuRegister label="Program Counter">
-        <ValueCellInput value={props.programCounter} />
+        <ValueCellInput
+          value={programCounter}
+          onValueChange={onProgramCounterChange}
+        />
       </CpuRegister>
     </div>
   );
@@ -104,10 +201,12 @@ interface CpuRegisterProps {
 }
 
 function CpuRegister(props: CpuRegisterProps): JSX.Element {
+  const { label, children } = props;
+
   return (
     <div className="Computer-CpuRegister-Root">
-      <header>{props.label}</header>
-      {props.children}
+      <header>{label}</header>
+      {children}
     </div>
   );
 }
