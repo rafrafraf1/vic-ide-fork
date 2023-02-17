@@ -3,6 +3,7 @@ import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-s
 import App from "./App";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { ValueCellInputPlayground } from "./Playgrounds/ValueCellInputPlayground";
 import reportWebVitals from "./reportWebVitals";
 
 function getRequiredElement(elementId: string): HTMLElement {
@@ -13,12 +14,21 @@ function getRequiredElement(elementId: string): HTMLElement {
   return rootElem;
 }
 
-const root = ReactDOM.createRoot(getRequiredElement("root"));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+function devMode(): boolean {
+  return window.location.hash === "#dev";
+}
+
+function boot(): void {
+  const root = ReactDOM.createRoot(getRequiredElement("root"));
+
+  root.render(
+    <React.StrictMode>
+      {devMode() ? <ValueCellInputPlayground /> : <App />}
+    </React.StrictMode>
+  );
+}
+
+boot();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
