@@ -32,7 +32,7 @@
     "compile": "tsc -p ./tsconfig.ext.json",
     "watch": "tsc -watch -p ./tsconfig.ext.json",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src && eslint ext-src",
+    "lint": "eslint --max-warnings=0 src && eslint --max-warnings=0 ext-src",
     "format": "prettier --write ./src ./ext-src ./public",
     "check:format": "prettier --check ./src ./ext-src ./public",
     "check": "npm run check:format",
