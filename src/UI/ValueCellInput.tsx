@@ -45,8 +45,23 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
     }
   };
 
-  // Called after the user has confirmed the entered value
-  const updateValue = React.useCallback((): void => {
+  // Key that we use in the input element's dataset that indicates if the user
+  // has just pressed the "Escape" key.
+  const HANDLING_ESCAPE_KEY = "HANDLING_ESCAPE";
+
+  // This happens when the user tabs out of the input element, or clicks
+  // outside of it.
+  const handleBlur = React.useCallback((): void => {
+    if (inputRef.current !== null) {
+      // If the user has just pressed the escape key then we need to ignore
+      // this event, because the previous handler has already handled
+      // everything.
+      if (inputRef.current.dataset[HANDLING_ESCAPE_KEY] === "true") {
+        inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "false";
+        return;
+      }
+    }
+
     const value = inputStr === "" ? 0 : parseInt(inputStr, 10);
 
     // If the "inputStr" has any leading zeroes then we remove them:
@@ -57,13 +72,34 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
     if (onValueChange !== undefined) {
       onValueChange(value);
     }
-  }, [inputStr, onValueChange]);
+  }, [inputRef, inputStr, onValueChange]);
 
-  // This happens when the user tabs out of the input element, or clicks
-  // outside of it.
-  const handleBlur = React.useCallback((): void => {
-    updateValue();
-  }, [updateValue]);
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>): void => {
+      if (e.key === "Escape") {
+        if (inputRef.current !== null) {
+          setInputStr(`${value}`);
+
+          // Set the displayed value of the input element to the previous
+          // value:
+          inputRef.current.value = `${value}`;
+
+          // We are about to blur the input element. But when we do that, the
+          // "handleBlur" callback will be called, causing trouble (Even
+          // though we just called "setInputStr" it will see the previous
+          // value, due to the way react works).
+          //
+          // We store a value on the input's dataset as a way to signal to the
+          // "handleBlur" callback that this specific event should be ignored.
+          inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "true";
+
+          // Deselect the input:
+          inputRef.current.blur();
+        }
+      }
+    },
+    [inputRef, value]
+  );
 
   // This happens when the user presses enter when the input element is
   // focused.
@@ -92,6 +128,7 @@ export function ValueCellInput(props: ValueCellInputProps): JSX.Element {
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
       />
     </form>
   );
