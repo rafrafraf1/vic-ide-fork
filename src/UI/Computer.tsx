@@ -91,6 +91,26 @@ export interface MemorySegmentProps {
   onMemoryCellChange?: (address: Address, value: Value) => void;
 }
 
+interface MemoryValueCellInputProps {
+  address: Address;
+  value: Value;
+  onValueChange: (address: Address, value: Value) => void;
+}
+
+const MemoryValueCellInput = React.memo(function MemoryValueCellInput(
+  props: MemoryValueCellInputProps
+): JSX.Element {
+  const { address, value, onValueChange } = props;
+
+  const handleValueChange = React.useCallback(
+    (newValue: Value): void => {
+      onValueChange(address, newValue);
+    },
+    [address, onValueChange]
+  );
+  return <ValueCellInput value={value} onValueChange={handleValueChange} />;
+});
+
 export function MemorySegment(props: MemorySegmentProps): JSX.Element {
   const {
     memory,
@@ -99,22 +119,6 @@ export function MemorySegment(props: MemorySegmentProps): JSX.Element {
     segmentEnd,
     onMemoryCellChange,
   } = props;
-
-  const MemoryValueCellInput = (props: {
-    address: Address;
-    value: Value;
-    onValueChange: (address: Address, value: Value) => void;
-  }): JSX.Element => {
-    const { address, value, onValueChange } = props;
-
-    const handleValueChange = React.useCallback(
-      (newValue: Value): void => {
-        onValueChange(address, newValue);
-      },
-      [address, onValueChange]
-    );
-    return <ValueCellInput value={value} onValueChange={handleValueChange} />;
-  };
 
   const handleValueChange = React.useCallback(
     (address: Address, value: Value) => {
