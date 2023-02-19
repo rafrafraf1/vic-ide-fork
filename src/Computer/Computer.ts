@@ -63,6 +63,22 @@ export function sub(a: Value, b: Value): Value {
 }
 
 /**
+ * Fetches the next instruction that will be executed. It does this by reading
+ * the memory location of the Program Counter.
+ *
+ * Does not modify the computer
+ */
+export function fetchInstruction(computer: ComputerState): Value {
+  const value = computer.memory[computer.programCounter];
+  if (value === undefined) {
+    // TODO ???
+    return 0;
+  }
+
+  return value;
+}
+
+/**
  * @returns an initial ComputerState
  */
 export function newComputerState(): ComputerState {

@@ -13,6 +13,7 @@ import classNames from "classnames";
 export interface ComputerProps {
   className?: string;
   computer: ComputerState;
+  instructionRegister: Value;
   onMemoryCellChange?: (address: Address, value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
@@ -22,6 +23,7 @@ export function Computer(props: ComputerProps): JSX.Element {
   const {
     className,
     computer,
+    instructionRegister,
     onMemoryCellChange,
     onDataRegisterChange,
     onProgramCounterChange,
@@ -33,7 +35,7 @@ export function Computer(props: ComputerProps): JSX.Element {
       <div className="Computer-Divider Computer-Divider1"></div>
       <Cpu
         className="Computer-Cpu"
-        instructionRegister={/* TODO */ 0}
+        instructionRegister={instructionRegister}
         dataRegister={computer.dataRegister}
         programCounter={computer.programCounter}
         onDataRegisterChange={onDataRegisterChange}

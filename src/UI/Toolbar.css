@@ -1,0 +1,14 @@
+.Toolbar-root {
+  display: flex;
+  padding: 4px;
+}
+
+.Toolbar-Button {
+  color: var(--vscode-button-foreground);
+  background-color: var(--vscode-button-background);
+  margin-right: 4px;
+}
+
+.Toolbar-Button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
