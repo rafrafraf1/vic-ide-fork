@@ -53,6 +53,14 @@ function App(): JSX.Element {
     [forceUpdate]
   );
 
+  const handleInstructionRegister = React.useCallback(
+    (value: Value) => {
+      instructionRegister.current = value;
+      forceUpdate();
+    },
+    [forceUpdate]
+  );
+
   const handleDataRegisterChange = React.useCallback(
     (value: Value) => {
       computer.current.dataRegister = value;
@@ -81,6 +89,7 @@ function App(): JSX.Element {
         computer={computer.current}
         instructionRegister={instructionRegister.current}
         onMemoryCellChange={handleMemoryCellChange}
+        onInstructionRegister={handleInstructionRegister}
         onDataRegisterChange={handleDataRegisterChange}
         onProgramCounterChange={handleProgramCounterChange}
       />

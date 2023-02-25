@@ -15,6 +15,7 @@ export interface ComputerProps {
   computer: ComputerState;
   instructionRegister: Value;
   onMemoryCellChange?: (address: Address, value: Value) => void;
+  onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
 }
@@ -25,6 +26,7 @@ export function Computer(props: ComputerProps): JSX.Element {
     computer,
     instructionRegister,
     onMemoryCellChange,
+    onInstructionRegister,
     onDataRegisterChange,
     onProgramCounterChange,
   } = props;
@@ -38,6 +40,7 @@ export function Computer(props: ComputerProps): JSX.Element {
         instructionRegister={instructionRegister}
         dataRegister={computer.dataRegister}
         programCounter={computer.programCounter}
+        onInstructionRegister={onInstructionRegister}
         onDataRegisterChange={onDataRegisterChange}
         onProgramCounterChange={onProgramCounterChange}
       />
@@ -166,6 +169,7 @@ interface CpuProps {
   instructionRegister: Value;
   dataRegister: Value;
   programCounter: Value;
+  onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
 }
@@ -176,6 +180,7 @@ export function Cpu(props: CpuProps): JSX.Element {
     instructionRegister,
     dataRegister,
     programCounter,
+    onInstructionRegister,
     onDataRegisterChange,
     onProgramCounterChange,
   } = props;
@@ -183,7 +188,10 @@ export function Cpu(props: CpuProps): JSX.Element {
   return (
     <div className={classNames(className, "Computer-Cpu")}>
       <CpuRegister label="Instruction Register">
-        <ValueCellInput value={instructionRegister} />
+        <ValueCellInput
+          value={instructionRegister}
+          onValueChange={onInstructionRegister}
+        />
       </CpuRegister>
       <CpuRegister label="Data Register">
         <ValueCellInput
