@@ -2,7 +2,7 @@ name: vic-ide
 
 on:
   push:
-    branches: [$default-branch]
+    branches: ["master"]
 
 permissions:
   contents: read
