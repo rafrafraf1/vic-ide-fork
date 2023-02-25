@@ -27,6 +27,7 @@
       }
     ]
   },
+  "homepage": ".",
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./tsconfig.ext.json",
