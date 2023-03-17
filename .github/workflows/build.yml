@@ -82,4 +82,4 @@ jobs:
       - name: test-ext
         run: |
           npm install
-          npm run test-ext
+          xvfb-run -a npm run test-ext
