@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Build
+      - name: build
         run: |
           npm install
           npm run build
