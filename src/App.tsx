@@ -1,81 +1,60 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import { type Address, parseInstruction } from "./Computer/Instruction";
 import {
   type ComputerState,
   executeInstruction,
   fetchInstruction,
   newComputerState,
+  setDataRegister,
+  setInstructionRegister,
+  setProgramCounter,
   writeMemory,
 } from "./Computer/Computer";
+import type { Address } from "./Computer/Instruction";
 import { Computer } from "./UI/Computer";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
 
-/**
- * Force a re-render. This can be used if mutable state has been changed that
- * is not tracked by "useState"
- */
-function useForceUpdate(): () => void {
-  // See: <https://reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate>
-  const [, forceUpdate] = React.useReducer((x: number) => x + 1, 0);
-  return forceUpdate;
-}
-
 function App(): JSX.Element {
-  const forceUpdate = useForceUpdate();
-
-  const computer = React.useRef<ComputerState>(newComputerState());
-  const instructionRegister = React.useRef<Value>(0);
+  const [computer, setComputer] = React.useState<ComputerState>(
+    newComputerState()
+  );
 
   console.log(computer);
 
   const handleFetchInstructionClick = React.useCallback(() => {
-    const instr = fetchInstruction(computer.current);
-    instructionRegister.current = instr;
-    forceUpdate();
-  }, [forceUpdate]);
+    setComputer(fetchInstruction);
+  }, []);
 
   const handleExecuteInstructionClick = React.useCallback(() => {
-    const instr = parseInstruction(instructionRegister.current);
+    setComputer((computer) => {
+      // TODO:
+      const nextInput = null;
 
-    // TODO Handle the result:
-    executeInstruction(computer.current, instr, null);
+      const [newComputer] = executeInstruction(computer, nextInput);
 
-    forceUpdate();
-  }, [forceUpdate]);
+      return newComputer;
+    });
+  }, []);
 
   const handleMemoryCellChange = React.useCallback(
     (address: Address, value: Value): void => {
-      writeMemory(computer.current, address, value);
-      forceUpdate();
+      setComputer(writeMemory(address, value));
     },
-    [forceUpdate]
+    []
   );
 
-  const handleInstructionRegister = React.useCallback(
-    (value: Value) => {
-      instructionRegister.current = value;
-      forceUpdate();
-    },
-    [forceUpdate]
-  );
+  const handleInstructionRegister = React.useCallback((value: Value) => {
+    setComputer(setInstructionRegister(value));
+  }, []);
 
-  const handleDataRegisterChange = React.useCallback(
-    (value: Value) => {
-      computer.current.dataRegister = value;
-      forceUpdate();
-    },
-    [forceUpdate]
-  );
+  const handleDataRegisterChange = React.useCallback((value: Value) => {
+    setComputer(setDataRegister(value));
+  }, []);
 
-  const handleProgramCounterChange = React.useCallback(
-    (value: Value) => {
-      computer.current.programCounter = value;
-      forceUpdate();
-    },
-    [forceUpdate]
-  );
+  const handleProgramCounterChange = React.useCallback((value: Value) => {
+    setComputer(setProgramCounter(value));
+  }, []);
 
   return (
     <div className="App-Root">
@@ -86,8 +65,7 @@ function App(): JSX.Element {
       />
       <Computer
         className="App-Computer-Cont"
-        computer={computer.current}
-        instructionRegister={instructionRegister.current}
+        computer={computer}
         onMemoryCellChange={handleMemoryCellChange}
         onInstructionRegister={handleInstructionRegister}
         onDataRegisterChange={handleDataRegisterChange}

@@ -1,6 +1,7 @@
-import type { Address, Instruction } from "./Instruction";
+import { type Address, parseInstruction } from "./Instruction";
 import type { Value } from "./Value";
 import { assertNever } from "assert-never";
+import { compose } from "../Functional/Compose";
 
 export type Register = Value;
 
@@ -15,27 +16,85 @@ export const MEMORY_SIZE = 100;
 export const MEMORY_READONLY_REGION = 98;
 
 /**
- * For efficiency reasons, the fields are mutable
+ * This structure is immutable.
+ *
+ * Do not modify the "memory" array. Instead use the "writeMemory" function.
  */
 export interface ComputerState {
-  // TODO Do we need this?
-  // instructionRegister: Register;
-  dataRegister: Register;
-  programCounter: Register;
+  readonly instructionRegister: Register;
+  readonly dataRegister: Register;
+  readonly programCounter: Register;
 
   /**
    * The size of the memory is MEMORY_SIZE (equal to 100)
    */
-  memory: MemoryCell[];
+  readonly memory: MemoryCell[];
+}
+
+export function setInstructionRegister(
+  value: Register
+): (computer: ComputerState) => ComputerState {
+  return (computer: ComputerState): ComputerState => ({
+    instructionRegister: value,
+    dataRegister: computer.dataRegister,
+    programCounter: computer.programCounter,
+    memory: computer.memory,
+  });
+}
+
+export function setDataRegister(
+  value: Register
+): (computer: ComputerState) => ComputerState {
+  return (computer: ComputerState): ComputerState => ({
+    instructionRegister: computer.instructionRegister,
+    dataRegister: value,
+    programCounter: computer.programCounter,
+    memory: computer.memory,
+  });
+}
+
+export function setProgramCounter(
+  value: Register
+): (computer: ComputerState) => ComputerState {
+  return (computer: ComputerState): ComputerState => ({
+    instructionRegister: computer.instructionRegister,
+    dataRegister: computer.dataRegister,
+    programCounter: value,
+    memory: computer.memory,
+  });
+}
+
+export function incProgramCounter(computer: ComputerState): ComputerState {
+  return {
+    instructionRegister: computer.instructionRegister,
+    dataRegister: computer.dataRegister,
+    programCounter: computer.programCounter + 1,
+    memory: computer.memory,
+  };
 }
 
 export function writeMemory(
-  computer: ComputerState,
   address: Address,
   value: Value
-): void {
-  // TODO Ignore if the memory address is read-only
-  computer.memory[address] = value;
+): (computer: ComputerState) => ComputerState {
+  return (computer: ComputerState): ComputerState => ({
+    instructionRegister: computer.instructionRegister,
+    dataRegister: computer.dataRegister,
+    programCounter: computer.programCounter,
+    memory: memoryWrite(address, value)(computer.memory),
+  });
+}
+
+export function memoryWrite(
+  address: Address,
+  value: Value
+): (memory: MemoryCell[]) => MemoryCell[] {
+  return (memory: MemoryCell[]): MemoryCell[] => {
+    // TODO Ignore if the memory address is read-only
+    const newMemory = memory.slice();
+    newMemory[address] = value;
+    return newMemory;
+  };
 }
 
 export function memoryRead(memory: MemoryCell[], address: Address): Value {
@@ -63,31 +122,14 @@ export function sub(a: Value, b: Value): Value {
 }
 
 /**
- * Fetches the next instruction that will be executed. It does this by reading
- * the memory location of the Program Counter.
- *
- * Does not modify the computer
- */
-export function fetchInstruction(computer: ComputerState): Value {
-  const value = computer.memory[computer.programCounter];
-  if (value === undefined) {
-    // TODO ???
-    return 0;
-  }
-
-  return value;
-}
-
-/**
  * @returns an initial ComputerState
  */
 export function newComputerState(): ComputerState {
   const memory = newBlankMemory();
   memory[MEMORY_SIZE - 1] = 1;
   return {
+    instructionRegister: 0,
     dataRegister: 0,
-    // TODO:
-    // instructionRegister: 0,
     programCounter: 0,
     memory: memory,
   };
@@ -118,89 +160,131 @@ export const nullExecuteResult: ExecuteResult = {
   stop: null,
 };
 
+/**
+ * Fetches the next instruction that will be executed. It does this by reading
+ * the memory location of the Program Counter, and updating the Instruction
+ * Register with this value.
+ */
+export function fetchInstruction(computer: ComputerState): ComputerState {
+  const value = memoryRead(computer.memory, computer.programCounter);
+
+  return {
+    instructionRegister: value,
+    dataRegister: computer.dataRegister,
+    programCounter: computer.programCounter,
+    memory: computer.memory,
+  };
+}
+
 export function executeInstruction(
   computer: ComputerState,
-  instruction: Instruction,
   nextInput: Value | null
-): ExecuteResult {
+): [ComputerState, ExecuteResult] {
+  const instruction = parseInstruction(computer.instructionRegister);
+
   switch (instruction.kind) {
     case "ADD": {
-      computer.dataRegister = add(
-        computer.dataRegister,
-        readMemory(computer, instruction.address)
-      );
-      computer.programCounter++;
-      return nullExecuteResult;
+      const op1 = computer.dataRegister;
+      const op2 = readMemory(computer, instruction.address);
+      const value = add(op1, op2);
+      const newComputer = compose(
+        setDataRegister(value),
+        incProgramCounter
+      )(computer);
+      return [newComputer, nullExecuteResult];
     }
     case "SUB": {
-      computer.dataRegister = sub(
-        computer.dataRegister,
-        readMemory(computer, instruction.address)
-      );
-      computer.programCounter++;
-      return nullExecuteResult;
+      const op1 = computer.dataRegister;
+      const op2 = readMemory(computer, instruction.address);
+      const value = sub(op1, op2);
+      const newComputer = compose(
+        setDataRegister(value),
+        incProgramCounter
+      )(computer);
+      return [newComputer, nullExecuteResult];
     }
     case "LOAD": {
-      computer.dataRegister = readMemory(computer, instruction.address);
-      computer.programCounter++;
-      return nullExecuteResult;
+      const value = readMemory(computer, instruction.address);
+      const newComputer = compose(
+        setDataRegister(value),
+        incProgramCounter
+      )(computer);
+      return [newComputer, nullExecuteResult];
     }
     case "STORE": {
-      writeMemory(computer, instruction.address, computer.dataRegister);
-      computer.programCounter++;
-      return nullExecuteResult;
+      const newComputer = compose(
+        writeMemory(instruction.address, computer.dataRegister),
+        incProgramCounter
+      )(computer);
+      return [newComputer, nullExecuteResult];
     }
     case "GOTO": {
-      computer.programCounter = instruction.address;
-      return nullExecuteResult;
+      const newComputer = setProgramCounter(instruction.address)(computer);
+      return [newComputer, nullExecuteResult];
     }
     case "GOTOZ": {
+      let newComputer: ComputerState;
       if (computer.dataRegister === 0) {
-        computer.programCounter = instruction.address;
+        newComputer = setProgramCounter(instruction.address)(computer);
       } else {
-        computer.programCounter++;
+        newComputer = incProgramCounter(computer);
       }
-      return nullExecuteResult;
+      return [newComputer, nullExecuteResult];
     }
     case "GOTOP": {
+      let newComputer: ComputerState;
       if (computer.dataRegister > 0) {
-        computer.programCounter = instruction.address;
+        newComputer = setProgramCounter(instruction.address)(computer);
       } else {
-        computer.programCounter++;
+        newComputer = incProgramCounter(computer);
       }
-      return nullExecuteResult;
+      return [newComputer, nullExecuteResult];
     }
     case "READ": {
       if (nextInput === null) {
-        return {
-          consumedInput: false,
-          output: null,
-          stop: "NO_INPUT",
-        };
+        return [
+          computer,
+          {
+            consumedInput: false,
+            output: null,
+            stop: "NO_INPUT",
+          },
+        ];
       }
-      computer.dataRegister = nextInput;
-      computer.programCounter++;
-      return {
-        consumedInput: true,
-        output: null,
-        stop: null,
-      };
+      const newComputer = compose(
+        setDataRegister(nextInput),
+        incProgramCounter
+      )(computer);
+      return [
+        newComputer,
+        {
+          consumedInput: true,
+          output: null,
+          stop: null,
+        },
+      ];
     }
     case "WRITE": {
       const output = computer.dataRegister;
-      computer.programCounter++;
-      return {
-        consumedInput: false,
-        output: output,
-        stop: null,
-      };
+      const newComputer = incProgramCounter(computer);
+      return [
+        newComputer,
+        {
+          consumedInput: false,
+          output: output,
+          stop: null,
+        },
+      ];
     }
     case "STOP": {
-      return {
-        consumedInput: false,
-        output: null,
-        stop: "STOP",
-      };
+      return [
+        computer,
+        {
+          consumedInput: false,
+          output: null,
+          stop: "STOP",
+        },
+      ];
     }
     default:
       return assertNever(instruction);
