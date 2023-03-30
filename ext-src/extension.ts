@@ -98,16 +98,21 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
           .map((e) => entrypointHtml(nonce, e))
           .join("\n");
 
+        // Use a content security policy to only allow loading images from
+        // https or from our extension directory, and only allow scripts that
+        // have a specific nonce.
+        const contentSecurityPolicy =
+          `default-src 'none'; ` +
+          `style-src ${panel.webview.cspSource}; ` +
+          `img-src ${panel.webview.cspSource} https: data:; ` +
+          `script-src 'nonce-${nonce}';`;
+
         const pageHtml = `
 				<!doctype html>
 				<html lang="en">
 				<head>
 					<meta charset="utf-8" />
-					<!--
-						Use a content security policy to only allow loading images from https or from our extension directory,
-						and only allow scripts that have a specific nonce.
-					-->
-					<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${panel.webview.cspSource}; img-src ${panel.webview.cspSource} https: data:; script-src 'nonce-${nonce}';">
+					<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">
 					<meta name="viewport" content="width=device-width,initial-scale=1" />
 					<title>Vic Simulator</title>
 					${entrypointsHtml}
