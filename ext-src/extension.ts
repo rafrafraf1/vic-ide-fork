@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { getNonce, renderPageHtml } from "./PanelHtml";
+import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 import type { WebviewPanel } from "vscode";
-
-type AppState = object;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -66,59 +66,6 @@ const vicViewType = "vic-ide";
 
 interface VicPanel {
   panel: vscode.WebviewPanel;
-}
-
-function entrypointUri(
-  extensionUri: vscode.Uri,
-  webview: vscode.Webview,
-  entrypoint: string
-): vscode.Uri {
-  const pathOnDisk = vscode.Uri.joinPath(extensionUri, "build", entrypoint);
-  return webview.asWebviewUri(pathOnDisk);
-}
-
-function entrypointHtml(scriptNonce: string, entrypoint: vscode.Uri): string {
-  const entrypointStr = entrypoint.toString();
-  if (entrypointStr.endsWith(".css")) {
-    return entrypointCssHtml(entrypointStr);
-  } else if (entrypointStr.endsWith(".js")) {
-    return entrypointJsHtml(scriptNonce, entrypointStr);
-  } else {
-    // TODO
-    return "";
-  }
-}
-
-function entrypointCssHtml(entrypoint: string): string {
-  return `<link href="${entrypoint}" rel="stylesheet">`;
-}
-
-function entrypointJsHtml(scriptNonce: string, entrypoint: string): string {
-  return `<script nonce="${scriptNonce}" defer="defer" src="${entrypoint}"></script>`;
-}
-
-/**
- * Escapes the given string so that it can be safely embedded inside an HTML
- * document.
- */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-/**
- * Serializes the AppState to a string that is stored as an HTML attribute on
- * the HTML <body> tag.
- *
- * The app can then read this state at startup to load a previously saved
- * state.
- */
-function stateHtmlBodyAttribute(state: AppState): string {
-  return ` data-state="${escapeHtml(JSON.stringify(state))}"`;
 }
 
 /**
@@ -200,35 +147,14 @@ function renderVicPanel(
         // Use a nonce to only allow specific scripts to be run
         const nonce = getNonce();
 
-        const entrypointsHtml = assetManifest
-          .getEntryPoints()
-          .map((e) => entrypointUri(extensionUri, panel.webview, e))
-          .map((e) => entrypointHtml(nonce, e))
-          .join("\n");
-
-        // Use a content security policy to only allow loading images from
-        // https or from our extension directory, and only allow scripts that
-        // have a specific nonce.
-        const contentSecurityPolicy =
-          `default-src 'none'; ` +
-          `style-src ${panel.webview.cspSource}; ` +
-          `img-src ${panel.webview.cspSource} https: data:; ` +
-          `script-src 'nonce-${nonce}';`;
-
-        const pageHtml = `
-				<!doctype html>
-				<html lang="en">
-				<head>
-					<meta charset="utf-8" />
-					<meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">
-					<meta name="viewport" content="width=device-width,initial-scale=1" />
-					<title>Vic Simulator</title>
-					${entrypointsHtml}
-				</head>
-				<body ${appState === undefined ? "" : stateHtmlBodyAttribute(appState)}>
-					<div id="root"></div>
-				</body>
-				</html>`;
+        const pageHtml = renderPageHtml(
+          extensionUri,
+          nonce,
+          panel.webview.cspSource,
+          (u) => panel.webview.asWebviewUri(u),
+          assetManifest,
+          appState
+        );
 
         void vscode.window.showInformationMessage(pageHtml);
 
@@ -269,14 +195,4 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
     // And restrict the webview to only loading content from the specified directories.
     localResourceRoots: [vscode.Uri.joinPath(extensionUri, "build")],
   };
-}
-
-function getNonce(): string {
-  let text = "";
-  const possible =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
 }
