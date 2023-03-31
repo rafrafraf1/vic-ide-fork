@@ -2,6 +2,9 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import { AssetManifest } from "./AssetManifest";
+import type { WebviewPanel } from "vscode";
+
+type AppState = object;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -29,6 +32,29 @@ export function activate(context: vscode.ExtensionContext): void {
       showVicSimulator(context.extensionUri);
     })
   );
+
+  context.subscriptions.push(
+    vscode.window.registerWebviewPanelSerializer(vicViewType, {
+      async deserializeWebviewPanel(
+        webviewPanel: WebviewPanel,
+        state: AppState
+      ): Promise<void> {
+        // `state` is the state persisted using `setState` inside the webview
+
+        webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
+
+        renderVicPanel(webviewPanel, context.extensionUri, undefined);
+
+        globalPanel = {
+          panel: webviewPanel,
+        };
+
+        globalState = state;
+
+        await Promise.resolve();
+      },
+    })
+  );
 }
 
 // This method is called when your extension is deactivated
@@ -36,7 +62,11 @@ export function deactivate(): void {
   // TODO ...
 }
 
-const vicViewType = "vic";
+const vicViewType = "vic-ide";
+
+interface VicPanel {
+  panel: vscode.WebviewPanel;
+}
 
 function entrypointUri(
   extensionUri: vscode.Uri,
@@ -67,7 +97,55 @@ function entrypointJsHtml(scriptNonce: string, entrypoint: string): string {
   return `<script nonce="${scriptNonce}" defer="defer" src="${entrypoint}"></script>`;
 }
 
+/**
+ * Escapes the given string so that it can be safely embedded inside an HTML
+ * document.
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
+ * Serializes the AppState to a string that is stored as an HTML attribute on
+ * the HTML <body> tag.
+ *
+ * The app can then read this state at startup to load a previously saved
+ * state.
+ */
+function stateHtmlBodyAttribute(state: AppState): string {
+  return ` data-state="${escapeHtml(JSON.stringify(state))}"`;
+}
+
+/**
+ * We only allow a single tab with the Vic IDE to exist. If the user tries to
+ * open a new Vic IDE, then we reveal the existing tab.
+ *
+ * This variable is used to keep track of the existing (single) panel, so that
+ * it can be revealed.
+ */
+let globalPanel: VicPanel | undefined = undefined;
+
+/**
+ * The VSCode extension API supports saving/restoring state of the webview.
+ * This functionality is only used when the tab is hidden/revealed. If the tab
+ * is closed, then the state is lost.
+ *
+ * So we use this variable to store the state, so that we have it available
+ * afte the user closes the tab and opens a "new" Vic IDE.
+ */
+let globalState: AppState | undefined = undefined;
+
 function showVicSimulator(extensionUri: vscode.Uri): void {
+  if (globalPanel !== undefined) {
+    globalPanel.panel.reveal();
+    return;
+  }
+
   const panel = vscode.window.createWebviewPanel(
     vicViewType,
     "Vic Simulator",
@@ -75,11 +153,41 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
     getWebviewOptions(extensionUri)
   );
 
+  renderVicPanel(panel, extensionUri, globalState);
+
+  globalPanel = {
+    panel: panel,
+  };
+}
+
+interface StateMessage<StateType> {
+  state: StateType | undefined;
+}
+
+function renderVicPanel(
+  panel: vscode.WebviewPanel,
+  extensionUri: vscode.Uri,
+  appState: AppState | undefined
+): void {
   const assetMannifestPath = vscode.Uri.joinPath(
     extensionUri,
     "build",
     "asset-manifest.json"
   );
+
+  // User closes the VSCode tab containing the panel:
+  panel.onDidDispose(() => {
+    globalPanel = undefined;
+  });
+
+  panel.webview.onDidReceiveMessage((e) => {
+    // TODO In the future there will be different message types. For now
+    // assuming that it is a state-update message.
+
+    const stateMessage: StateMessage<AppState> = e as StateMessage<AppState>;
+
+    globalState = stateMessage.state;
+  });
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
     (contents) => {
@@ -117,7 +225,7 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
 					<title>Vic Simulator</title>
 					${entrypointsHtml}
 				</head>
-				<body>
+				<body ${appState === undefined ? "" : stateHtmlBodyAttribute(appState)}>
 					<div id="root"></div>
 				</body>
 				</html>`;

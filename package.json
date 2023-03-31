@@ -11,7 +11,7 @@
   ],
   "activationEvents": [
     "onCommand:vic-ide.helloWorld",
-    "onWebviewPanel:catCoding"
+    "onWebviewPanel:vic-ide"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -51,6 +51,7 @@
     "@types/node": "16.18.11",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
+    "@types/vscode-webview": "1.57.1",
     "assert-never": "1.2.1",
     "classnames": "2.3.2",
     "modern-css-reset": "1.4.0",
@@ -65,7 +66,7 @@
   "devDependencies": {
     "@types/glob": "8.0.0",
     "@types/mocha": "10.0.1",
-    "@types/vscode": "1.74.0",
+    "@types/vscode": "1.76.0",
     "@typescript-eslint/eslint-plugin": "5.51.0",
     "@typescript-eslint/parser": "5.51.0",
     "@vscode/test-electron": "2.2.0",

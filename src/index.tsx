@@ -2,8 +2,10 @@ import "modern-css-reset"; // eslint-disable-line @typescript-eslint/no-import-t
 import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import App from "./App";
+import type { ComputerState } from "./Computer/Computer";
 import ReactDOM from "react-dom/client";
 import { ValueCellInputPlayground } from "./Playgrounds/ValueCellInputPlayground";
+import { getSystemStateService } from "./System/SystemState";
 import reportWebVitals from "./reportWebVitals";
 
 function getRequiredElement(elementId: string): HTMLElement {
@@ -19,11 +21,19 @@ function devMode(): boolean {
 }
 
 function boot(): void {
+  console.log("vic-ide boot");
+
   const root = ReactDOM.createRoot(getRequiredElement("root"));
+
+  const systemStateService = getSystemStateService<ComputerState>();
 
   root.render(
     <React.StrictMode>
-      {devMode() ? <ValueCellInputPlayground /> : <App />}
+      {devMode() ? (
+        <ValueCellInputPlayground />
+      ) : (
+        <App systemStateService={systemStateService} />
+      )}
     </React.StrictMode>
   );
 }
