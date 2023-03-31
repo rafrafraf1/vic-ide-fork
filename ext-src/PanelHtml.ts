@@ -33,11 +33,14 @@ export function renderPageHtml(
   // Use a content security policy to only allow loading images from
   // https or from our extension directory, and only allow scripts that
   // have a specific nonce.
-  const contentSecurityPolicy =
-    `default-src 'none'; ` +
-    `style-src ${cspSource}; ` +
-    `img-src ${cspSource} https: data:; ` +
-    `script-src 'nonce-${nonce}';`;
+  const contentSecurityPolicy = [
+    `default-src 'none'`,
+    `style-src ${cspSource}`,
+    `img-src ${cspSource} https: data:`,
+    `script-src 'nonce-${nonce}'`,
+  ]
+    .map((x) => `${x};`)
+    .join(" ");
 
   const pageHtml = `
           <!doctype html>
