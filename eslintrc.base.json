@@ -40,6 +40,7 @@
         "@typescript-eslint/no-require-imports": "error",
         "@typescript-eslint/no-restricted-imports": "error",
         "@typescript-eslint/no-unnecessary-qualifier": "error",
+        "@typescript-eslint/no-unsafe-assignment": "warn",
         "@typescript-eslint/no-unused-expressions": "error",
         "@typescript-eslint/no-use-before-define": "error",
         "@typescript-eslint/no-useless-empty-export": "error",
