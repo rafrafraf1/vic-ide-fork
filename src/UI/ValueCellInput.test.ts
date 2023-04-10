@@ -5,10 +5,10 @@ describe("sanitizeValue", () => {
     expect(sanitizeValue("")).toEqual<string>("");
   });
   test("sanitizeValue('-')", () => {
-    expect(sanitizeValue("-")).toEqual<string>("");
+    expect(sanitizeValue("-")).toEqual<string>("-");
   });
   test("sanitizeValue('--')", () => {
-    expect(sanitizeValue("--")).toEqual<string>("");
+    expect(sanitizeValue("--")).toEqual<string>("-");
   });
   test("sanitizeValue('1a')", () => {
     expect(sanitizeValue("1a")).toEqual<string>("1");
