@@ -5,7 +5,7 @@ import { compose } from "../Functional/Compose";
 
 export type Register = Value;
 
-export type MemoryCell = Value;
+export type MemoryCell = Value | null;
 
 /**
  * The amount of memory available in the Vic computer.
@@ -75,7 +75,7 @@ export function incProgramCounter(computer: ComputerState): ComputerState {
 
 export function writeMemory(
   address: Address,
-  value: Value
+  value: Value | null
 ): (computer: ComputerState) => ComputerState {
   return (computer: ComputerState): ComputerState => ({
     instructionRegister: computer.instructionRegister,
@@ -87,7 +87,7 @@ export function writeMemory(
 
 export function memoryWrite(
   address: Address,
-  value: Value
+  value: Value | null
 ): (memory: MemoryCell[]) => MemoryCell[] {
   return (memory: MemoryCell[]): MemoryCell[] => {
     // TODO Ignore if the memory address is read-only
@@ -97,7 +97,7 @@ export function memoryWrite(
   };
 }
 
-export function memoryRead(memory: MemoryCell[], address: Address): Value {
+export function memoryRead(memory: MemoryCell[], address: Address): MemoryCell {
   const value = memory[address];
   if (value === undefined) {
     throw new Error(
@@ -108,7 +108,11 @@ export function memoryRead(memory: MemoryCell[], address: Address): Value {
 }
 
 export function readMemory(computer: ComputerState, address: Address): Value {
-  return memoryRead(computer.memory, address);
+  const value = memoryRead(computer.memory, address);
+  if (value === null) {
+    return 0;
+  }
+  return value;
 }
 
 export function add(a: Value, b: Value): Value {
@@ -126,6 +130,7 @@ export function sub(a: Value, b: Value): Value {
  */
 export function newComputerState(): ComputerState {
   const memory = newBlankMemory();
+  memory[MEMORY_SIZE - 2] = 0;
   memory[MEMORY_SIZE - 1] = 1;
   return {
     instructionRegister: 0,
@@ -136,12 +141,13 @@ export function newComputerState(): ComputerState {
 }
 
 /**
- * @returns an array of size MEMORY_SIZE with all elements set to 0.
+ * @returns an array of size `MEMORY_SIZE` with all elements set to blank
+ * (`null`).
  */
 export function newBlankMemory(): MemoryCell[] {
   const memory = [];
   for (let i = 0; i < MEMORY_SIZE; i++) {
-    memory.push(0);
+    memory.push(null);
   }
   return memory;
 }
@@ -166,7 +172,8 @@ export const nullExecuteResult: ExecuteResult = {
  * Register with this value.
  */
 export function fetchInstruction(computer: ComputerState): ComputerState {
-  const value = memoryRead(computer.memory, computer.programCounter);
+  const memValue = memoryRead(computer.memory, computer.programCounter);
+  const value = memValue === null ? 0 : memValue;
 
   return {
     instructionRegister: value,

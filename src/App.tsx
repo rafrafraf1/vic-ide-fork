@@ -67,7 +67,7 @@ function App(props: AppProps): JSX.Element {
   }, []);
 
   const handleMemoryCellChange = React.useCallback(
-    (address: Address, value: Value): void => {
+    (address: Address, value: Value | null): void => {
       setComputer(writeMemory(address, value));
     },
     []

@@ -1,5 +1,6 @@
 import "./Computer.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
+import { BlankableValueCellInput, ValueCellInput } from "./ValueCellInput";
 import {
   type ComputerState,
   type MemoryCell,
@@ -7,13 +8,12 @@ import {
 } from "../Computer/Computer";
 import type { Address } from "../Computer/Instruction";
 import type { Value } from "../Computer/Value";
-import { ValueCellInput } from "./ValueCellInput";
 import classNames from "classnames";
 
 export interface ComputerProps {
   className?: string;
   computer: ComputerState;
-  onMemoryCellChange?: (address: Address, value: Value) => void;
+  onMemoryCellChange?: (address: Address, value: Value | null) => void;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
@@ -60,7 +60,7 @@ export interface MainMemoryProps {
   className?: string;
   memory: MemoryCell[];
   programCounter: Value;
-  onMemoryCellChange?: (address: Address, value: Value) => void;
+  onMemoryCellChange?: (address: Address, value: Value | null) => void;
 }
 
 export function MainMemory(props: MainMemoryProps): JSX.Element {
@@ -91,13 +91,13 @@ export interface MemorySegmentProps {
   programCounter: Value;
   segmentStart: Address;
   segmentEnd: Address;
-  onMemoryCellChange?: (address: Address, value: Value) => void;
+  onMemoryCellChange?: (address: Address, value: Value | null) => void;
 }
 
 interface MemoryValueCellInputProps {
   address: Address;
-  value: Value;
-  onValueChange: (address: Address, value: Value) => void;
+  value: Value | null;
+  onValueChange: (address: Address, value: Value | null) => void;
 }
 
 const MemoryValueCellInput = React.memo(function MemoryValueCellInput(
@@ -106,12 +106,14 @@ const MemoryValueCellInput = React.memo(function MemoryValueCellInput(
   const { address, value, onValueChange } = props;
 
   const handleValueChange = React.useCallback(
-    (newValue: Value): void => {
+    (newValue: Value | null): void => {
       onValueChange(address, newValue);
     },
     [address, onValueChange]
   );
-  return <ValueCellInput value={value} onValueChange={handleValueChange} />;
+  return (
+    <BlankableValueCellInput value={value} onValueChange={handleValueChange} />
+  );
 });
 
 export function MemorySegment(props: MemorySegmentProps): JSX.Element {
@@ -124,7 +126,7 @@ export function MemorySegment(props: MemorySegmentProps): JSX.Element {
   } = props;
 
   const handleValueChange = React.useCallback(
-    (address: Address, value: Value) => {
+    (address: Address, value: Value | null) => {
       if (onMemoryCellChange !== undefined) {
         onMemoryCellChange(address, value);
       }
