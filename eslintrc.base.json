@@ -31,6 +31,7 @@
         "@typescript-eslint/no-confusing-void-expression": "error",
         "@typescript-eslint/no-dupe-class-members": "error",
         "@typescript-eslint/no-duplicate-imports": "error",
+        "@typescript-eslint/no-empty-function": "warn",
         "@typescript-eslint/no-implicit-any-catch": "error",
         "@typescript-eslint/no-import-type-side-effects": "error",
         "@typescript-eslint/no-invalid-this": "error",
