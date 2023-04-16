@@ -39,14 +39,12 @@ function initComputerState(
 function App(props: AppProps): JSX.Element {
   const { systemStateService } = props;
 
-  console.log("state:", systemStateService.getState());
-
   const [computer, setComputer] = React.useState(
     initComputerState(systemStateService)
   );
 
-  console.log(computer);
-
+  // Whenever the `computer` state is changed, we send a message to the
+  // `systemStateService` to persist the updated state.
   React.useEffect(() => {
     systemStateService.setState(computer);
   }, [computer, systemStateService]);
