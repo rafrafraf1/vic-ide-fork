@@ -167,24 +167,6 @@ function renderVicPanel(
       );
     }
   );
-
-  // setTimeout(() => {
-  // panel.webview.html = `<!DOCTYPE html>
-  // 	<html lang="en">
-  // 	<head>
-  // 		<meta charset="UTF-8">
-  // 		<!--
-  // 			Use a content security policy to only allow loading images from https or from our extension directory,
-  // 			and only allow scripts that have a specific nonce.
-  // 		-->
-  // 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-  // 		<title>Vic</title>
-  // 	</head>
-  // 	<body>
-  // 		<h1 id>Vic</h1>
-  // 	</body>
-  // 	</html>`;
-  // }, 2000);
 }
 
 function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
@@ -192,7 +174,8 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
     // Enable javascript in the webview
     enableScripts: true,
 
-    // And restrict the webview to only loading content from the specified directories.
+    // And restrict the webview to only loading content from the specified
+    // directories.
     localResourceRoots: [vscode.Uri.joinPath(extensionUri, "build")],
   };
 }
