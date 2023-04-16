@@ -69,8 +69,8 @@
             }
         ],
         "curly": "warn",
-        "default-case-last": "error",
-        "default-case": "error",
+        "default-case-last": "warn",
+        "default-case": "warn",
         "eqeqeq": "error",
         "import/no-unresolved": "off",
         "logical-assignment-operators": [
