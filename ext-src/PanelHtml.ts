@@ -43,21 +43,20 @@ export function renderPageHtml(
     .join(" ");
 
   const pageHtml = `
-          <!doctype html>
-          <html lang="en">
-          <head>
-              <meta charset="utf-8" />
-              <meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">
-              <meta name="viewport" content="width=device-width,initial-scale=1" />
-              <title>Vic Simulator</title>
-              ${entrypointsHtml}
-          </head>
-          <body ${
-            appState === undefined ? "" : stateHtmlBodyAttribute(appState)
-          }>
-              <div id="root"></div>
-          </body>
-          </html>`;
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Vic Simulator</title>
+        ${entrypointsHtml}
+    </head>
+    <body ${appState === undefined ? "" : stateHtmlBodyAttribute(appState)}>
+        <div id="root"></div>
+    </body>
+    </html>
+    `;
 
   return pageHtml;
 }
