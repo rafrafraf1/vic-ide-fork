@@ -39,7 +39,7 @@ function initComputerState(
 function App(props: AppProps): JSX.Element {
   const { systemStateService } = props;
 
-  const [computer, setComputer] = React.useState(
+  const [computer, setComputer] = React.useState<ComputerState>(() =>
     initComputerState(systemStateService)
   );
 

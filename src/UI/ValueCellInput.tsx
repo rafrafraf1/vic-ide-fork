@@ -68,7 +68,7 @@ function ValueCellInputTemplate<T>(
   function Comp(props: ValueCellInputTemplateProps<T>): JSX.Element {
     const { value, onValueChange } = props;
 
-    const [inputStr, setInputStr] = React.useState<string>(
+    const [inputStr, setInputStr] = React.useState<string>(() =>
       params.renderValue(value)
     );
 
