@@ -72,7 +72,7 @@ function ValueCellInputTemplate<T>(
       params.renderValue(value)
     );
 
-    const inputRef = React.createRef<HTMLInputElement>();
+    const inputRef = React.useRef<HTMLInputElement>(null);
 
     // React to changes to the "value" prop
     React.useEffect(() => {
