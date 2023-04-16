@@ -68,6 +68,7 @@
                 "allowAny": false
             }
         ],
+        "curly": "warn",
         "default-case-last": "error",
         "default-case": "error",
         "eqeqeq": "error",
