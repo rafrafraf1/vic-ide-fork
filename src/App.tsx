@@ -1,5 +1,6 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
+import { Computer, type ComputerHandle } from "./UI/Computer";
 import {
   type ComputerState,
   executeInstruction,
@@ -11,10 +12,11 @@ import {
   writeMemory,
 } from "./Computer/Computer";
 import type { Address } from "./Computer/Instruction";
-import { Computer } from "./UI/Computer";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
+import { nonNull } from "./Functional/Nullability";
+import { useAnimate } from "./UI/UseAnimate";
 
 export interface AppProps {
   systemStateService: SystemStateService<ComputerState>;
@@ -43,15 +45,39 @@ function App(props: AppProps): JSX.Element {
     initComputerState(systemStateService)
   );
 
+  const computerRef = React.useRef<ComputerHandle>(null);
+
   // Whenever the `computer` state is changed, we send a message to the
   // `systemStateService` to persist the updated state.
   React.useEffect(() => {
     systemStateService.setState(computer);
   }, [computer, systemStateService]);
 
+  const animate = useAnimate();
+
   const handleFetchInstructionClick = React.useCallback(() => {
-    setComputer(fetchInstruction);
-  }, []);
+    const newComputer = fetchInstruction(computer);
+
+    // TODO This animation is a temporary test.
+
+    const startRect = nonNull(computerRef.current).getBoundingClientRect(
+      "DATA_REGISTER"
+    );
+    const endRect = nonNull(computerRef.current).getBoundingClientRect(
+      "INSTRUCTION_REGISTER"
+    );
+
+    animate(
+      {
+        start: startRect,
+        end: endRect,
+        duration: 1000,
+      },
+      () => {
+        setComputer(newComputer);
+      }
+    );
+  }, [animate, computer, computerRef]);
 
   const handleExecuteInstructionClick = React.useCallback(() => {
     setComputer((computer) => {
@@ -91,6 +117,7 @@ function App(props: AppProps): JSX.Element {
         onExecuteInstructionClick={handleExecuteInstructionClick}
       />
       <Computer
+        ref={computerRef}
         className="App-Computer-Cont"
         computer={computer}
         onMemoryCellChange={handleMemoryCellChange}

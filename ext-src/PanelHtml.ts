@@ -36,12 +36,28 @@ export function renderPageHtml(
   // have a specific nonce.
   const contentSecurityPolicy = [
     `default-src 'none'`,
-    `style-src ${cspSource}`,
+    `style-src ${cspSource} 'nonce-${nonce}'`,
     `img-src ${cspSource} https: data:`,
     `script-src 'nonce-${nonce}'`,
   ]
     .map((x) => `${x};`)
     .join(" ");
+
+  // Dynamic <style> tags require access to the CSP nonce. We use an existing
+  // convention established by webpack of storing the nonce in the following
+  // global variable.
+  //
+  // See:
+  //
+  // <https://webpack.js.org/guides/csp/>
+  // <https://github.com/webpack/webpack/pull/3210/files>
+  // <https://github.com/styled-components/styled-components/issues/887>
+  // <https://github.com/styled-components/styled-components/pull/1022/files>
+  const declareWebpackNonce = `
+    <script nonce="${nonce}">
+      window.__webpack_nonce__ = "${nonce}";
+    </script>
+    `;
 
   const pageHtml = `
     <!doctype html>
@@ -51,6 +67,7 @@ export function renderPageHtml(
         <meta http-equiv="Content-Security-Policy" content="${contentSecurityPolicy}">
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>Vic Simulator</title>
+        ${declareWebpackNonce}
         ${entrypointsHtml}
     </head>
     <body ${appState === undefined ? "" : stateHtmlBodyAttribute(appState)}>

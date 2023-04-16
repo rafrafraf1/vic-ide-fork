@@ -1,6 +1,10 @@
 import "./Computer.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import { BlankableValueCellInput, ValueCellInput } from "./ValueCellInput";
+import {
+  BlankableValueCellInput,
+  ValueCellInput,
+  type ValueCellInputHandle,
+} from "./ValueCellInput";
 import {
   type ComputerState,
   type MemoryCell,
@@ -8,7 +12,17 @@ import {
 } from "../Computer/Computer";
 import type { Address } from "../Computer/Instruction";
 import type { Value } from "../Computer/Value";
+import { assertNever } from "assert-never";
 import classNames from "classnames";
+import { nonNull } from "../Functional/Nullability";
+
+export interface ComputerHandle {
+  /**
+   * @returns the position and size of the input element of the specified CPU
+   * Register.
+   */
+  getBoundingClientRect: (cpuRegister: CpuRegisterSelector) => DOMRect;
+}
 
 export interface ComputerProps {
   className?: string;
@@ -19,42 +33,57 @@ export interface ComputerProps {
   onProgramCounterChange?: (value: Value) => void;
 }
 
-export function Computer(props: ComputerProps): JSX.Element {
-  const {
-    className,
-    computer,
-    onMemoryCellChange,
-    onInstructionRegister,
-    onDataRegisterChange,
-    onProgramCounterChange,
-  } = props;
+export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
+  (props: ComputerProps, ref: React.ForwardedRef<ComputerHandle>) => {
+    const {
+      className,
+      computer,
+      onMemoryCellChange,
+      onInstructionRegister,
+      onDataRegisterChange,
+      onProgramCounterChange,
+    } = props;
 
-  return (
-    <div className={classNames(className, "Computer-Root")}>
-      <div className="Computer-Io">IO</div>
-      <div className="Computer-Divider Computer-Divider1"></div>
-      <Cpu
-        className="Computer-Cpu"
-        instructionRegister={computer.instructionRegister}
-        dataRegister={computer.dataRegister}
-        programCounter={computer.programCounter}
-        onInstructionRegister={onInstructionRegister}
-        onDataRegisterChange={onDataRegisterChange}
-        onProgramCounterChange={onProgramCounterChange}
-      />
-      <div className="Computer-Divider Computer-Divider2"></div>
-      <MainMemory
-        className="Computer-Memory"
-        memory={computer.memory}
-        programCounter={computer.programCounter}
-        onMemoryCellChange={onMemoryCellChange}
-      />
-      <div className="Computer-Io-Label Computer-Label">I/O Units</div>
-      <div className="Computer-Cpu-Label Computer-Label">CPU</div>
-      <div className="Computer-Memory-Label Computer-Label">Memory</div>
-    </div>
-  );
-}
+    const cpuRef = React.useRef<CpuHandle>(null);
+
+    React.useImperativeHandle(
+      ref,
+      (): ComputerHandle => ({
+        getBoundingClientRect: (cpuRegister: CpuRegisterSelector): DOMRect => {
+          return nonNull(cpuRef.current).getBoundingClientRect(cpuRegister);
+        },
+      }),
+      [cpuRef]
+    );
+
+    return (
+      <div className={classNames(className, "Computer-Root")}>
+        <div className="Computer-Io">IO</div>
+        <div className="Computer-Divider Computer-Divider1"></div>
+        <Cpu
+          ref={cpuRef}
+          className="Computer-Cpu"
+          instructionRegister={computer.instructionRegister}
+          dataRegister={computer.dataRegister}
+          programCounter={computer.programCounter}
+          onInstructionRegister={onInstructionRegister}
+          onDataRegisterChange={onDataRegisterChange}
+          onProgramCounterChange={onProgramCounterChange}
+        />
+        <div className="Computer-Divider Computer-Divider2"></div>
+        <MainMemory
+          className="Computer-Memory"
+          memory={computer.memory}
+          programCounter={computer.programCounter}
+          onMemoryCellChange={onMemoryCellChange}
+        />
+        <div className="Computer-Io-Label Computer-Label">I/O Units</div>
+        <div className="Computer-Cpu-Label Computer-Label">CPU</div>
+        <div className="Computer-Memory-Label Computer-Label">Memory</div>
+      </div>
+    );
+  }
+);
 
 export interface MainMemoryProps {
   className?: string;
@@ -164,6 +193,16 @@ function addressRange(low: Address, high: Address): Address[] {
   return result;
 }
 
+export type CpuRegisterSelector = "INSTRUCTION_REGISTER" | "DATA_REGISTER";
+
+export interface CpuHandle {
+  /**
+   * @returns the position and size of the input element of the specified CPU
+   * Register.
+   */
+  getBoundingClientRect: (register: CpuRegisterSelector) => DOMRect;
+}
+
 interface CpuProps {
   className?: string;
   instructionRegister: Value;
@@ -174,40 +213,66 @@ interface CpuProps {
   onProgramCounterChange?: (value: Value) => void;
 }
 
-export function Cpu(props: CpuProps): JSX.Element {
-  const {
-    className,
-    instructionRegister,
-    dataRegister,
-    programCounter,
-    onInstructionRegister,
-    onDataRegisterChange,
-    onProgramCounterChange,
-  } = props;
+export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
+  (props: CpuProps, ref: React.ForwardedRef<CpuHandle>) => {
+    const {
+      className,
+      instructionRegister,
+      dataRegister,
+      programCounter,
+      onInstructionRegister,
+      onDataRegisterChange,
+      onProgramCounterChange,
+    } = props;
 
-  return (
-    <div className={classNames(className, "Computer-Cpu")}>
-      <CpuRegister label="Instruction Register">
-        <ValueCellInput
-          value={instructionRegister}
-          onValueChange={onInstructionRegister}
-        />
-      </CpuRegister>
-      <CpuRegister label="Data Register">
-        <ValueCellInput
-          value={dataRegister}
-          onValueChange={onDataRegisterChange}
-        />
-      </CpuRegister>
-      <CpuRegister label="Program Counter">
-        <ValueCellInput
-          value={programCounter}
-          onValueChange={onProgramCounterChange}
-        />
-      </CpuRegister>
-    </div>
-  );
-}
+    const instructionRegisterRef = React.useRef<ValueCellInputHandle>(null);
+    const dataRegisterRef = React.useRef<ValueCellInputHandle>(null);
+
+    React.useImperativeHandle(
+      ref,
+      (): ComputerHandle => ({
+        getBoundingClientRect: (cpuRegister: CpuRegisterSelector): DOMRect => {
+          switch (cpuRegister) {
+            case "INSTRUCTION_REGISTER":
+              return nonNull(
+                instructionRegisterRef.current
+              ).getBoundingClientRect();
+            case "DATA_REGISTER":
+              return nonNull(dataRegisterRef.current).getBoundingClientRect();
+            default:
+              return assertNever(cpuRegister);
+          }
+        },
+      }),
+      [dataRegisterRef, instructionRegisterRef]
+    );
+
+    return (
+      <div className={classNames(className, "Computer-Cpu")}>
+        <CpuRegister label="Instruction Register">
+          <ValueCellInput
+            ref={instructionRegisterRef}
+            value={instructionRegister}
+            onValueChange={onInstructionRegister}
+          />
+        </CpuRegister>
+        <CpuRegister label="Data Register">
+          <ValueCellInput
+            ref={dataRegisterRef}
+            value={dataRegister}
+            onValueChange={onDataRegisterChange}
+          />
+        </CpuRegister>
+        <CpuRegister label="Program Counter">
+          <ValueCellInput
+            value={programCounter}
+            onValueChange={onProgramCounterChange}
+          />
+        </CpuRegister>
+      </div>
+    );
+  }
+);
 
 interface CpuRegisterProps {
   children?: React.ReactNode;

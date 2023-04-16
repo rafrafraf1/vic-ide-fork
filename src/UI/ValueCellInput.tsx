@@ -3,6 +3,14 @@ import * as React from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { type FocusableElement, tabbable } from "tabbable";
 import type { Value } from "../Computer/Value";
+import { nonNull } from "../Functional/Nullability";
+
+export interface ValueCellInputHandle {
+  /**
+   * @returns the position and size of the input element.
+   */
+  getBoundingClientRect: () => DOMRect;
+}
 
 export interface ValueCellInputProps {
   value: Value;
@@ -10,21 +18,22 @@ export interface ValueCellInputProps {
   onValueChange?: (value: Value) => void;
 }
 
-export const ValueCellInput: React.ComponentType<ValueCellInputProps> =
-  React.memo(
-    ValueCellInputTemplate<number>({
-      renderValue: (value: number): string => {
-        return `${value}`;
-      },
-      parseInput: (inputStr: string): number => {
-        if (inputStr === "" || inputStr === "-") {
-          return 0;
-        } else {
-          return parseInt(inputStr, 10);
-        }
-      },
-    })
-  );
+export const ValueCellInput: React.ForwardRefExoticComponent<
+  ValueCellInputProps & React.RefAttributes<ValueCellInputHandle>
+> = React.memo(
+  ValueCellInputTemplate<number>({
+    renderValue: (value: number): string => {
+      return `${value}`;
+    },
+    parseInput: (inputStr: string): number => {
+      if (inputStr === "" || inputStr === "-") {
+        return 0;
+      } else {
+        return parseInt(inputStr, 10);
+      }
+    },
+  })
+);
 
 export interface BlankableValueCellInputProps {
   value: Value | null;
@@ -32,25 +41,26 @@ export interface BlankableValueCellInputProps {
   onValueChange?: (value: Value | null) => void;
 }
 
-export const BlankableValueCellInput: React.ComponentType<BlankableValueCellInputProps> =
-  React.memo(
-    ValueCellInputTemplate<number | null>({
-      renderValue: (value: number | null): string => {
-        if (value === null) {
-          return "";
-        } else {
-          return `${value}`;
-        }
-      },
-      parseInput: (inputStr: string): number | null => {
-        if (inputStr === "" || inputStr === "-") {
-          return null;
-        } else {
-          return parseInt(inputStr, 10);
-        }
-      },
-    })
-  );
+export const BlankableValueCellInput: React.ForwardRefExoticComponent<
+  BlankableValueCellInputProps & React.RefAttributes<ValueCellInputHandle>
+> = React.memo(
+  ValueCellInputTemplate<number | null>({
+    renderValue: (value: number | null): string => {
+      if (value === null) {
+        return "";
+      } else {
+        return `${value}`;
+      }
+    },
+    parseInput: (inputStr: string): number | null => {
+      if (inputStr === "" || inputStr === "-") {
+        return null;
+      } else {
+        return parseInt(inputStr, 10);
+      }
+    },
+  })
+);
 
 interface ValueCellInputTemplateProps<T> {
   value: T;
@@ -64,131 +74,146 @@ interface ValueCellInputTemplateParams<T> {
 
 function ValueCellInputTemplate<T>(
   params: ValueCellInputTemplateParams<T>
-): (props: ValueCellInputTemplateProps<T>) => JSX.Element {
-  function Comp(props: ValueCellInputTemplateProps<T>): JSX.Element {
-    const { value, onValueChange } = props;
+): React.ForwardRefExoticComponent<
+  ValueCellInputTemplateProps<T> & React.RefAttributes<ValueCellInputHandle>
+> {
+  return React.forwardRef<ValueCellInputHandle, ValueCellInputTemplateProps<T>>(
+    (
+      props: ValueCellInputTemplateProps<T>,
+      ref: React.ForwardedRef<ValueCellInputHandle>
+    ): JSX.Element => {
+      const { value, onValueChange } = props;
 
-    const [inputStr, setInputStr] = React.useState<string>(() =>
-      params.renderValue(value)
-    );
+      const [inputStr, setInputStr] = React.useState<string>(() =>
+        params.renderValue(value)
+      );
 
-    const inputRef = React.useRef<HTMLInputElement>(null);
+      const inputRef = React.useRef<HTMLInputElement>(null);
 
-    // React to changes to the "value" prop
-    React.useEffect(() => {
-      // If we are focused then we ignore the change. The user is editing the
-      // value and that is what takes preference.
-      if (document.activeElement === inputRef.current) {
-        return;
-      }
+      React.useImperativeHandle(
+        ref,
+        (): ValueCellInputHandle => ({
+          getBoundingClientRect: (): DOMRect => {
+            return nonNull(inputRef.current).getBoundingClientRect();
+          },
+        }),
+        [inputRef]
+      );
 
-      if (value !== params.parseInput(inputStr)) {
-        setInputStr(params.renderValue(value));
-      }
-    }, [inputRef, inputStr, value]);
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
-      setInputStr(sanitizeValue(e.target.value));
-    };
-
-    const handleFocus = (): void => {
-      // When the user focuses the input element, we want to to select the input
-      // text, so that it is ready to be replaced.
-      if (inputRef.current !== null) {
-        inputRef.current.select();
-      }
-    };
-
-    // Key that we use in the input element's dataset that indicates if the user
-    // has just pressed the "Escape" key.
-    const HANDLING_ESCAPE_KEY = "HANDLING_ESCAPE";
-
-    // This happens when the user tabs out of the input element, or clicks
-    // outside of it.
-    const handleBlur = React.useCallback((): void => {
-      if (inputRef.current !== null) {
-        // If the user has just pressed the escape key then we need to ignore
-        // this event, because the previous handler has already handled
-        // everything.
-        if (inputRef.current.dataset[HANDLING_ESCAPE_KEY] === "true") {
-          inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "false";
+      // React to changes to the "value" prop
+      React.useEffect(() => {
+        // If we are focused then we ignore the change. The user is editing the
+        // value and that is what takes preference.
+        if (document.activeElement === inputRef.current) {
           return;
         }
-      }
 
-      const value = params.parseInput(inputStr);
-
-      // If the "inputStr" has any leading zeroes then we remove them:
-      if (inputStr !== params.renderValue(value)) {
-        setInputStr(params.renderValue(value));
-      }
-
-      if (onValueChange !== undefined) {
-        onValueChange(value);
-      }
-    }, [inputRef, inputStr, onValueChange]);
-
-    const handleKeyDown = React.useCallback(
-      (e: React.KeyboardEvent<HTMLInputElement>): void => {
-        if (e.key === "Escape") {
-          if (inputRef.current !== null) {
-            setInputStr(params.renderValue(value));
-
-            // Set the displayed value of the input element to the previous
-            // value:
-            inputRef.current.value = params.renderValue(value);
-
-            // We are about to blur the input element. But when we do that, the
-            // "handleBlur" callback will be called, causing trouble (Even
-            // though we just called "setInputStr" it will see the previous
-            // value, due to the way react works).
-            //
-            // We store a value on the input's dataset as a way to signal to the
-            // "handleBlur" callback that this specific event should be ignored.
-            inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "true";
-
-            // Deselect the input:
-            inputRef.current.blur();
-          }
+        if (value !== params.parseInput(inputStr)) {
+          setInputStr(params.renderValue(value));
         }
-      },
-      [inputRef, value]
-    );
+      }, [inputRef, inputStr, value]);
 
-    // This happens when the user presses enter when the input element is
-    // focused.
-    const handleSubmit = React.useCallback(
-      (e: FormEvent<HTMLFormElement>): void => {
-        // Prevent the default behaviour of a page refresh:
-        e.preventDefault();
+      const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+        setInputStr(sanitizeValue(e.target.value));
+      };
 
+      const handleFocus = (): void => {
+        // When the user focuses the input element, we want to to select the input
+        // text, so that it is ready to be replaced.
         if (inputRef.current !== null) {
-          const nextElem = nextTabbableElement(inputRef.current);
-          if (nextElem !== null) {
-            nextElem.focus();
-          } else {
-            inputRef.current.blur();
+          inputRef.current.select();
+        }
+      };
+
+      // Key that we use in the input element's dataset that indicates if the user
+      // has just pressed the "Escape" key.
+      const HANDLING_ESCAPE_KEY = "HANDLING_ESCAPE";
+
+      // This happens when the user tabs out of the input element, or clicks
+      // outside of it.
+      const handleBlur = React.useCallback((): void => {
+        if (inputRef.current !== null) {
+          // If the user has just pressed the escape key then we need to ignore
+          // this event, because the previous handler has already handled
+          // everything.
+          if (inputRef.current.dataset[HANDLING_ESCAPE_KEY] === "true") {
+            inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "false";
+            return;
           }
         }
-      },
-      [inputRef]
-    );
 
-    return (
-      <form className="ValueCellInput" onSubmit={handleSubmit}>
-        <input
-          ref={inputRef}
-          value={inputStr}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-        />
-      </form>
-    );
-  }
+        const value = params.parseInput(inputStr);
 
-  return Comp;
+        // If the "inputStr" has any leading zeroes then we remove them:
+        if (inputStr !== params.renderValue(value)) {
+          setInputStr(params.renderValue(value));
+        }
+
+        if (onValueChange !== undefined) {
+          onValueChange(value);
+        }
+      }, [inputRef, inputStr, onValueChange]);
+
+      const handleKeyDown = React.useCallback(
+        (e: React.KeyboardEvent<HTMLInputElement>): void => {
+          if (e.key === "Escape") {
+            if (inputRef.current !== null) {
+              setInputStr(params.renderValue(value));
+
+              // Set the displayed value of the input element to the previous
+              // value:
+              inputRef.current.value = params.renderValue(value);
+
+              // We are about to blur the input element. But when we do that, the
+              // "handleBlur" callback will be called, causing trouble (Even
+              // though we just called "setInputStr" it will see the previous
+              // value, due to the way react works).
+              //
+              // We store a value on the input's dataset as a way to signal to the
+              // "handleBlur" callback that this specific event should be ignored.
+              inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "true";
+
+              // Deselect the input:
+              inputRef.current.blur();
+            }
+          }
+        },
+        [inputRef, value]
+      );
+
+      // This happens when the user presses enter when the input element is
+      // focused.
+      const handleSubmit = React.useCallback(
+        (e: FormEvent<HTMLFormElement>): void => {
+          // Prevent the default behaviour of a page refresh:
+          e.preventDefault();
+
+          if (inputRef.current !== null) {
+            const nextElem = nextTabbableElement(inputRef.current);
+            if (nextElem !== null) {
+              nextElem.focus();
+            } else {
+              inputRef.current.blur();
+            }
+          }
+        },
+        [inputRef]
+      );
+
+      return (
+        <form className="ValueCellInput" onSubmit={handleSubmit}>
+          <input
+            ref={inputRef}
+            value={inputStr}
+            onChange={handleChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+          />
+        </form>
+      );
+    }
+  );
 }
 
 const ASCII0 = "0".charCodeAt(0);
