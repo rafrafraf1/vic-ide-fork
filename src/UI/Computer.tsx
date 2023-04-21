@@ -16,7 +16,7 @@ import { assertNever } from "assert-never";
 import classNames from "classnames";
 import { nonNull } from "../Functional/Nullability";
 
-type UICell = UICell.CpuRegister | UICell.MemoryCell;
+export type UICell = UICell.CpuRegister | UICell.MemoryCell;
 
 export namespace UICell {
   export interface CpuRegister {

@@ -1,6 +1,6 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import { Computer, type ComputerHandle } from "./UI/Computer";
+import { Computer, type ComputerHandle, type UICell } from "./UI/Computer";
 import {
   type ComputerState,
   executeInstruction,
@@ -15,6 +15,8 @@ import type { Address } from "./Computer/Instruction";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
+import { assertNever } from "assert-never";
+import { nextInstructionAnimation } from "./UI/Computer/Animations";
 import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
 
@@ -90,15 +92,51 @@ function App(props: AppProps): JSX.Element {
   }, [animate, computer, computerRef]);
 
   const handleExecuteInstructionClick = React.useCallback(() => {
-    setComputer((computer) => {
-      // TODO:
-      const nextInput = null;
+    // TODO:
+    const nextInput = null;
 
+    const animation = nextInstructionAnimation(computer);
+    if (animation === null) {
+      // TODO Handle result
       const [newComputer] = executeInstruction(computer, nextInput);
+      setComputer(newComputer);
+      return;
+    }
 
-      return newComputer;
-    });
-  }, []);
+    function scrollCellIntoView(uiCell: UICell): void {
+      switch (uiCell.kind) {
+        case "CpuRegister":
+          break;
+        case "MemoryCell":
+          nonNull(computerRef.current).scrollIntoView(uiCell.address);
+          break;
+        default:
+          return assertNever(uiCell);
+      }
+    }
+
+    scrollCellIntoView(animation.start);
+    scrollCellIntoView(animation.end);
+
+    setAnimating(true);
+
+    animate(
+      {
+        start: nonNull(computerRef.current).getBoundingClientRect(
+          animation.start
+        ),
+        end: nonNull(computerRef.current).getBoundingClientRect(animation.end),
+        duration: 1000,
+      },
+      () => {
+        // TODO Handle result
+        const [newComputer] = executeInstruction(computer, nextInput);
+        setComputer(newComputer);
+
+        setAnimating(false);
+      }
+    );
+  }, [animate, computer]);
 
   const handleMemoryCellChange = React.useCallback(
     (address: Address, value: Value | null): void => {
