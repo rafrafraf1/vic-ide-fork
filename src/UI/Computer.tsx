@@ -16,12 +16,26 @@ import { assertNever } from "assert-never";
 import classNames from "classnames";
 import { nonNull } from "../Functional/Nullability";
 
+type UICell = UICell.CpuRegister | UICell.MemoryCell;
+
+export namespace UICell {
+  export interface CpuRegister {
+    kind: "CpuRegister";
+    cpuRegister: CpuRegisterSelector;
+  }
+
+  export interface MemoryCell {
+    kind: "MemoryCell";
+    address: Address;
+  }
+}
+
 export interface ComputerHandle {
   /**
    * @returns the position and size of the input element of the specified CPU
    * Register.
    */
-  getBoundingClientRect: (cpuRegister: CpuRegisterSelector) => DOMRect;
+  getBoundingClientRect: (uiCell: UICell) => DOMRect;
 }
 
 export interface ComputerProps {
@@ -45,12 +59,24 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     } = props;
 
     const cpuRef = React.useRef<CpuHandle>(null);
+    const mainMemoryRef = React.useRef<MainMemoryHandle>(null);
 
     React.useImperativeHandle(
       ref,
       (): ComputerHandle => ({
-        getBoundingClientRect: (cpuRegister: CpuRegisterSelector): DOMRect => {
-          return nonNull(cpuRef.current).getBoundingClientRect(cpuRegister);
+        getBoundingClientRect: (uiCell: UICell): DOMRect => {
+          switch (uiCell.kind) {
+            case "CpuRegister":
+              return nonNull(cpuRef.current).getBoundingClientRect(
+                uiCell.cpuRegister
+              );
+            case "MemoryCell":
+              return nonNull(mainMemoryRef.current).getBoundingClientRect(
+                uiCell.address
+              );
+            default:
+              return assertNever(uiCell);
+          }
         },
       }),
       [cpuRef]
@@ -72,6 +98,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         />
         <div className="Computer-Divider Computer-Divider2"></div>
         <MainMemory
+          ref={mainMemoryRef}
           className="Computer-Memory"
           memory={computer.memory}
           programCounter={computer.programCounter}
@@ -85,6 +112,14 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
   }
 );
 
+export interface MainMemoryHandle {
+  /**
+   * @returns the position and size of the input element of the specified
+   * Memory Address Cell.
+   */
+  getBoundingClientRect: (address: Address) => DOMRect;
+}
+
 export interface MainMemoryProps {
   className?: string;
   memory: MemoryCell[];
@@ -92,27 +127,62 @@ export interface MainMemoryProps {
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
 }
 
-export function MainMemory(props: MainMemoryProps): JSX.Element {
-  const { className, memory, programCounter, onMemoryCellChange } = props;
+export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
+  (props: MainMemoryProps, ref: React.ForwardedRef<MainMemoryHandle>) => {
+    const { className, memory, programCounter, onMemoryCellChange } = props;
 
-  return (
-    <div className={classNames(className, "Computer-MainMemory")}>
-      <MemorySegment
-        memory={memory}
-        programCounter={programCounter}
-        segmentStart={0}
-        segmentEnd={49}
-        onMemoryCellChange={onMemoryCellChange}
-      />
-      <MemorySegment
-        memory={memory}
-        programCounter={programCounter}
-        segmentStart={50}
-        segmentEnd={99}
-        onMemoryCellChange={onMemoryCellChange}
-      />
-    </div>
-  );
+    const memorySegment1 = React.useRef<MemorySegmentHandle>(null);
+    const memorySegment2 = React.useRef<MemorySegmentHandle>(null);
+
+    React.useImperativeHandle(
+      ref,
+      (): MainMemoryHandle => ({
+        getBoundingClientRect: (address: Address): DOMRect => {
+          if (address >= 0 && address <= 49) {
+            return nonNull(memorySegment1.current).getBoundingClientRect(
+              address
+            );
+          } else if (address >= 50 && address <= 99) {
+            return nonNull(memorySegment2.current).getBoundingClientRect(
+              address
+            );
+          } else {
+            throw new Error(`Invalid address: ${address}`);
+          }
+        },
+      }),
+      []
+    );
+
+    return (
+      <div className={classNames(className, "Computer-MainMemory")}>
+        <MemorySegment
+          ref={memorySegment1}
+          memory={memory}
+          programCounter={programCounter}
+          segmentStart={0}
+          segmentEnd={49}
+          onMemoryCellChange={onMemoryCellChange}
+        />
+        <MemorySegment
+          ref={memorySegment2}
+          memory={memory}
+          programCounter={programCounter}
+          segmentStart={50}
+          segmentEnd={99}
+          onMemoryCellChange={onMemoryCellChange}
+        />
+      </div>
+    );
+  }
+);
+
+export interface MemorySegmentHandle {
+  /**
+   * @returns the position and size of the input element of the specified
+   * Memory Address Cell.
+   */
+  getBoundingClientRect: (address: Address) => DOMRect;
 }
 
 export interface MemorySegmentProps {
@@ -129,23 +199,35 @@ interface MemoryValueCellInputProps {
   onValueChange: (address: Address, value: Value | null) => void;
 }
 
-const MemoryValueCellInput = React.memo(function MemoryValueCellInput(
-  props: MemoryValueCellInputProps
-): JSX.Element {
-  const { address, value, onValueChange } = props;
+const MemoryValueCellInput = React.memo(
+  React.forwardRef(
+    (
+      props: MemoryValueCellInputProps,
+      ref: React.ForwardedRef<ValueCellInputHandle>
+    ) => {
+      const { address, value, onValueChange } = props;
 
-  const handleValueChange = React.useCallback(
-    (newValue: Value | null): void => {
-      onValueChange(address, newValue);
-    },
-    [address, onValueChange]
-  );
-  return (
-    <BlankableValueCellInput value={value} onValueChange={handleValueChange} />
-  );
-});
+      const handleValueChange = React.useCallback(
+        (newValue: Value | null): void => {
+          onValueChange(address, newValue);
+        },
+        [address, onValueChange]
+      );
+      return (
+        <BlankableValueCellInput
+          ref={ref}
+          value={value}
+          onValueChange={handleValueChange}
+        />
+      );
+    }
+  )
+);
 
-export function MemorySegment(props: MemorySegmentProps): JSX.Element {
+export const MemorySegment = React.forwardRef<
+  MemorySegmentHandle,
+  MemorySegmentProps
+>((props: MemorySegmentProps, ref: React.ForwardedRef<MemorySegmentHandle>) => {
   const {
     memory,
     programCounter,
@@ -153,6 +235,27 @@ export function MemorySegment(props: MemorySegmentProps): JSX.Element {
     segmentEnd,
     onMemoryCellChange,
   } = props;
+
+  const memoryCellRefs = React.useRef<(ValueCellInputHandle | null)[]>([]);
+
+  React.useImperativeHandle(
+    ref,
+    (): MemorySegmentHandle => ({
+      getBoundingClientRect: (address: Address): DOMRect => {
+        const index = address - segmentStart;
+        const ref = nonNull(nonNull(memoryCellRefs.current)[index]);
+        if (ref === undefined) {
+          throw new Error(`Address out of range: ${address}`);
+        }
+        return ref.getBoundingClientRect();
+      },
+    }),
+    [segmentStart]
+  );
+
+  React.useEffect(() => {
+    resizeRefsArray(memoryCellRefs.current, segmentEnd - segmentStart + 1);
+  }, [segmentEnd, segmentStart]);
 
   const handleValueChange = React.useCallback(
     (address: Address, value: Value | null) => {
@@ -165,24 +268,38 @@ export function MemorySegment(props: MemorySegmentProps): JSX.Element {
 
   return (
     <div className="Computer-MemorySegment">
-      {addressRange(segmentStart, segmentEnd).map((i) => (
-        <React.Fragment key={i}>
+      {addressRange(segmentStart, segmentEnd).map((address, i) => (
+        <React.Fragment key={address}>
           <span
             className={classNames("Computer-MemoryAddress", {
-              "Computer-MemoryAddress-Active": i === programCounter,
+              "Computer-MemoryAddress-Active": address === programCounter,
             })}
           >
-            {i}
+            {address}
           </span>
           <MemoryValueCellInput
-            value={memoryRead(memory, i)}
-            address={i}
+            ref={(el): void => {
+              memoryCellRefs.current[i] = el;
+            }}
+            value={memoryRead(memory, address)}
+            address={address}
             onValueChange={handleValueChange}
           />
         </React.Fragment>
       ))}
     </div>
   );
+});
+
+function resizeRefsArray<T>(array: (T | null)[], newSize: number): void {
+  if (newSize < array.length) {
+    array.splice(newSize);
+  } else {
+    const count = newSize - array.length;
+    for (let i = 0; i < count; i++) {
+      array.push(null);
+    }
+  }
 }
 
 function addressRange(low: Address, high: Address): Address[] {
@@ -230,7 +347,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
 
     React.useImperativeHandle(
       ref,
-      (): ComputerHandle => ({
+      (): CpuHandle => ({
         getBoundingClientRect: (cpuRegister: CpuRegisterSelector): DOMRect => {
           switch (cpuRegister) {
             case "INSTRUCTION_REGISTER":

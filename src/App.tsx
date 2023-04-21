@@ -56,16 +56,19 @@ function App(props: AppProps): JSX.Element {
   const animate = useAnimate();
 
   const handleFetchInstructionClick = React.useCallback(() => {
+    const startRect = nonNull(computerRef.current).getBoundingClientRect({
+      kind: "MemoryCell",
+      address: computer.programCounter,
+    });
+
     const newComputer = fetchInstruction(computer);
 
     // TODO This animation is a temporary test.
 
-    const startRect = nonNull(computerRef.current).getBoundingClientRect(
-      "DATA_REGISTER"
-    );
-    const endRect = nonNull(computerRef.current).getBoundingClientRect(
-      "INSTRUCTION_REGISTER"
-    );
+    const endRect = nonNull(computerRef.current).getBoundingClientRect({
+      kind: "CpuRegister",
+      cpuRegister: "INSTRUCTION_REGISTER",
+    });
 
     animate(
       {
