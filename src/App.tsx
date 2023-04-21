@@ -45,6 +45,8 @@ function App(props: AppProps): JSX.Element {
     initComputerState(systemStateService)
   );
 
+  const [animating, setAnimating] = React.useState<boolean>(false);
+
   const computerRef = React.useRef<ComputerHandle>(null);
 
   // Whenever the `computer` state is changed, we send a message to the
@@ -56,6 +58,8 @@ function App(props: AppProps): JSX.Element {
   const animate = useAnimate();
 
   const handleFetchInstructionClick = React.useCallback(() => {
+    setAnimating(true);
+
     nonNull(computerRef.current).scrollIntoView(computer.programCounter);
 
     const startRect = nonNull(computerRef.current).getBoundingClientRect({
@@ -80,6 +84,7 @@ function App(props: AppProps): JSX.Element {
       },
       () => {
         setComputer(newComputer);
+        setAnimating(false);
       }
     );
   }, [animate, computer, computerRef]);
@@ -118,6 +123,7 @@ function App(props: AppProps): JSX.Element {
     <div className="App-Root">
       <Toolbar
         className="App-Toolbar-Cont"
+        animating={animating}
         onFetchInstructionClick={handleFetchInstructionClick}
         onExecuteInstructionClick={handleExecuteInstructionClick}
       />
