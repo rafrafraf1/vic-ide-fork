@@ -35,6 +35,12 @@
         "@typescript-eslint/no-empty-interface": "warn",
         "@typescript-eslint/no-implicit-any-catch": "error",
         "@typescript-eslint/no-import-type-side-effects": "error",
+        "@typescript-eslint/no-inferrable-types": [
+            "warn",
+            {
+                "ignoreParameters": true
+            }
+        ],
         "@typescript-eslint/no-invalid-this": "error",
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/no-redeclare": "off",
