@@ -4,17 +4,17 @@ import {
   BlankableValueCellInput,
   ValueCellInput,
   type ValueCellInputHandle,
-} from "./ValueCellInput";
+} from "../ValueCellInput";
 import {
   type ComputerState,
   type MemoryCell,
   memoryRead,
-} from "../Computer/Computer";
-import type { Address } from "../Computer/Instruction";
-import type { Value } from "../Computer/Value";
+} from "../../Computer/Computer";
+import type { Address } from "../../Computer/Instruction";
+import type { Value } from "../../Computer/Value";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
-import { nonNull } from "../Functional/Nullability";
+import { nonNull } from "../../Functional/Nullability";
 
 export type UICell = UICell.CpuRegister | UICell.MemoryCell;
 

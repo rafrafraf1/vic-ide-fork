@@ -1,5 +1,5 @@
 import { type ComputerState, readMemory } from "../../Computer/Computer";
-import type { UICell } from "../Computer";
+import type { UICell } from "../Simulator/Computer";
 import type { Value } from "../../Computer/Value";
 import { assertNever } from "assert-never";
 import { parseInstruction } from "../../Computer/Instruction";

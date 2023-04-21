@@ -1,6 +1,10 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import { Computer, type ComputerHandle, type UICell } from "./UI/Computer";
+import {
+  Computer,
+  type ComputerHandle,
+  type UICell,
+} from "./UI/Simulator/Computer";
 import {
   type ComputerState,
   executeInstruction,
@@ -16,7 +20,7 @@ import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
 import { assertNever } from "assert-never";
-import { nextInstructionAnimation } from "./UI/Computer/Animations";
+import { nextInstructionAnimation } from "./UI/Simulator/Animations";
 import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
 
