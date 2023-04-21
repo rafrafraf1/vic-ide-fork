@@ -10,6 +10,12 @@ export interface ValueCellInputHandle {
    * @returns the position and size of the input element.
    */
   getBoundingClientRect: () => DOMRect;
+
+  /**
+   * Scrolls the ancestor containers such that the input element will be
+   * visible (calls the DOM `scrollIntoView` method).
+   */
+  scrollIntoView: () => void;
 }
 
 export interface ValueCellInputProps {
@@ -95,6 +101,10 @@ function ValueCellInputTemplate<T>(
         (): ValueCellInputHandle => ({
           getBoundingClientRect: (): DOMRect => {
             return nonNull(inputRef.current).getBoundingClientRect();
+          },
+
+          scrollIntoView: (): void => {
+            nonNull(inputRef.current).scrollIntoView();
           },
         }),
         [inputRef]

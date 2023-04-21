@@ -56,6 +56,8 @@ function App(props: AppProps): JSX.Element {
   const animate = useAnimate();
 
   const handleFetchInstructionClick = React.useCallback(() => {
+    nonNull(computerRef.current).scrollIntoView(computer.programCounter);
+
     const startRect = nonNull(computerRef.current).getBoundingClientRect({
       kind: "MemoryCell",
       address: computer.programCounter,

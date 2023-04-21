@@ -36,6 +36,12 @@ export interface ComputerHandle {
    * Register.
    */
   getBoundingClientRect: (uiCell: UICell) => DOMRect;
+
+  /**
+   * Scrolls the memory segment such that the memory cell of the specified
+   * address will be visible to the user.
+   */
+  scrollIntoView: (address: Address) => void;
 }
 
 export interface ComputerProps {
@@ -78,6 +84,10 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               return assertNever(uiCell);
           }
         },
+
+        scrollIntoView: (address: Address): void => {
+          nonNull(mainMemoryRef.current).scrollIntoView(address);
+        },
       }),
       [cpuRef]
     );
@@ -118,6 +128,12 @@ export interface MainMemoryHandle {
    * Memory Address Cell.
    */
   getBoundingClientRect: (address: Address) => DOMRect;
+
+  /**
+   * Scrolls the memory segment such that the memory cell of the specified
+   * address will be visible to the user.
+   */
+  scrollIntoView: (address: Address) => void;
 }
 
 export interface MainMemoryProps {
@@ -134,24 +150,31 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
     const memorySegment1 = React.useRef<MemorySegmentHandle>(null);
     const memorySegment2 = React.useRef<MemorySegmentHandle>(null);
 
+    const getMemorySegmentRef = React.useCallback(
+      (address: Address): MemorySegmentHandle => {
+        if (address >= 0 && address <= 49) {
+          return nonNull(memorySegment1.current);
+        } else if (address >= 50 && address <= 99) {
+          return nonNull(memorySegment2.current);
+        } else {
+          throw new Error(`Invalid address: ${address}`);
+        }
+      },
+      []
+    );
+
     React.useImperativeHandle(
       ref,
       (): MainMemoryHandle => ({
         getBoundingClientRect: (address: Address): DOMRect => {
-          if (address >= 0 && address <= 49) {
-            return nonNull(memorySegment1.current).getBoundingClientRect(
-              address
-            );
-          } else if (address >= 50 && address <= 99) {
-            return nonNull(memorySegment2.current).getBoundingClientRect(
-              address
-            );
-          } else {
-            throw new Error(`Invalid address: ${address}`);
-          }
+          return getMemorySegmentRef(address).getBoundingClientRect(address);
+        },
+
+        scrollIntoView: (address: Address): void => {
+          getMemorySegmentRef(address).scrollIntoView(address);
         },
       }),
-      []
+      [getMemorySegmentRef]
     );
 
     return (
@@ -183,6 +206,12 @@ export interface MemorySegmentHandle {
    * Memory Address Cell.
    */
   getBoundingClientRect: (address: Address) => DOMRect;
+
+  /**
+   * Scrolls the memory segment such that the memory cell of the specified
+   * address will be visible to the user.
+   */
+  scrollIntoView: (address: Address) => void;
 }
 
 export interface MemorySegmentProps {
@@ -238,19 +267,30 @@ export const MemorySegment = React.forwardRef<
 
   const memoryCellRefs = React.useRef<(ValueCellInputHandle | null)[]>([]);
 
+  const getMemoryCellRef = React.useCallback(
+    (address: Address): ValueCellInputHandle => {
+      const index = address - segmentStart;
+      const ref = nonNull(nonNull(memoryCellRefs.current)[index]);
+      if (ref === undefined) {
+        throw new Error(`Address out of range: ${address}`);
+      }
+      return ref;
+    },
+    [segmentStart]
+  );
+
   React.useImperativeHandle(
     ref,
     (): MemorySegmentHandle => ({
       getBoundingClientRect: (address: Address): DOMRect => {
-        const index = address - segmentStart;
-        const ref = nonNull(nonNull(memoryCellRefs.current)[index]);
-        if (ref === undefined) {
-          throw new Error(`Address out of range: ${address}`);
-        }
-        return ref.getBoundingClientRect();
+        return getMemoryCellRef(address).getBoundingClientRect();
+      },
+
+      scrollIntoView: (address: Address): void => {
+        getMemoryCellRef(address).scrollIntoView();
       },
     }),
-    [segmentStart]
+    [getMemoryCellRef]
   );
 
   React.useEffect(() => {
