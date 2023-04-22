@@ -1,0 +1,17 @@
+.Output-Root {
+  color: var(--vscode-foreground);
+  font-size: 140%;
+  font-family: monospace;
+  overflow-y: scroll;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+
+.Output-Arrow {
+  color: var(--vscode-focusBorder);
+}
+
+.Output-Error {
+  color: var(--vscode-editorError-foreground);
+}

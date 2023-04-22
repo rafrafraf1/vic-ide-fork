@@ -2,8 +2,8 @@ import "modern-css-reset"; // eslint-disable-line @typescript-eslint/no-import-t
 import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import App from "./App";
-import type { ComputerState } from "./Computer/Computer";
 import ReactDOM from "react-dom/client";
+import type { SimulatorState } from "./Computer/SimulatorState";
 import { ValueCellInputPlayground } from "./Playgrounds/ValueCellInputPlayground";
 import { getSystemStateService } from "./System/SystemState";
 import reportWebVitals from "./reportWebVitals";
@@ -25,7 +25,7 @@ function boot(): void {
 
   const root = ReactDOM.createRoot(getRequiredElement("root"));
 
-  const systemStateService = getSystemStateService<ComputerState>();
+  const systemStateService = getSystemStateService<SimulatorState>();
 
   root.render(
     <React.StrictMode>

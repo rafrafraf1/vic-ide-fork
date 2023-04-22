@@ -11,12 +11,14 @@ import {
   memoryRead,
 } from "../../Computer/Computer";
 import type { Address } from "../../Computer/Instruction";
+import { Output } from "./Output";
+import type { OutputState } from "../../Computer/Output";
 import type { Value } from "../../Computer/Value";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
 import { nonNull } from "../../Functional/Nullability";
 
-export type UICell = UICell.CpuRegister | UICell.MemoryCell;
+export type UICell = UICell.CpuRegister | UICell.MemoryCell | UICell.Output;
 
 export namespace UICell {
   export interface CpuRegister {
@@ -27,6 +29,10 @@ export namespace UICell {
   export interface MemoryCell {
     kind: "MemoryCell";
     address: Address;
+  }
+
+  export interface Output {
+    kind: "Output";
   }
 }
 
@@ -47,6 +53,7 @@ export interface ComputerHandle {
 export interface ComputerProps {
   className?: string;
   computer: ComputerState;
+  output: OutputState;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
@@ -58,6 +65,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     const {
       className,
       computer,
+      output,
       onMemoryCellChange,
       onInstructionRegister,
       onDataRegisterChange,
@@ -80,6 +88,10 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               return nonNull(mainMemoryRef.current).getBoundingClientRect(
                 uiCell.address
               );
+            case "Output":
+              // TODO This is temporary. We should instead call a method on
+              // the "Output" ref.
+              return document.head.getBoundingClientRect();
             default:
               return assertNever(uiCell);
           }
@@ -94,7 +106,10 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
 
     return (
       <div className={classNames(className, "Computer-Root")}>
-        <div className="Computer-Io">IO</div>
+        <div className="Computer-Io">
+          <div>INPUT</div>
+          <Output output={output} />
+        </div>
         <div className="Computer-Divider Computer-Divider1"></div>
         <Cpu
           ref={cpuRef}

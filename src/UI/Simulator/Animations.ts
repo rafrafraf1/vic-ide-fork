@@ -74,7 +74,16 @@ export function nextInstructionAnimation(
     case "READ":
       throw new Error("TODO");
     case "WRITE":
-      throw new Error("TODO");
+      return {
+        start: {
+          kind: "CpuRegister",
+          cpuRegister: "DATA_REGISTER",
+        },
+        end: {
+          kind: "Output",
+        },
+        value: computer.dataRegister,
+      };
     case "STOP":
       return null;
     default:

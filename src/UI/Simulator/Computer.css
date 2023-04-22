@@ -36,6 +36,10 @@
   grid-area: io;
   min-height: 0;
 
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: 1fr 1fr;
+  row-gap: 24px;
   background: #222;
   border: 1px solid white;
 }

@@ -5,8 +5,8 @@ import {
   type ComputerHandle,
   type UICell,
 } from "./UI/Simulator/Computer";
+import { emptyOutput, processExecuteResult } from "./Computer/Output";
 import {
-  type ComputerState,
   executeInstruction,
   fetchInstruction,
   newComputerState,
@@ -16,6 +16,7 @@ import {
   writeMemory,
 } from "./Computer/Computer";
 import type { Address } from "./Computer/Instruction";
+import type { SimulatorState } from "./Computer/SimulatorState";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
@@ -25,7 +26,7 @@ import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
 
 export interface AppProps {
-  systemStateService: SystemStateService<ComputerState>;
+  systemStateService: SystemStateService<SimulatorState>;
 }
 
 /**
@@ -33,33 +34,43 @@ export interface AppProps {
  * SystemStateService, or if there is no saved state, creating a new empty
  * state.
  */
-function initComputerState(
-  systemStateService: SystemStateService<ComputerState>
-): ComputerState {
+function initSimulatorState(
+  systemStateService: SystemStateService<SimulatorState>
+): SimulatorState {
   const savedState = systemStateService.getState();
   if (savedState !== undefined) {
     return savedState;
   } else {
-    return newComputerState();
+    return {
+      computer: newComputerState(),
+      output: emptyOutput(),
+    };
   }
 }
 
 function App(props: AppProps): JSX.Element {
   const { systemStateService } = props;
 
-  const [computer, setComputer] = React.useState<ComputerState>(() =>
-    initComputerState(systemStateService)
+  const initialState = React.useMemo(
+    () => initSimulatorState(systemStateService),
+    [systemStateService]
   );
+
+  const [computer, setComputer] = React.useState(initialState.computer);
+  const [output, setOutput] = React.useState(initialState.output);
 
   const [animating, setAnimating] = React.useState<boolean>(false);
 
   const computerRef = React.useRef<ComputerHandle>(null);
 
-  // Whenever the `computer` state is changed, we send a message to the
-  // `systemStateService` to persist the updated state.
+  // Whenever the `computer` or `output` state is changed, we send a message
+  // to the `systemStateService` to persist the updated state.
   React.useEffect(() => {
-    systemStateService.setState(computer);
-  }, [computer, systemStateService]);
+    systemStateService.setState({
+      computer: computer,
+      output: output,
+    });
+  }, [computer, output, systemStateService]);
 
   const animate = useAnimate();
 
@@ -99,11 +110,19 @@ function App(props: AppProps): JSX.Element {
     // TODO:
     const nextInput = null;
 
+    function updateComputer(): void {
+      // TODO Handle result
+      const [newComputer, executeResult] = executeInstruction(
+        computer,
+        nextInput
+      );
+      setComputer(newComputer);
+      setOutput(processExecuteResult(executeResult));
+    }
+
     const animation = nextInstructionAnimation(computer);
     if (animation === null) {
-      // TODO Handle result
-      const [newComputer] = executeInstruction(computer, nextInput);
-      setComputer(newComputer);
+      updateComputer();
       return;
     }
 
@@ -113,6 +132,8 @@ function App(props: AppProps): JSX.Element {
           break;
         case "MemoryCell":
           nonNull(computerRef.current).scrollIntoView(uiCell.address);
+          break;
+        case "Output":
           break;
         default:
           return assertNever(uiCell);
@@ -133,10 +154,7 @@ function App(props: AppProps): JSX.Element {
         duration: 1000,
       },
       () => {
-        // TODO Handle result
-        const [newComputer] = executeInstruction(computer, nextInput);
-        setComputer(newComputer);
-
+        updateComputer();
         setAnimating(false);
       }
     );
@@ -173,6 +191,7 @@ function App(props: AppProps): JSX.Element {
         ref={computerRef}
         className="App-Computer-Cont"
         computer={computer}
+        output={output}
         onMemoryCellChange={handleMemoryCellChange}
         onInstructionRegister={handleInstructionRegister}
         onDataRegisterChange={handleDataRegisterChange}
