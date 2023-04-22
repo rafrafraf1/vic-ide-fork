@@ -4,6 +4,7 @@ import type { OutputLine, OutputState } from "../../Computer/Output";
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
+import { usePrevious } from "../ReactHooks/UsePrevious";
 
 export interface OutputProps {
   output: OutputState;
@@ -12,8 +13,23 @@ export interface OutputProps {
 export const Output = React.memo((props: OutputProps) => {
   const { output } = props;
 
+  const root = React.useRef<HTMLDivElement>(null);
+
+  const prevLinesLength = usePrevious(output.lines.length);
+
+  React.useEffect(() => {
+    if (
+      prevLinesLength === undefined ||
+      output.lines.length > prevLinesLength
+    ) {
+      if (root.current !== null) {
+        root.current.scrollTop = root.current.scrollHeight;
+      }
+    }
+  }, [output.lines.length, prevLinesLength]);
+
   return (
-    <div className="Output-Root">
+    <div className="Output-Root" ref={root}>
       {output.lines.map((outputLine, index) => (
         <React.Fragment key={index}>
           <OutputLineElem outputLine={outputLine} />
