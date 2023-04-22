@@ -5,6 +5,7 @@ import {
   css,
   withDynamicCSS,
 } from "./DynamicCSS";
+import classNames from "classnames";
 
 export interface Animation {
   /**
@@ -21,6 +22,16 @@ export interface Animation {
    * How long the animation should last (milliseconds).
    */
   duration: number;
+
+  /**
+   * The CSS class that will be applied to the animated element.
+   */
+  className: string;
+
+  /**
+   * The contents of the animated element.
+   */
+  text: string;
 }
 
 /**
@@ -53,11 +64,9 @@ interface AnimatedElem {
  */
 function createAnimatedElem(animation: Animation): AnimatedElem {
   const elem = document.createElement("div");
+  elem.appendChild(document.createTextNode(animation.text));
 
   const dynCss = withDynamicCSS((dyn: DynamicCSS) => {
-    // TODO Allow setting the contents of the animated node.
-    document.createTextNode("TEST");
-
     const move = dyn.keyframes(css`
       from {
         left: ${animation.start.left}px;
@@ -76,12 +85,10 @@ function createAnimatedElem(animation: Animation): AnimatedElem {
 
     const style = dyn.class(css`
       position: absolute;
-      background-color: blue;
-      color: green;
       animation: ${move} ${animation.duration}ms linear;
     `);
 
-    elem.className = style;
+    elem.className = classNames(animation.className, style);
   });
 
   document.body.appendChild(elem);

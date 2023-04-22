@@ -84,8 +84,6 @@ function App(props: AppProps): JSX.Element {
 
     const newComputer = fetchInstruction(computer);
 
-    // TODO This animation is a temporary test.
-
     const endRect = nonNull(computerRef.current).getBoundingClientRect({
       kind: "CpuRegister",
       cpuRegister: "INSTRUCTION_REGISTER",
@@ -96,6 +94,8 @@ function App(props: AppProps): JSX.Element {
         start: startRect,
         end: endRect,
         duration: 1000,
+        text: `${newComputer.instructionRegister}`,
+        className: "App-CellAnimationCont",
       },
       () => {
         setComputer(newComputer);
@@ -136,6 +136,8 @@ function App(props: AppProps): JSX.Element {
         ),
         end: nonNull(computerRef.current).getBoundingClientRect(animation.end),
         duration: 1000,
+        text: `${animation.value}`,
+        className: "App-CellAnimationCont",
       },
       () => {
         updateComputer();
