@@ -98,7 +98,6 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         <div className="Computer-Divider Computer-Divider1"></div>
         <Cpu
           ref={cpuRef}
-          className="Computer-Cpu"
           instructionRegister={computer.instructionRegister}
           dataRegister={computer.dataRegister}
           programCounter={computer.programCounter}
@@ -361,7 +360,6 @@ export interface CpuHandle {
 }
 
 interface CpuProps {
-  className?: string;
   instructionRegister: Value;
   dataRegister: Value;
   programCounter: Value;
@@ -373,7 +371,6 @@ interface CpuProps {
 export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
   (props: CpuProps, ref: React.ForwardedRef<CpuHandle>) => {
     const {
-      className,
       instructionRegister,
       dataRegister,
       programCounter,
@@ -405,7 +402,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
     );
 
     return (
-      <div className={classNames(className, "Computer-Cpu")}>
+      <div className="Computer-Cpu">
         <CpuRegister label="Instruction Register">
           <ValueCellInput
             ref={instructionRegisterRef}
