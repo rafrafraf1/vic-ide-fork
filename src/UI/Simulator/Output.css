@@ -1,4 +1,7 @@
 .Output-Root {
+  margin: 8px;
+  background: var(--vscode-notifications-background);
+  border: 2px solid var(--vscode-notifications-border);
   color: var(--vscode-foreground);
   font-size: 140%;
   font-family: monospace;

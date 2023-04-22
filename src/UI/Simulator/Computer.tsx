@@ -5,15 +5,18 @@ import {
   ValueCellInput,
   type ValueCellInputHandle,
 } from "../ValueCellInput";
+import { Button, ButtonLabel } from "../Components/Button";
 import {
   type ComputerState,
   type MemoryCell,
   memoryRead,
 } from "../../Computer/Computer";
+import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
 import { Output } from "./Output";
-import type { OutputState } from "../../Computer/Output";
+import { RiRewindMiniFill } from "react-icons/ri";
 import type { Value } from "../../Computer/Value";
+import { VscTrash } from "react-icons/vsc";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
 import { nonNull } from "../../Functional/Nullability";
@@ -62,6 +65,7 @@ export interface ComputerProps {
   className?: string;
   computer: ComputerState;
   output: OutputState;
+  onClearOutputClick?: () => void;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
@@ -74,6 +78,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       className,
       computer,
       output,
+      onClearOutputClick,
       onMemoryCellChange,
       onInstructionRegister,
       onDataRegisterChange,
@@ -119,7 +124,24 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     return (
       <div className={classNames(className, "Computer-Root")}>
         <div className="Computer-Io">
+          <div className="Computer-IoTitleRow">
+            <span className="Computer-IoTitleRowHeading">Input</span>
+            <Button>
+              <ButtonLabel>Rewind</ButtonLabel>
+              <RiRewindMiniFill size={24} />
+            </Button>
+          </div>
           <div>INPUT</div>
+          <div className="Computer-IoTitleRow">
+            <span className="Computer-IoTitleRowHeading">Output</span>
+            <Button
+              disabled={isOutputEmpty(output)}
+              onClick={onClearOutputClick}
+            >
+              <ButtonLabel>Clear</ButtonLabel>
+              <VscTrash size={24} />
+            </Button>
+          </div>
           <Output output={output} />
         </div>
         <div className="Computer-Divider Computer-Divider1"></div>

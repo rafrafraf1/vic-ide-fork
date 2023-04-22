@@ -1,0 +1,21 @@
+.Button {
+  color: var(--vscode-button-foreground);
+  background-color: var(--vscode-button-background);
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.Button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.Button:disabled {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-disabledForeground);
+  opacity: 0.75;
+}
+
+.Button-Label {
+  margin: 0 8px;
+}

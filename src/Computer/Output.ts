@@ -27,6 +27,10 @@ export function emptyOutput(): OutputState {
   };
 }
 
+export function isOutputEmpty(output: OutputState): boolean {
+  return output.lines.length === 0;
+}
+
 export function printValue(value: Value): (output: OutputState) => OutputState {
   return (output: OutputState): OutputState => {
     return {

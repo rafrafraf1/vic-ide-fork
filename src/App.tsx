@@ -164,6 +164,10 @@ function App(props: AppProps): JSX.Element {
     );
   }, [animate, computer]);
 
+  const handleClearOutputClick = React.useCallback(() => {
+    setOutput(emptyOutput());
+  }, []);
+
   const handleMemoryCellChange = React.useCallback(
     (address: Address, value: Value | null): void => {
       setComputer(writeMemory(address, value));
@@ -196,6 +200,7 @@ function App(props: AppProps): JSX.Element {
         className="App-Computer-Cont"
         computer={computer}
         output={output}
+        onClearOutputClick={handleClearOutputClick}
         onMemoryCellChange={handleMemoryCellChange}
         onInstructionRegister={handleInstructionRegister}
         onDataRegisterChange={handleDataRegisterChange}
