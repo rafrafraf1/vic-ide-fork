@@ -1,10 +1,6 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import {
-  Computer,
-  type ComputerHandle,
-  type UICell,
-} from "./UI/Simulator/Computer";
+import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
 import { emptyOutput, processExecuteResult } from "./Computer/Output";
 import {
   executeInstruction,
@@ -20,7 +16,6 @@ import type { SimulatorState } from "./Computer/SimulatorState";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
-import { assertNever } from "assert-never";
 import { nextInstructionAnimation } from "./UI/Simulator/Animations";
 import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
@@ -77,7 +72,10 @@ function App(props: AppProps): JSX.Element {
   const handleFetchInstructionClick = React.useCallback(() => {
     setAnimating(true);
 
-    nonNull(computerRef.current).scrollIntoView(computer.programCounter);
+    nonNull(computerRef.current).scrollIntoView({
+      kind: "MemoryCell",
+      address: computer.programCounter,
+    });
 
     const startRect = nonNull(computerRef.current).getBoundingClientRect({
       kind: "MemoryCell",
@@ -126,26 +124,8 @@ function App(props: AppProps): JSX.Element {
       return;
     }
 
-    function scrollCellIntoView(uiCell: UICell): void {
-      switch (uiCell.kind) {
-        case "CpuRegister":
-          break;
-        case "MemoryCell":
-          nonNull(computerRef.current).scrollIntoView(uiCell.address);
-          break;
-        case "Input":
-          // TODO (?)
-          break;
-        case "Output":
-          // TODO (?)
-          break;
-        default:
-          return assertNever(uiCell);
-      }
-    }
-
-    scrollCellIntoView(animation.start);
-    scrollCellIntoView(animation.end);
+    nonNull(computerRef.current).scrollIntoView(animation.start);
+    nonNull(computerRef.current).scrollIntoView(animation.end);
 
     setAnimating(true);
 

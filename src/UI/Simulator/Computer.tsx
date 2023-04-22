@@ -11,9 +11,9 @@ import {
   type MemoryCell,
   memoryRead,
 } from "../../Computer/Computer";
+import { Output, type OutputHandle } from "./Output";
 import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
-import { Output } from "./Output";
 import { RiRewindMiniFill } from "react-icons/ri";
 import type { Value } from "../../Computer/Value";
 import { VscTrash } from "react-icons/vsc";
@@ -49,16 +49,15 @@ export namespace UICell {
 
 export interface ComputerHandle {
   /**
-   * @returns the position and size of the input element of the specified CPU
-   * Register.
+   * @returns the position and size of the specified UICell.
    */
   getBoundingClientRect: (uiCell: UICell) => DOMRect;
 
   /**
-   * Scrolls the memory segment such that the memory cell of the specified
-   * address will be visible to the user.
+   * Performs any necessar scrolling such that the specified UICell will be
+   * visible to the user.
    */
-  scrollIntoView: (address: Address) => void;
+  scrollIntoView: (uiCell: UICell) => void;
 }
 
 export interface ComputerProps {
@@ -87,6 +86,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
 
     const cpuRef = React.useRef<CpuHandle>(null);
     const mainMemoryRef = React.useRef<MainMemoryHandle>(null);
+    const outputRef = React.useRef<OutputHandle>(null);
 
     React.useImperativeHandle(
       ref,
@@ -106,19 +106,32 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               // the "Input" ref.
               return document.head.getBoundingClientRect();
             case "Output":
-              // TODO This is temporary. We should instead call a method on
-              // the "Output" ref.
-              return document.head.getBoundingClientRect();
+              return nonNull(outputRef.current).getOutputBoundingClientRect();
             default:
               return assertNever(uiCell);
           }
         },
 
-        scrollIntoView: (address: Address): void => {
-          nonNull(mainMemoryRef.current).scrollIntoView(address);
+        scrollIntoView: (uiCell: UICell): void => {
+          switch (uiCell.kind) {
+            case "CpuRegister":
+              // CPU Registers are always visible, so nothing to scroll.
+              break;
+            case "MemoryCell":
+              nonNull(mainMemoryRef.current).scrollIntoView(uiCell.address);
+              break;
+            case "Input":
+              // TODO (?)
+              break;
+            case "Output":
+              nonNull(outputRef.current).scrollToBottom();
+              break;
+            default:
+              return assertNever(uiCell);
+          }
         },
       }),
-      [cpuRef]
+      []
     );
 
     return (
@@ -142,7 +155,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               <VscTrash size={24} />
             </Button>
           </div>
-          <Output output={output} />
+          <Output ref={outputRef} output={output} />
         </div>
         <div className="Computer-Divider Computer-Divider1"></div>
         <Cpu
@@ -447,7 +460,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
           }
         },
       }),
-      [dataRegisterRef, instructionRegisterRef]
+      []
     );
 
     return (
