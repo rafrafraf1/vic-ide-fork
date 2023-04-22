@@ -11,7 +11,8 @@ export interface ComputerAnimation {
 }
 
 export function nextInstructionAnimation(
-  computer: ComputerState
+  computer: ComputerState,
+  nextInput: Value | null
 ): ComputerAnimation | null {
   const instruction = parseInstruction(computer.instructionRegister);
 
@@ -72,7 +73,20 @@ export function nextInstructionAnimation(
     case "GOTOP":
       return null;
     case "READ":
-      throw new Error("TODO");
+      if (nextInput === null) {
+        return null;
+      } else {
+        return {
+          start: {
+            kind: "Input",
+          },
+          end: {
+            kind: "CpuRegister",
+            cpuRegister: "DATA_REGISTER",
+          },
+          value: nextInput,
+        };
+      }
     case "WRITE":
       return {
         start: {

@@ -120,7 +120,7 @@ function App(props: AppProps): JSX.Element {
       setOutput(processExecuteResult(executeResult));
     }
 
-    const animation = nextInstructionAnimation(computer);
+    const animation = nextInstructionAnimation(computer, nextInput);
     if (animation === null) {
       updateComputer();
       return;
@@ -133,7 +133,11 @@ function App(props: AppProps): JSX.Element {
         case "MemoryCell":
           nonNull(computerRef.current).scrollIntoView(uiCell.address);
           break;
+        case "Input":
+          // TODO (?)
+          break;
         case "Output":
+          // TODO (?)
           break;
         default:
           return assertNever(uiCell);

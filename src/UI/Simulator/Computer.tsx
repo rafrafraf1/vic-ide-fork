@@ -18,7 +18,11 @@ import { assertNever } from "assert-never";
 import classNames from "classnames";
 import { nonNull } from "../../Functional/Nullability";
 
-export type UICell = UICell.CpuRegister | UICell.MemoryCell | UICell.Output;
+export type UICell =
+  | UICell.CpuRegister
+  | UICell.MemoryCell
+  | UICell.Input
+  | UICell.Output;
 
 export namespace UICell {
   export interface CpuRegister {
@@ -29,6 +33,10 @@ export namespace UICell {
   export interface MemoryCell {
     kind: "MemoryCell";
     address: Address;
+  }
+
+  export interface Input {
+    kind: "Input";
   }
 
   export interface Output {
@@ -88,6 +96,10 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               return nonNull(mainMemoryRef.current).getBoundingClientRect(
                 uiCell.address
               );
+            case "Input":
+              // TODO This is temporary. We should instead call a method on
+              // the "Input" ref.
+              return document.head.getBoundingClientRect();
             case "Output":
               // TODO This is temporary. We should instead call a method on
               // the "Output" ref.
