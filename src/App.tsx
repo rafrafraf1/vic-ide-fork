@@ -1,18 +1,21 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
+import {
+  type SimulatorState,
+  newSimulatorState,
+} from "./Computer/SimulatorState";
 import { emptyOutput, processExecuteResult } from "./Computer/Output";
 import {
   executeInstruction,
   fetchInstruction,
-  newComputerState,
   setDataRegister,
   setInstructionRegister,
   setProgramCounter,
   writeMemory,
 } from "./Computer/Computer";
 import type { Address } from "./Computer/Instruction";
-import type { SimulatorState } from "./Computer/SimulatorState";
+import type { AnimationSpeed } from "./UI/Simulator/AnimationSpeed";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
@@ -36,10 +39,7 @@ function initSimulatorState(
   if (savedState !== undefined) {
     return savedState;
   } else {
-    return {
-      computer: newComputerState(),
-      output: emptyOutput(),
-    };
+    return newSimulatorState();
   }
 }
 
@@ -53,6 +53,9 @@ function App(props: AppProps): JSX.Element {
 
   const [computer, setComputer] = React.useState(initialState.computer);
   const [output, setOutput] = React.useState(initialState.output);
+  const [animationSpeed, setAnimationSpeed] = React.useState(
+    initialState.animationSpeed
+  );
 
   const [animating, setAnimating] = React.useState<boolean>(false);
 
@@ -64,10 +67,18 @@ function App(props: AppProps): JSX.Element {
     systemStateService.setState({
       computer: computer,
       output: output,
+      animationSpeed: animationSpeed,
     });
-  }, [computer, output, systemStateService]);
+  }, [animationSpeed, computer, output, systemStateService]);
 
   const animate = useAnimate();
+
+  const handleAnimationSpeedChange = React.useCallback(
+    (value: AnimationSpeed) => {
+      setAnimationSpeed(value);
+    },
+    []
+  );
 
   const handleFetchInstructionClick = React.useCallback(() => {
     setAnimating(true);
@@ -174,6 +185,8 @@ function App(props: AppProps): JSX.Element {
       <Toolbar
         className="App-Toolbar-Cont"
         animating={animating}
+        animationSpeed={animationSpeed}
+        onAnimationSpeedChange={handleAnimationSpeedChange}
         onFetchInstructionClick={handleFetchInstructionClick}
         onExecuteInstructionClick={handleExecuteInstructionClick}
       />

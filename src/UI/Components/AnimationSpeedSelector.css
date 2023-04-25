@@ -1,0 +1,106 @@
+.AnimationSpeedSelector-Root {
+  width: 256px;
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  grid-template-rows: 32% 35% 33%;
+}
+
+.AnimationSpeedSelector-Title {
+  grid-column: 1 / 5;
+  grid-row: 1 / 2;
+  color: var(--vscode-foreground);
+  place-self: center;
+}
+
+.AnimationSpeedSelector-Root input[type="radio"] {
+  margin: 0;
+  place-self: center;
+  accent-color: var(--vscode-button-background);
+  pointer-events: none;
+}
+
+.AnimationSpeedSelector-Button {
+  background: none;
+  border: 0;
+}
+
+.AnimationSpeedSelector-Button:hover {
+  background-color: var(--vscode-button-hoverBackground);
+  opacity: 0.33;
+}
+
+.AnimationSpeedSelector-Label {
+  color: var(--vscode-foreground);
+  line-height: 1;
+  justify-self: center;
+  align-self: end;
+  pointer-events: none;
+}
+
+/* ---- off ---------------- */
+
+.AnimationSpeedSelector-Button-off {
+  grid-column: 1 / 2;
+  grid-row: 2 / 4;
+}
+
+.AnimationSpeedSelector-Radio-off {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+
+.AnimationSpeedSelector-Label-off {
+  grid-column: 1 / 2;
+  grid-row: 3 / 4;
+}
+
+/* ---- slow ---------------- */
+
+.AnimationSpeedSelector-Button-slow {
+  grid-column: 2 / 3;
+  grid-row: 2 / 4;
+}
+
+.AnimationSpeedSelector-Radio-slow {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+.AnimationSpeedSelector-Label-slow {
+  grid-column: 2 / 3;
+  grid-row: 3 / 4;
+}
+
+/* ---- medium ---------------- */
+
+.AnimationSpeedSelector-Button-medium {
+  grid-column: 3 / 4;
+  grid-row: 2 / 4;
+}
+
+.AnimationSpeedSelector-Radio-medium {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+}
+
+.AnimationSpeedSelector-Label-medium {
+  grid-column: 3 / 4;
+  grid-row: 3 / 4;
+}
+
+/* ---- fast ---------------- */
+
+.AnimationSpeedSelector-Button-fast {
+  grid-column: 4 / 5;
+  grid-row: 2 / 4;
+}
+
+.AnimationSpeedSelector-Radio-fast {
+  grid-column: 4 / 5;
+  grid-row: 2 / 3;
+}
+
+.AnimationSpeedSelector-Label-fast {
+  grid-column: 4 / 5;
+  grid-row: 3 / 4;
+}

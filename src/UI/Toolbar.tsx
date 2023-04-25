@@ -1,5 +1,7 @@
 import "./Toolbar.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
+import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
+import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import classNames from "classnames";
 
 interface ToolbarProps {
@@ -9,6 +11,9 @@ interface ToolbarProps {
    * Whether an animation is currently running or not.
    */
   animating: boolean;
+
+  animationSpeed: AnimationSpeed;
+  onAnimationSpeedChange?: (value: AnimationSpeed) => void;
 
   onFetchInstructionClick?: () => void;
   onExecuteInstructionClick?: () => void;
@@ -20,6 +25,8 @@ export const Toolbar = React.memo(function Toolbar(
   const {
     className,
     animating,
+    animationSpeed,
+    onAnimationSpeedChange,
     onFetchInstructionClick,
     onExecuteInstructionClick,
   } = props;
@@ -32,6 +39,10 @@ export const Toolbar = React.memo(function Toolbar(
       <ToolbarButton disabled={animating} onClick={onExecuteInstructionClick}>
         Execute Instruction
       </ToolbarButton>
+      <AnimationSpeedSelector
+        animationSpeed={animationSpeed}
+        onAnimationSpeedChange={onAnimationSpeedChange}
+      />
     </div>
   );
 });
