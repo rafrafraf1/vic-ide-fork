@@ -15,7 +15,11 @@ export const AnimationSpeedSelector = React.memo(
 
     return (
       <div className={classNames(className, "AnimationSpeedSelector-Root")}>
-        <div className="AnimationSpeedSelector-Title">Animation Speed</div>
+        <div className="AnimationSpeedSelector-Title">
+          <div className="AnimationSpeedSelector-Title-Line" />
+          <div>Animation Speed</div>
+          <div className="AnimationSpeedSelector-Title-Line" />
+        </div>
         <Option
           animationSpeed={animationSpeed}
           onAnimationSpeedChange={onAnimationSpeedChange}

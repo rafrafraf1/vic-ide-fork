@@ -9,7 +9,19 @@
   grid-column: 1 / 5;
   grid-row: 1 / 2;
   color: var(--vscode-foreground);
-  place-self: center;
+  place-self: stretch;
+
+  display: flex;
+  align-items: center;
+}
+
+.AnimationSpeedSelector-Title-Line {
+  height: 1px;
+  background-color: var(--vscode-foreground);
+  opacity: 0.5;
+
+  margin: 0 6px;
+  flex: 1 1 auto;
 }
 
 .AnimationSpeedSelector-Root input[type="radio"] {
