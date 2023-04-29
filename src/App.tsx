@@ -1,5 +1,9 @@
 import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
+import {
+  type AnimationSpeed,
+  animationSpeedDuration,
+} from "./UI/Simulator/AnimationSpeed";
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
 import {
   type SimulatorState,
@@ -15,7 +19,6 @@ import {
   writeMemory,
 } from "./Computer/Computer";
 import type { Address } from "./Computer/Instruction";
-import type { AnimationSpeed } from "./UI/Simulator/AnimationSpeed";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
@@ -104,7 +107,7 @@ function App(props: AppProps): JSX.Element {
       {
         start: startRect,
         end: endRect,
-        duration: 1000,
+        duration: animationSpeedDuration(animationSpeed),
         text: `${newComputer.instructionRegister}`,
         className: "App-CellAnimationCont",
       },
@@ -113,7 +116,7 @@ function App(props: AppProps): JSX.Element {
         setAnimating(false);
       }
     );
-  }, [animate, computer, computerRef]);
+  }, [animate, animationSpeed, computer]);
 
   const handleExecuteInstructionClick = React.useCallback(() => {
     // TODO:
@@ -146,7 +149,7 @@ function App(props: AppProps): JSX.Element {
           animation.start
         ),
         end: nonNull(computerRef.current).getBoundingClientRect(animation.end),
-        duration: 1000,
+        duration: animationSpeedDuration(animationSpeed),
         text: `${animation.value}`,
         className: "App-CellAnimationCont",
       },
@@ -155,7 +158,7 @@ function App(props: AppProps): JSX.Element {
         setAnimating(false);
       }
     );
-  }, [animate, computer]);
+  }, [animate, animationSpeed, computer]);
 
   const handleClearOutputClick = React.useCallback(() => {
     setOutput(emptyOutput());

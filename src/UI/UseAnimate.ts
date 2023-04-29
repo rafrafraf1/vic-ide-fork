@@ -50,7 +50,7 @@ type ActiveAnimationId = number;
 
 interface ActiveAnimation {
   timeoutHandle: ReturnType<typeof setTimeout>;
-  elem: AnimatedElem;
+  elem: AnimatedElem | null;
 }
 
 interface AnimatedElem {
@@ -104,9 +104,11 @@ function deleteActiveAnimation(activeAnimation: ActiveAnimation): void {
   deleteAnimatedElem(activeAnimation.elem);
 }
 
-function deleteAnimatedElem(animatedElem: AnimatedElem): void {
-  document.body.removeChild(animatedElem.domElem);
-  animatedElem.dynCss.dispose();
+function deleteAnimatedElem(animatedElem: AnimatedElem | null): void {
+  if (animatedElem !== null) {
+    document.body.removeChild(animatedElem.domElem);
+    animatedElem.dynCss.dispose();
+  }
 }
 
 /**
@@ -136,7 +138,8 @@ export function useAnimate(): Animate {
     const activeAnimationid = nextActiveAnimationid.current;
     nextActiveAnimationid.current += 1;
 
-    const animatedElem = createAnimatedElem(animation);
+    const animatedElem: AnimatedElem | null =
+      animation.duration > 0 ? createAnimatedElem(animation) : null;
 
     const handle = setTimeout(() => {
       activeAnimations.current.delete(activeAnimationid);
