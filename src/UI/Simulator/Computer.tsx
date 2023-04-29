@@ -126,7 +126,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               nonNull(mainMemoryRef.current).scrollIntoView(uiCell.address);
               break;
             case "Input":
-              // TODO (?)
+              nonNull(inputRef.current).scrollToNext();
               break;
             case "Output":
               nonNull(outputRef.current).scrollToBottom();

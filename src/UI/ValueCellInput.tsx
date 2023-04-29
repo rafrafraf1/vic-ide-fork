@@ -104,7 +104,11 @@ function ValueCellInputTemplate<T>(
           },
 
           scrollIntoView: (): void => {
-            nonNull(inputRef.current).scrollIntoView();
+            // Reference: <https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollIntoView>
+            const scrollOptions: ScrollIntoViewOptions = {
+              block: "nearest",
+            };
+            nonNull(inputRef.current).scrollIntoView(scrollOptions);
           },
         }),
         [inputRef]

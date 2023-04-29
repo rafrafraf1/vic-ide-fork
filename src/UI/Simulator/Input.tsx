@@ -21,6 +21,8 @@ export interface InputHandle {
 
   /**
    * Scrolls to the cell of the next input that will be read.
+   *
+   * This function will throw an Error if there is no next input value.
    */
   scrollToNext: () => void;
 }
@@ -47,7 +49,7 @@ export const Input = React.memo(
             ).getInputBoundingClientRect();
           },
           scrollToNext: (): void => {
-            throw new Error("TODO");
+            nonNull(nextInputLineElemRef.current).scrollIntoView();
           },
         }),
         []
@@ -106,6 +108,7 @@ export const Input = React.memo(
 
 interface InputLineElemHandle {
   getInputBoundingClientRect: () => DOMRect;
+  scrollIntoView: () => void;
 }
 
 interface InputLineElemProps {
@@ -130,6 +133,9 @@ const InputLineElem = React.memo(
         (): InputLineElemHandle => ({
           getInputBoundingClientRect: (): DOMRect => {
             return nonNull(valueCellInputRef.current).getBoundingClientRect();
+          },
+          scrollIntoView: (): void => {
+            nonNull(valueCellInputRef.current).scrollIntoView();
           },
         }),
         []
