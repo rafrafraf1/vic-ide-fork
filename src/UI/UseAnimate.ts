@@ -83,8 +83,16 @@ function createAnimatedElem(animation: Animation): AnimatedElem {
       }
     `);
 
+    // The left/top/width/height is set to the "end" position, because the CSS
+    // animation and "setTimeout" do not always complete perfectly in sync. If
+    // the CSS animation finishes first then we want the element to remain
+    // with the style of the "end" position.
     const style = dyn.class(css`
       position: absolute;
+      left: ${animation.end.left}px;
+      top: ${animation.end.top}px;
+      width: ${animation.end.width}px;
+      height: ${animation.end.height}px;
       animation: ${move} ${animation.duration}ms linear;
     `);
 
