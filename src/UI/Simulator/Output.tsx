@@ -77,7 +77,7 @@ export const Output = React.memo(
   )
 );
 
-export interface OutputLineElemProps {
+interface OutputLineElemProps {
   outputLine: OutputLine;
 }
 
