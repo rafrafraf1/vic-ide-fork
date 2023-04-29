@@ -6,6 +6,11 @@ import type { ExampleProgram } from "./ExampleProgram";
  */
 export const examplePrograms: ExampleProgram[] = [
   {
+    name: "Hello World",
+    input: [],
+    memory: [303, 900, 0, 42],
+  },
+  {
     name: "Double",
     input: [73],
     memory: [800, 450, 150, 900, 0],
