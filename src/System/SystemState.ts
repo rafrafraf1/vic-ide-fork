@@ -46,7 +46,7 @@ export function getSystemStateService<
     return new VSCodeSystemStateService<StateType>(vscode);
   } else {
     console.log("getSystemStateService: Browser");
-    // TODO For browsers return an instance of DummySystemStateService
+    // TODO For browsers return an instance of BrowserSystemStateService
     return new DummySystemStateService<StateType>();
   }
 }
