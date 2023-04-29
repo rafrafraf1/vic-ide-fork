@@ -19,6 +19,11 @@ import {
   setProgramCounter,
   writeMemory,
 } from "./Computer/Computer";
+import {
+  getExampleProgramNames,
+  loadExampleProgram,
+  lookupExampleProgram,
+} from "./Examples/ExampleProgram";
 import type { Address } from "./Computer/Instruction";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
@@ -55,9 +60,11 @@ function App(props: AppProps): JSX.Element {
     [systemStateService]
   );
 
-  const [computer, setComputer] = React.useState(initialState.computer);
-  const [input, setInput] = React.useState(initialState.input);
-  const [output, setOutput] = React.useState(initialState.output);
+  const [computer, setComputer] = React.useState(
+    initialState.hardwareState.computer
+  );
+  const [input, setInput] = React.useState(initialState.hardwareState.input);
+  const [output, setOutput] = React.useState(initialState.hardwareState.output);
   const [animationSpeed, setAnimationSpeed] = React.useState(
     initialState.animationSpeed
   );
@@ -71,23 +78,35 @@ function App(props: AppProps): JSX.Element {
   // `systemStateService` to persist the updated state.
   React.useEffect(() => {
     systemStateService.setState({
-      computer: computer,
-      input: input,
-      output: output,
+      hardwareState: {
+        computer: computer,
+        input: input,
+        output: output,
+      },
       animationSpeed: animationSpeed,
     });
   }, [animationSpeed, computer, input, output, systemStateService]);
 
   const animate = useAnimate();
 
+  const handleLoadExample = React.useCallback((example: string): void => {
+    const exampleProgram = lookupExampleProgram(example);
+    if (exampleProgram !== null) {
+      const hardware = loadExampleProgram(exampleProgram);
+      setComputer(hardware.computer);
+      setInput(hardware.input);
+      setOutput(hardware.output);
+    }
+  }, []);
+
   const handleAnimationSpeedChange = React.useCallback(
-    (value: AnimationSpeed) => {
+    (value: AnimationSpeed): void => {
       setAnimationSpeed(value);
     },
     []
   );
 
-  const handleFetchInstructionClick = React.useCallback(() => {
+  const handleFetchInstructionClick = React.useCallback((): void => {
     setAnimating(true);
 
     nonNull(computerRef.current).scrollIntoView({
@@ -115,7 +134,7 @@ function App(props: AppProps): JSX.Element {
         text: `${newComputer.instructionRegister}`,
         className: "App-CellAnimationCont",
       },
-      () => {
+      (): void => {
         setComputer(newComputer);
         setAnimating(false);
       }
@@ -197,6 +216,8 @@ function App(props: AppProps): JSX.Element {
       <Toolbar
         className="App-Toolbar-Cont"
         animating={animating}
+        examples={getExampleProgramNames()}
+        onLoadExample={handleLoadExample}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={handleAnimationSpeedChange}
         onFetchInstructionClick={handleFetchInstructionClick}

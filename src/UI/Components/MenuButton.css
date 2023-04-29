@@ -1,0 +1,29 @@
+.MenuButton {
+  color: var(--vscode-button-foreground);
+  background-color: var(--vscode-button-background);
+  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  appearance: none;
+  padding: 0 8px;
+  border: 0;
+}
+
+.MenuButton:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.MenuButton:disabled {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-disabledForeground);
+  opacity: 0.75;
+}
+
+.MenuButton-Label {
+  display: none;
+}
+
+.MenuButton-Option {
+  background-color: #fff;
+  color: #000;
+}
