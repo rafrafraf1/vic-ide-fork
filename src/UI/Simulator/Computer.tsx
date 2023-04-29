@@ -11,9 +11,11 @@ import {
   type MemoryCell,
   memoryRead,
 } from "../../Computer/Computer";
+import { Input, type InputHandle } from "./Input";
 import { Output, type OutputHandle } from "./Output";
 import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
+import type { InputState } from "../../Computer/Input";
 import { RiRewindMiniFill } from "react-icons/ri";
 import type { Value } from "../../Computer/Value";
 import { VscTrash } from "react-icons/vsc";
@@ -63,12 +65,14 @@ export interface ComputerHandle {
 export interface ComputerProps {
   className?: string;
   computer: ComputerState;
+  input: InputState;
   output: OutputState;
   onClearOutputClick?: () => void;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
+  onInputChange?: (input: InputState) => void;
 }
 
 export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
@@ -76,16 +80,19 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     const {
       className,
       computer,
+      input,
       output,
       onClearOutputClick,
       onMemoryCellChange,
       onInstructionRegister,
       onDataRegisterChange,
       onProgramCounterChange,
+      onInputChange,
     } = props;
 
     const cpuRef = React.useRef<CpuHandle>(null);
     const mainMemoryRef = React.useRef<MainMemoryHandle>(null);
+    const inputRef = React.useRef<InputHandle>(null);
     const outputRef = React.useRef<OutputHandle>(null);
 
     React.useImperativeHandle(
@@ -102,9 +109,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
                 uiCell.address
               );
             case "Input":
-              // TODO This is temporary. We should instead call a method on
-              // the "Input" ref.
-              return document.head.getBoundingClientRect();
+              return nonNull(inputRef.current).getInputBoundingClientRect();
             case "Output":
               return nonNull(outputRef.current).getOutputBoundingClientRect();
             default:
@@ -134,6 +139,30 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       []
     );
 
+    const handleAppendInput = React.useCallback(
+      (value: Value): void => {
+        if (onInputChange !== undefined) {
+          const newValues = input.values.concat([value]);
+          onInputChange({ ...input, values: newValues });
+        }
+      },
+      [input, onInputChange]
+    );
+
+    const handleInputChange = React.useCallback(
+      (index: number, value: Value): void => {
+        if (index >= input.values.length) {
+          throw new Error(`Invalid array index for input values: ${index}`);
+        }
+        if (onInputChange !== undefined) {
+          const newValues = input.values.slice();
+          newValues[index] = value;
+          onInputChange({ ...input, values: newValues });
+        }
+      },
+      [input, onInputChange]
+    );
+
     return (
       <div className={classNames(className, "Computer-Root")}>
         <div className="Computer-Io">
@@ -144,7 +173,12 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               <RiRewindMiniFill size={24} />
             </Button>
           </div>
-          <div>INPUT</div>
+          <Input
+            ref={inputRef}
+            input={input}
+            onAppendInput={handleAppendInput}
+            onInputChange={handleInputChange}
+          />
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Output</span>
             <Button

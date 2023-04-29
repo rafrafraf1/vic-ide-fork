@@ -5,6 +5,7 @@ import {
   animationSpeedDuration,
 } from "./UI/Simulator/AnimationSpeed";
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
+import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
 import {
   type SimulatorState,
   newSimulatorState,
@@ -55,6 +56,7 @@ function App(props: AppProps): JSX.Element {
   );
 
   const [computer, setComputer] = React.useState(initialState.computer);
+  const [input, setInput] = React.useState(initialState.input);
   const [output, setOutput] = React.useState(initialState.output);
   const [animationSpeed, setAnimationSpeed] = React.useState(
     initialState.animationSpeed
@@ -64,15 +66,17 @@ function App(props: AppProps): JSX.Element {
 
   const computerRef = React.useRef<ComputerHandle>(null);
 
-  // Whenever the `computer` or `output` state is changed, we send a message
-  // to the `systemStateService` to persist the updated state.
+  // Whenever any part of the `SimulatorState` changes (`computer`, `input`,
+  // `output`, or `animationSpeed`), we send a message to the
+  // `systemStateService` to persist the updated state.
   React.useEffect(() => {
     systemStateService.setState({
       computer: computer,
+      input: input,
       output: output,
       animationSpeed: animationSpeed,
     });
-  }, [animationSpeed, computer, output, systemStateService]);
+  }, [animationSpeed, computer, input, output, systemStateService]);
 
   const animate = useAnimate();
 
@@ -119,16 +123,17 @@ function App(props: AppProps): JSX.Element {
   }, [animate, animationSpeed, computer]);
 
   const handleExecuteInstructionClick = React.useCallback(() => {
-    // TODO:
-    const nextInput = null;
+    const nextInput = readNextInput(input);
 
     function updateComputer(): void {
-      // TODO Handle result
       const [newComputer, executeResult] = executeInstruction(
         computer,
         nextInput
       );
       setComputer(newComputer);
+      if (executeResult.consumedInput) {
+        setInput(consumeInput(input));
+      }
       setOutput(processExecuteResult(executeResult));
     }
 
@@ -158,7 +163,7 @@ function App(props: AppProps): JSX.Element {
         setAnimating(false);
       }
     );
-  }, [animate, animationSpeed, computer]);
+  }, [animate, animationSpeed, computer, input]);
 
   const handleClearOutputClick = React.useCallback(() => {
     setOutput(emptyOutput());
@@ -171,16 +176,20 @@ function App(props: AppProps): JSX.Element {
     []
   );
 
-  const handleInstructionRegister = React.useCallback((value: Value) => {
+  const handleInstructionRegister = React.useCallback((value: Value): void => {
     setComputer(setInstructionRegister(value));
   }, []);
 
-  const handleDataRegisterChange = React.useCallback((value: Value) => {
+  const handleDataRegisterChange = React.useCallback((value: Value): void => {
     setComputer(setDataRegister(value));
   }, []);
 
-  const handleProgramCounterChange = React.useCallback((value: Value) => {
+  const handleProgramCounterChange = React.useCallback((value: Value): void => {
     setComputer(setProgramCounter(value));
+  }, []);
+
+  const handleInputChange = React.useCallback((input: InputState): void => {
+    setInput(input);
   }, []);
 
   return (
@@ -197,12 +206,14 @@ function App(props: AppProps): JSX.Element {
         ref={computerRef}
         className="App-Computer-Cont"
         computer={computer}
+        input={input}
         output={output}
         onClearOutputClick={handleClearOutputClick}
         onMemoryCellChange={handleMemoryCellChange}
         onInstructionRegister={handleInstructionRegister}
         onDataRegisterChange={handleDataRegisterChange}
         onProgramCounterChange={handleProgramCounterChange}
+        onInputChange={handleInputChange}
       />
     </div>
   );
