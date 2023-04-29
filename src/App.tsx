@@ -205,6 +205,7 @@ function App(props: AppProps): JSX.Element {
       <Computer
         ref={computerRef}
         className="App-Computer-Cont"
+        animating={animating}
         computer={computer}
         input={input}
         output={output}

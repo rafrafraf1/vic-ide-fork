@@ -12,7 +12,11 @@ import {
   memoryRead,
 } from "../../Computer/Computer";
 import { Input, type InputHandle } from "./Input";
-import { type InputState, rewindInput } from "../../Computer/Input";
+import {
+  type InputState,
+  atBeginningOfInput,
+  rewindInput,
+} from "../../Computer/Input";
 import { Output, type OutputHandle } from "./Output";
 import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
@@ -64,6 +68,12 @@ export interface ComputerHandle {
 
 export interface ComputerProps {
   className?: string;
+
+  /**
+   * Whether an animation is currently running or not.
+   */
+  animating: boolean;
+
   computer: ComputerState;
   input: InputState;
   output: OutputState;
@@ -79,6 +89,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
   (props: ComputerProps, ref: React.ForwardedRef<ComputerHandle>) => {
     const {
       className,
+      animating,
       computer,
       input,
       output,
@@ -174,7 +185,10 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         <div className="Computer-Io">
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Input</span>
-            <Button onClick={handleInputRewindClick}>
+            <Button
+              disabled={animating || atBeginningOfInput(input)}
+              onClick={handleInputRewindClick}
+            >
               <ButtonLabel>Rewind</ButtonLabel>
               <RiRewindMiniFill size={24} />
             </Button>
@@ -188,7 +202,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Output</span>
             <Button
-              disabled={isOutputEmpty(output)}
+              disabled={animating || isOutputEmpty(output)}
               onClick={onClearOutputClick}
             >
               <ButtonLabel>Clear</ButtonLabel>

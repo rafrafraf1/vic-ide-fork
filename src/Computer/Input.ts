@@ -26,6 +26,13 @@ export function emptyInput(): InputState {
 }
 
 /**
+ * Checks whether we are at the beginning of the input.
+ */
+export function atBeginningOfInput(input: InputState): boolean {
+  return input.next === 0;
+}
+
+/**
  * Checks whether we are at the end of the input. If so, then a READ
  * instruction will trigger an error.
  */
