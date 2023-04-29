@@ -12,10 +12,10 @@ import {
   memoryRead,
 } from "../../Computer/Computer";
 import { Input, type InputHandle } from "./Input";
+import { type InputState, rewindInput } from "../../Computer/Input";
 import { Output, type OutputHandle } from "./Output";
 import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
-import type { InputState } from "../../Computer/Input";
 import { RiRewindMiniFill } from "react-icons/ri";
 import type { Value } from "../../Computer/Value";
 import { VscTrash } from "react-icons/vsc";
@@ -139,6 +139,12 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       []
     );
 
+    const handleInputRewindClick = React.useCallback((): void => {
+      if (onInputChange !== undefined) {
+        onInputChange(rewindInput(input));
+      }
+    }, [input, onInputChange]);
+
     const handleAppendInput = React.useCallback(
       (value: Value): void => {
         if (onInputChange !== undefined) {
@@ -168,7 +174,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         <div className="Computer-Io">
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Input</span>
-            <Button>
+            <Button onClick={handleInputRewindClick}>
               <ButtonLabel>Rewind</ButtonLabel>
               <RiRewindMiniFill size={24} />
             </Button>
