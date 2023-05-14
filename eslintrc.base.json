@@ -99,7 +99,7 @@
         "no-implied-eval": "error",
         "no-label-var": "error",
         "no-lone-blocks": "error",
-        "no-lonely-if": "error",
+        "no-lonely-if": "off",
         "no-multi-assign": "error",
         "no-multi-str": "error",
         "no-param-reassign": "error",
