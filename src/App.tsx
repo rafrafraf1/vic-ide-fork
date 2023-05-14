@@ -5,12 +5,11 @@ import {
   animationSpeedDuration,
 } from "./UI/Simulator/AnimationSpeed";
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
+import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
 import {
-  type HardwareState,
   type SimulatorState,
   newSimulatorState,
 } from "./Computer/SimulatorState";
-import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
 import { emptyOutput, processExecuteResult } from "./Computer/Output";
 import {
   executeInstruction,
@@ -29,9 +28,11 @@ import type { Address } from "./Computer/Instruction";
 import type { SystemStateService } from "./System/SystemState";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
+import { assertNever } from "assert-never";
 import { nextInstructionAnimation } from "./UI/Simulator/Animations";
 import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
+import { useEvents } from "./UI/ReactHooks/UseEvents";
 
 export interface AppProps {
   systemStateService: SystemStateService<SimulatorState>;
@@ -50,6 +51,19 @@ function initSimulatorState(
     return savedState;
   } else {
     return newSimulatorState();
+  }
+}
+
+type StepComplete = StepComplete.FetchComplete | StepComplete.ExecuteComplete;
+
+namespace StepComplete {
+  export interface FetchComplete {
+    kind: "FetchComplete";
+  }
+
+  export interface ExecuteComplete {
+    kind: "ExecuteComplete";
+    stopped: boolean;
   }
 }
 
@@ -72,6 +86,27 @@ function App(props: AppProps): JSX.Element {
 
   const [animating, setAnimating] = React.useState<boolean>(false);
   const [running, setRunning] = React.useState<boolean>(false);
+
+  const triggerStepComplete = useEvents<StepComplete>(
+    (step: StepComplete): void => {
+      if (running) {
+        switch (step.kind) {
+          case "FetchComplete":
+            doExecuteInstruction();
+            break;
+          case "ExecuteComplete":
+            if (step.stopped) {
+              setRunning(false);
+            } else {
+              doFetchInstruction();
+            }
+            break;
+          default:
+            assertNever(step);
+        }
+      }
+    }
+  );
 
   const computerRef = React.useRef<ComputerHandle>(null);
 
@@ -108,178 +143,110 @@ function App(props: AppProps): JSX.Element {
     []
   );
 
-  const doFetchInstruction = React.useCallback(
-    (
-      hardwareState: HardwareState,
-      onComplete?: (hardwareState: HardwareState) => void
-    ): void => {
-      setAnimating(true);
+  const doFetchInstruction = React.useCallback((): void => {
+    setAnimating(true);
 
-      nonNull(computerRef.current).scrollIntoView({
-        kind: "MemoryCell",
-        address: hardwareState.computer.programCounter,
-      });
-
-      const startRect = nonNull(computerRef.current).getBoundingClientRect({
-        kind: "MemoryCell",
-        address: hardwareState.computer.programCounter,
-      });
-
-      const newComputer = fetchInstruction(hardwareState.computer);
-
-      const endRect = nonNull(computerRef.current).getBoundingClientRect({
-        kind: "CpuRegister",
-        cpuRegister: "INSTRUCTION_REGISTER",
-      });
-
-      animate(
-        {
-          start: startRect,
-          end: endRect,
-          duration: animationSpeedDuration(animationSpeed),
-          text: `${newComputer.instructionRegister}`,
-          className: "App-CellAnimationCont",
-        },
-        (): void => {
-          setComputer(newComputer);
-          setAnimating(false);
-          if (onComplete !== undefined) {
-            onComplete({
-              computer: newComputer,
-              input: hardwareState.input,
-              output: hardwareState.output,
-            });
-          }
-        }
-      );
-    },
-    [animate, animationSpeed]
-  );
-
-  const doExecuteInstruction = React.useCallback(
-    (
-      hardwareState: HardwareState,
-      onComplete?: (hardwareState: HardwareState | null) => void
-    ): void => {
-      const nextInput = readNextInput(hardwareState.input);
-
-      function updateComputer(): HardwareState | null {
-        const [newComputer, executeResult] = executeInstruction(
-          hardwareState.computer,
-          nextInput
-        );
-        setComputer(newComputer);
-        const newInput = executeResult.consumedInput
-          ? consumeInput(hardwareState.input)
-          : hardwareState.input;
-        setInput(newInput);
-        const newOutput = processExecuteResult(executeResult)(
-          hardwareState.output
-        );
-        setOutput(newOutput);
-
-        if (executeResult.stop !== null) {
-          return null;
-        }
-
-        return {
-          computer: newComputer,
-          input: newInput,
-          output: newOutput,
-        };
-      }
-
-      const animation = nextInstructionAnimation(
-        hardwareState.computer,
-        nextInput
-      );
-      if (animation === null) {
-        const newHardwareState = updateComputer();
-        if (onComplete !== undefined) {
-          onComplete(newHardwareState);
-        }
-        return;
-      }
-
-      nonNull(computerRef.current).scrollIntoView(animation.start);
-      nonNull(computerRef.current).scrollIntoView(animation.end);
-
-      setAnimating(true);
-
-      animate(
-        {
-          start: nonNull(computerRef.current).getBoundingClientRect(
-            animation.start
-          ),
-          end: nonNull(computerRef.current).getBoundingClientRect(
-            animation.end
-          ),
-          duration: animationSpeedDuration(animationSpeed),
-          text: `${animation.value}`,
-          className: "App-CellAnimationCont",
-        },
-        () => {
-          const newHardwareState = updateComputer();
-          setAnimating(false);
-          if (onComplete !== undefined) {
-            onComplete(newHardwareState);
-          }
-        }
-      );
-    },
-    [animate, animationSpeed]
-  );
-
-  const handleFetchInstructionClick = React.useCallback((): void => {
-    doFetchInstruction({
-      computer: computer,
-      input: input,
-      output: output,
+    nonNull(computerRef.current).scrollIntoView({
+      kind: "MemoryCell",
+      address: computer.programCounter,
     });
-  }, [computer, doFetchInstruction, input, output]);
 
-  const handleExecuteInstructionClick = React.useCallback((): void => {
-    doExecuteInstruction({
-      computer: computer,
-      input: input,
-      output: output,
+    const startRect = nonNull(computerRef.current).getBoundingClientRect({
+      kind: "MemoryCell",
+      address: computer.programCounter,
     });
-  }, [computer, doExecuteInstruction, input, output]);
 
-  const handleSingleStepClick = React.useCallback((): void => {
-    doFetchInstruction(
+    const newComputer = fetchInstruction(computer);
+
+    const endRect = nonNull(computerRef.current).getBoundingClientRect({
+      kind: "CpuRegister",
+      cpuRegister: "INSTRUCTION_REGISTER",
+    });
+
+    animate(
       {
-        computer: computer,
-        input: input,
-        output: output,
+        start: startRect,
+        end: endRect,
+        duration: animationSpeedDuration(animationSpeed),
+        text: `${newComputer.instructionRegister}`,
+        className: "App-CellAnimationCont",
       },
-      (hardwareState) => {
-        doExecuteInstruction(hardwareState);
+      (): void => {
+        setComputer(newComputer);
+        setAnimating(false);
+
+        triggerStepComplete({
+          kind: "FetchComplete",
+        });
       }
     );
-  }, [computer, doExecuteInstruction, doFetchInstruction, input, output]);
+  }, [animate, animationSpeed, computer, triggerStepComplete]);
 
-  const handleRunClick = React.useCallback((): void => {
-    setRunning(true);
-    function go(hardwareState: HardwareState): void {
-      doFetchInstruction(hardwareState, (hardwareState) => {
-        doExecuteInstruction(hardwareState, (hardwareState) => {
-          if (hardwareState === null) {
-            setRunning(false);
-            return;
-          }
+  const doExecuteInstruction = React.useCallback((): void => {
+    const nextInput = readNextInput(input);
 
-          go(hardwareState);
-        });
+    function updateComputer(): void {
+      const [newComputer, executeResult] = executeInstruction(
+        computer,
+        nextInput
+      );
+      setComputer(newComputer);
+      if (executeResult.consumedInput) {
+        setInput(consumeInput(input));
+      }
+      setOutput(processExecuteResult(executeResult));
+
+      triggerStepComplete({
+        kind: "ExecuteComplete",
+        stopped: executeResult.stop !== null,
       });
     }
 
-    go({
-      computer: computer,
-      input: input,
-      output: output,
-    });
-  }, [computer, doExecuteInstruction, doFetchInstruction, input, output]);
+    const animation = nextInstructionAnimation(computer, nextInput);
+    if (animation === null) {
+      updateComputer();
+      return;
+    }
+
+    nonNull(computerRef.current).scrollIntoView(animation.start);
+    nonNull(computerRef.current).scrollIntoView(animation.end);
+
+    setAnimating(true);
+
+    animate(
+      {
+        start: nonNull(computerRef.current).getBoundingClientRect(
+          animation.start
+        ),
+        end: nonNull(computerRef.current).getBoundingClientRect(animation.end),
+        duration: animationSpeedDuration(animationSpeed),
+        text: `${animation.value}`,
+        className: "App-CellAnimationCont",
+      },
+      () => {
+        updateComputer();
+        setAnimating(false);
+      }
+    );
+  }, [animate, animationSpeed, computer, input, triggerStepComplete]);
+
+  const handleFetchInstructionClick = React.useCallback((): void => {
+    doFetchInstruction();
+  }, [doFetchInstruction]);
+
+  const handleExecuteInstructionClick = React.useCallback((): void => {
+    doExecuteInstruction();
+  }, [doExecuteInstruction]);
+
+  const handleSingleStepClick = React.useCallback((): void => {
+    // TODO !!!
+    doFetchInstruction();
+  }, [doFetchInstruction]);
+
+  const handleRunClick = React.useCallback((): void => {
+    setRunning(true);
+    doFetchInstruction();
+  }, [doFetchInstruction]);
 
   const handleStopClick = React.useCallback((): void => {
     // TODO !!!
