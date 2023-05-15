@@ -1,24 +1,23 @@
 import "./Toolbar.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import { Button, ButtonLabel } from "./Components/Button";
+import {
+  type SimulationState,
+  simulationActive,
+} from "./Simulator/SimulationState";
 import { VscDebugContinue, VscDebugStart, VscDebugStop } from "react-icons/vsc";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
+import { BsHourglass } from "react-icons/bs";
+import type { IconType } from "react-icons";
 import { MenuButton } from "./Components/MenuButton";
+import { assertNever } from "assert-never";
 import classNames from "classnames";
 
 interface ToolbarProps {
   className?: string;
 
-  /**
-   * Whether an animation is currently running or not.
-   */
-  animating: boolean;
-
-  /**
-   * Whether the simulation is currently running.
-   */
-  running: boolean;
+  simulationState: SimulationState;
 
   examples: string[];
   onLoadExample?: (example: string) => void;
@@ -38,8 +37,7 @@ export const Toolbar = React.memo(function Toolbar(
 ): JSX.Element {
   const {
     className,
-    animating,
-    running,
+    simulationState,
     examples,
     onLoadExample,
     animationSpeed,
@@ -52,46 +50,109 @@ export const Toolbar = React.memo(function Toolbar(
   } = props;
 
   const handleRunClick = React.useCallback((): void => {
-    if (running) {
-      if (onStopClick !== undefined) {
-        onStopClick();
-      }
-    } else {
-      if (onRunClick !== undefined) {
-        onRunClick();
-      }
+    switch (simulationState) {
+      case "IDLE":
+        if (onRunClick !== undefined) {
+          onRunClick();
+        }
+        break;
+      case "FETCH_INSTRUCTION":
+        // Nothing
+        break;
+      case "EXECUTE_INSTRUCTION":
+        // Nothing
+        break;
+      case "SINGLE_STEP":
+        // Nothing
+        break;
+      case "RUN":
+        if (onStopClick !== undefined) {
+          onStopClick();
+        }
+        break;
+      case "STOPPING":
+        // Nothing
+        break;
+      default:
+        assertNever(simulationState);
     }
-  }, [onRunClick, onStopClick, running]);
+  }, [onRunClick, onStopClick, simulationState]);
 
   return (
     <div className={classNames(className, "Toolbar-root")}>
       <MenuButton
-        disabled={animating}
+        disabled={simulationActive(simulationState)}
         label="Load Example"
         values={examples}
         onValueClick={onLoadExample}
       />
-      <ToolbarButton disabled={animating} onClick={onFetchInstructionClick}>
+      <ToolbarButton
+        disabled={simulationActive(simulationState)}
+        onClick={onFetchInstructionClick}
+      >
         Fetch Instruction
       </ToolbarButton>
-      <ToolbarButton disabled={animating} onClick={onExecuteInstructionClick}>
+      <ToolbarButton
+        disabled={simulationActive(simulationState)}
+        onClick={onExecuteInstructionClick}
+      >
         Execute Instruction
       </ToolbarButton>
       <AnimationSpeedSelector
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
-      <Button disabled={animating} onClick={onSingleStepClick}>
+      <Button
+        disabled={simulationActive(simulationState)}
+        onClick={onSingleStepClick}
+      >
         <ButtonLabel>Single Step</ButtonLabel>
         <VscDebugContinue />
       </Button>
-      <Button disabled={animating && !running} onClick={handleRunClick}>
-        <ButtonLabel>{running ? "Stop" : "Run"}</ButtonLabel>
-        {running ? <VscDebugStop /> : <VscDebugStart />}
-      </Button>
+      <RunButton simulationState={simulationState} onClick={handleRunClick} />
     </div>
   );
 });
+
+interface RunButtonProps {
+  simulationState: SimulationState;
+  onClick: () => void;
+}
+
+export function RunButton(props: RunButtonProps): JSX.Element {
+  const { simulationState, onClick } = props;
+
+  const [label, icon] = ((): [string, IconType] => {
+    switch (simulationState) {
+      case "IDLE":
+        return ["Run", VscDebugStart];
+      case "FETCH_INSTRUCTION":
+        return ["Run", VscDebugStart];
+      case "EXECUTE_INSTRUCTION":
+        return ["Run", VscDebugStart];
+      case "SINGLE_STEP":
+        return ["Run", VscDebugStart];
+      case "RUN":
+        return ["Stop", VscDebugStop];
+      case "STOPPING":
+        return ["Stopping", BsHourglass];
+      default:
+        return assertNever(simulationState);
+    }
+  })();
+
+  return (
+    <Button
+      disabled={!(simulationState === "IDLE" || simulationState === "RUN")}
+      onClick={onClick}
+    >
+      <>
+        <ButtonLabel>{label}</ButtonLabel>
+        {icon({})}
+      </>
+    </Button>
+  );
+}
 
 interface ToolbarButtonProps {
   children?: React.ReactNode;

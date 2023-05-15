@@ -7,6 +7,10 @@ import {
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
 import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
 import {
+  type SimulationState,
+  simulationActive,
+} from "./UI/Simulator/SimulationState";
+import {
   type SimulatorState,
   newSimulatorState,
 } from "./Computer/SimulatorState";
@@ -84,26 +88,56 @@ function App(props: AppProps): JSX.Element {
     initialState.animationSpeed
   );
 
-  const [animating, setAnimating] = React.useState<boolean>(false);
-  const [running, setRunning] = React.useState<boolean>(false);
+  const [simulationState, setSimulationState] =
+    React.useState<SimulationState>("IDLE");
 
   const triggerStepComplete = useEvents<StepComplete>(
     (step: StepComplete): void => {
-      if (running) {
-        switch (step.kind) {
-          case "FetchComplete":
-            doExecuteInstruction();
-            break;
-          case "ExecuteComplete":
-            if (step.stopped) {
-              setRunning(false);
-            } else {
-              doFetchInstruction();
-            }
-            break;
-          default:
-            assertNever(step);
-        }
+      switch (simulationState) {
+        case "IDLE":
+          // TODO This should never happen (assert)?
+          break;
+        case "FETCH_INSTRUCTION":
+          // TODO assert that "step" is "FetchComplete" (?)
+          setSimulationState("IDLE");
+          break;
+        case "EXECUTE_INSTRUCTION":
+          // TODO assert that "step" is "ExecuteComplete" (?)
+          setSimulationState("IDLE");
+          break;
+        case "SINGLE_STEP":
+          switch (step.kind) {
+            case "FetchComplete":
+              doExecuteInstruction();
+              break;
+            case "ExecuteComplete":
+              setSimulationState("IDLE");
+              break;
+            default:
+              assertNever(step);
+          }
+          break;
+        case "RUN":
+          switch (step.kind) {
+            case "FetchComplete":
+              doExecuteInstruction();
+              break;
+            case "ExecuteComplete":
+              if (step.stopped) {
+                setSimulationState("IDLE");
+              } else {
+                doFetchInstruction();
+              }
+              break;
+            default:
+              assertNever(step);
+          }
+          break;
+        case "STOPPING":
+          setSimulationState("IDLE");
+          break;
+        default:
+          assertNever(simulationState);
       }
     }
   );
@@ -144,8 +178,6 @@ function App(props: AppProps): JSX.Element {
   );
 
   const doFetchInstruction = React.useCallback((): void => {
-    setAnimating(true);
-
     nonNull(computerRef.current).scrollIntoView({
       kind: "MemoryCell",
       address: computer.programCounter,
@@ -173,7 +205,6 @@ function App(props: AppProps): JSX.Element {
       },
       (): void => {
         setComputer(newComputer);
-        setAnimating(false);
 
         triggerStepComplete({
           kind: "FetchComplete",
@@ -211,8 +242,6 @@ function App(props: AppProps): JSX.Element {
     nonNull(computerRef.current).scrollIntoView(animation.start);
     nonNull(computerRef.current).scrollIntoView(animation.end);
 
-    setAnimating(true);
-
     animate(
       {
         start: nonNull(computerRef.current).getBoundingClientRect(
@@ -225,31 +254,32 @@ function App(props: AppProps): JSX.Element {
       },
       () => {
         updateComputer();
-        setAnimating(false);
       }
     );
   }, [animate, animationSpeed, computer, input, triggerStepComplete]);
 
   const handleFetchInstructionClick = React.useCallback((): void => {
+    setSimulationState("FETCH_INSTRUCTION");
     doFetchInstruction();
   }, [doFetchInstruction]);
 
   const handleExecuteInstructionClick = React.useCallback((): void => {
+    setSimulationState("EXECUTE_INSTRUCTION");
     doExecuteInstruction();
   }, [doExecuteInstruction]);
 
   const handleSingleStepClick = React.useCallback((): void => {
-    // TODO !!!
+    setSimulationState("SINGLE_STEP");
     doFetchInstruction();
   }, [doFetchInstruction]);
 
   const handleRunClick = React.useCallback((): void => {
-    setRunning(true);
+    setSimulationState("RUN");
     doFetchInstruction();
   }, [doFetchInstruction]);
 
   const handleStopClick = React.useCallback((): void => {
-    // TODO !!!
+    setSimulationState("STOPPING");
   }, []);
 
   const handleClearOutputClick = React.useCallback((): void => {
@@ -283,8 +313,7 @@ function App(props: AppProps): JSX.Element {
     <div className="App-Root">
       <Toolbar
         className="App-Toolbar-Cont"
-        animating={animating}
-        running={running}
+        simulationState={simulationState}
         examples={getExampleProgramNames()}
         onLoadExample={handleLoadExample}
         animationSpeed={animationSpeed}
@@ -298,7 +327,7 @@ function App(props: AppProps): JSX.Element {
       <Computer
         ref={computerRef}
         className="App-Computer-Cont"
-        animating={animating}
+        animating={simulationActive(simulationState)}
         computer={computer}
         input={input}
         output={output}
