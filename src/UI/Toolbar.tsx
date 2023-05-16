@@ -2,6 +2,15 @@ import "./Toolbar.css"; // eslint-disable-line @typescript-eslint/no-import-type
 import * as React from "react";
 import { Button, ButtonLabel } from "./Components/Button";
 import {
+  type DemoTheme,
+  type ThemeChangeListener,
+  getCurrentTheme,
+  nextTheme,
+  registerThemeChangeListener,
+  setCurrentTheme,
+  unregisterThemeChangeListener,
+} from "../System/DemoTheme";
+import {
   type SimulationState,
   simulationActive,
 } from "./Simulator/SimulationState";
@@ -9,6 +18,7 @@ import { VscDebugContinue, VscDebugStart, VscDebugStop } from "react-icons/vsc";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import { BsHourglass } from "react-icons/bs";
+import { IS_DEMO_ENVIRONMENT } from "../System/Environment";
 import type { IconType } from "react-icons";
 import { MenuButton } from "./Components/MenuButton";
 import { assertNever } from "assert-never";
@@ -80,6 +90,7 @@ export const Toolbar = React.memo(function Toolbar(
 
   return (
     <div className={classNames(className, "Toolbar-root")}>
+      {IS_DEMO_ENVIRONMENT ? <ThemeSwitcher /> : null}
       <MenuButton
         disabled={simulationActive(simulationState)}
         label="Load Example"
@@ -150,6 +161,35 @@ export function RunButton(props: RunButtonProps): JSX.Element {
         <ButtonLabel>{label}</ButtonLabel>
         {icon({})}
       </>
+    </Button>
+  );
+}
+
+function ThemeSwitcher(): JSX.Element {
+  const [theme, setTheme] = React.useState<DemoTheme>(() => getCurrentTheme());
+
+  React.useEffect(() => {
+    const themeChangeListener: ThemeChangeListener = {
+      onThemeChange: (currentTheme: DemoTheme) => {
+        setTheme(currentTheme);
+      },
+    };
+
+    registerThemeChangeListener(themeChangeListener);
+
+    return () => {
+      unregisterThemeChangeListener(themeChangeListener);
+    };
+  }, []);
+
+  const handleClick = React.useCallback((): void => {
+    const newTheme = nextTheme(theme);
+    setCurrentTheme(newTheme);
+  }, [theme]);
+
+  return (
+    <Button onClick={handleClick}>
+      <ButtonLabel>{theme} Mode</ButtonLabel>
     </Button>
   );
 }
