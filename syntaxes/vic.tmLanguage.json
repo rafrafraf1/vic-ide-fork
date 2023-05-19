@@ -6,26 +6,29 @@
 			"include": "#keywords"
 		},
 		{
-			"include": "#strings"
+			"include": "#comments"
 		}
 	],
 	"repository": {
+		"comments" : {
+            "patterns": [
+                {
+                   "begin": "//",
+                   "end": "$",
+                   "name": "comment.line.double-slash.astra"
+                },
+                {
+                    "begin": "/\\*",
+                    "end" : "\\*/",
+                    "name": "comment.block.astra"
+                }
+             ]
+        },
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.vic",
-				"match": "\\b(if|while|for|return)\\b"
+				"match": "\\b(add|sub|load|store|goto|gotoz|gotop|read|write|stop)\\b"
 			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.vic",
-			"begin": "\"",
-			"end": "\"",
-			"patterns": [
-				{
-					"name": "constant.character.escape.vic",
-					"match": "\\\\."
-				}
-			]
 		}
 	},
 	"scopeName": "source.vic"
