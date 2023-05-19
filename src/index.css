@@ -8,7 +8,8 @@ body {
  * Adapted from:
  * <https://stackoverflow.com/questions/47576815/how-to-add-arrows-with-webkit-scrollbar-button/66050759#66050759>
  *
- * VS Code will set one of the following values as the CSS class on the body element:
+ * VS Code will set one of the following values as the CSS class on the body
+ * element:
  *
  *     "vscode-dark"
  *     "vscode-high-contrast" (dark)
