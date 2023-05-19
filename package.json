@@ -7,7 +7,7 @@
     "vscode": "^1.74.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "activationEvents": [
     "onCommand:vic-ide.helloWorld",
@@ -24,6 +24,27 @@
         "command": "vic-ide.openSimulator",
         "title": "Open Vic Simulator",
         "category": "Vic"
+      }
+    ],
+    "languages": [
+      {
+        "id": "vic",
+        "aliases": [
+          "Vic assembly",
+          "vic"
+        ],
+        "extensions": [
+          ".asm",
+          ".vic"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "vic",
+        "scopeName": "source.vic",
+        "path": "./syntaxes/vic.tmLanguage.json"
       }
     ]
   },
