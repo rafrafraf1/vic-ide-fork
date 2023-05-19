@@ -3,10 +3,23 @@
 	"name": "Vic assembly",
 	"patterns": [
 		{
-			"include": "#keywords"
+			"match": "(\\w+):",
+			"captures": {
+				"1": { "name": "variable" }
+			}
+		},
+		{
+			"match": "(goto(z|p?)) (\\w+)",
+			"captures": {
+				"1": { "name": "keyword.control.vic" },
+				"3": { "name": "variable" }
+			}
 		},
 		{
 			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
 		}
 	],
 	"repository": {

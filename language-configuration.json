@@ -9,8 +9,12 @@
         "blockComment": [ "/*", "*/" ]
     },
     "wordPattern": ".^", // Disable annoying autocomplete of random words
-    "indentationRules": {
-        "increaseIndentPattern": "^((?!\\/\\/).)*:(\\w*)$",
-        "decreaseIndentPattern": ".^"
-    }
+    "onEnterRules": [
+        {
+            "beforeText": "(\\w+):\\s*((\\/\\/).*)?$",
+            "action": {
+                "indent": "indent"
+            }
+        }
+    ]
 }
