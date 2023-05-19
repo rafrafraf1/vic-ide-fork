@@ -156,8 +156,6 @@ function renderVicPanel(
           appState
         );
 
-        void vscode.window.showInformationMessage(pageHtml);
-
         panel.webview.html = pageHtml;
       }
     },
