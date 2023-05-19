@@ -7,6 +7,20 @@ import { assertNever } from "assert-never";
 export type DemoTheme = "Light" | "Dark";
 
 /**
+ * @returns true if the theme is considered a "dark" theme.
+ */
+export function isThemeDark(theme: DemoTheme): boolean {
+  switch (theme) {
+    case "Light":
+      return false;
+    case "Dark":
+      return true;
+    default:
+      return assertNever(theme);
+  }
+}
+
+/**
  * @returns the next theme available that can be toggled through.
  */
 export function nextTheme(theme: DemoTheme): DemoTheme {
@@ -171,6 +185,17 @@ export function setCurrentTheme(theme: DemoTheme): void {
   }
 
   linkTag.setAttribute("href", prefix + themeFile);
+
+  // VS Code sets a class on the body tag for webviews to determine if the
+  // current theme is light/dark.
+  //
+  // See:
+  // <https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content>
+  if (isThemeDark(theme)) {
+    document.body.className = "vscode-dark";
+  } else {
+    document.body.className = "vscode-light";
+  }
 
   themeChangeListeners.forEach((themeChangeListener) => {
     themeChangeListener.onThemeChange(theme);
