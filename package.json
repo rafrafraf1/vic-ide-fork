@@ -11,7 +11,8 @@
   ],
   "activationEvents": [
     "onCommand:vic-ide.helloWorld",
-    "onWebviewPanel:vic-ide"
+    "onWebviewPanel:vic-ide",
+    "onLanguage:vic"
   ],
   "main": "./out/extension.js",
   "contributes": {

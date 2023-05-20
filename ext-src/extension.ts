@@ -5,6 +5,8 @@ import { getNonce, renderPageHtml } from "./PanelHtml";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 import type { WebviewPanel } from "vscode";
+import { getVicAsmErrors } from "./VicDiagnostics";
+import { vicLanguageId } from "./VicLanguage";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -12,6 +14,8 @@ export function activate(context: vscode.ExtensionContext): void {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log('Congratulations, your extension "vic-ide" is now active!');
+
+  activateVicDiagnostics(context);
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
@@ -54,6 +58,62 @@ export function activate(context: vscode.ExtensionContext): void {
         await Promise.resolve();
       },
     })
+  );
+}
+
+export function updateDiagnostics(
+  diagnosticCollection: vscode.DiagnosticCollection,
+  textDocument: vscode.TextDocument
+): void {
+  if (textDocument.languageId !== vicLanguageId) {
+    return;
+  }
+
+  const source = textDocument.getText();
+  const errors = getVicAsmErrors(source);
+  if (errors.length === 0) {
+    diagnosticCollection.set(textDocument.uri, undefined);
+    return;
+  }
+
+  const diagnostics = errors.map<vscode.Diagnostic>((error) => ({
+    range: new vscode.Range(
+      error.line,
+      error.startCol,
+      error.line,
+      error.endCol
+    ),
+    message: error.message,
+    severity: vscode.DiagnosticSeverity.Error,
+    source: vicLanguageId,
+  }));
+
+  diagnosticCollection.set(textDocument.uri, diagnostics);
+}
+
+export function activateVicDiagnostics(context: vscode.ExtensionContext): void {
+  const diagnosticCollection =
+    vscode.languages.createDiagnosticCollection(vicLanguageId);
+  context.subscriptions.push(diagnosticCollection);
+
+  for (const textDocument of vscode.workspace.textDocuments) {
+    updateDiagnostics(diagnosticCollection, textDocument);
+  }
+
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument(
+      (textDocument: vscode.TextDocument) => {
+        updateDiagnostics(diagnosticCollection, textDocument);
+      }
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument(
+      (e: vscode.TextDocumentChangeEvent) => {
+        updateDiagnostics(diagnosticCollection, e.document);
+      }
+    )
   );
 }
 
