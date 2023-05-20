@@ -9,7 +9,7 @@
 			}
 		},
 		{
-			"match": "(goto(z|p?)) (\\w+)",
+			"match": "(?i)(goto(z|p?)) (\\w+)",
 			"captures": {
 				"1": { "name": "keyword.control.vic" },
 				"3": { "name": "variable" }
@@ -40,7 +40,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.vic",
-				"match": "\\b(add|sub|load|store|goto|gotoz|gotop|read|write|stop)\\b"
+				"match": "(?i)\\b(add|sub|load|store|goto|gotoz|gotop|read|write|stop)\\b"
 			}]
 		}
 	},
