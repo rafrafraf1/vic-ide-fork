@@ -6,9 +6,6 @@
  *
  * The values of the variables used here are taken from the VS Code theme:
  * Light+ (default light)
- *
- * TODO: Bundle multiple CSS files, and add a UI to allow the user to change
- * the theme (again, this is only needed in the web version of the app).
  */
 html {
   --vscode-font-family: system-ui, "Ubuntu", "Droid Sans", sans-serif;
