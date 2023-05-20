@@ -5,7 +5,7 @@ import { getNonce, renderPageHtml } from "./PanelHtml";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 import type { WebviewPanel } from "vscode";
-import { getVicAsmErrors } from "../src/common/VicDiagnostics";
+import { parseVicProgram } from "../src/common/VicLangParser";
 import { vicLanguageId } from "./VicLanguage";
 
 // This method is called when your extension is activated
@@ -70,18 +70,18 @@ export function updateDiagnostics(
   }
 
   const source = textDocument.getText();
-  const errors = getVicAsmErrors(source);
-  if (errors.length === 0) {
+  const parsedProgram = parseVicProgram(source);
+  if (parsedProgram.errors.length === 0) {
     diagnosticCollection.set(textDocument.uri, undefined);
     return;
   }
 
-  const diagnostics = errors.map<vscode.Diagnostic>((error) => ({
+  const diagnostics = parsedProgram.errors.map<vscode.Diagnostic>((error) => ({
     range: new vscode.Range(
-      error.line,
-      error.startCol,
-      error.line,
-      error.endCol
+      error.srcLoc.line,
+      error.srcLoc.startCol,
+      error.srcLoc.line,
+      error.srcLoc.endCol
     ),
     message: error.message,
     severity: vscode.DiagnosticSeverity.Error,
