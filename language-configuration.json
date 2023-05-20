@@ -8,7 +8,6 @@
         // symbols used for start and end a block comment. Remove this entry if your language does not support block comments
         "blockComment": [ "/*", "*/" ]
     },
-    "wordPattern": ".^", // Disable annoying autocomplete of random words
     "onEnterRules": [
         {
             "beforeText": "(\\w+):\\s*((\\/\\/).*)?$",
