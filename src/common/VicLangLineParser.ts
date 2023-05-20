@@ -93,7 +93,7 @@ function parseLabelStatement(
   return {
     statement: {
       kind: "Label",
-      labelName: firstToken.contents,
+      labelName: label,
       srcLoc: {
         line: lineNum,
         startCol: firstToken.startCol,

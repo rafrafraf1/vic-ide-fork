@@ -13,7 +13,7 @@ describe("parseVicProgram success", () => {
       statements: [
         {
           kind: "Label",
-          labelName: "foo:",
+          labelName: "foo",
           srcLoc: {
             line: 0,
             startCol: 0,
@@ -37,7 +37,7 @@ describe("parseVicProgram success", () => {
       statements: [
         {
           kind: "Label",
-          labelName: "foo:",
+          labelName: "foo",
           srcLoc: {
             line: 0,
             startCol: 0,
@@ -46,7 +46,7 @@ describe("parseVicProgram success", () => {
         },
         {
           kind: "Label",
-          labelName: "bar:",
+          labelName: "bar",
           srcLoc: {
             line: 1,
             startCol: 0,
@@ -72,7 +72,7 @@ describe("parseVicProgram success", () => {
       statements: [
         {
           kind: "Label",
-          labelName: "foo:",
+          labelName: "foo",
           srcLoc: {
             line: 0,
             startCol: 0,
@@ -81,7 +81,7 @@ describe("parseVicProgram success", () => {
         },
         {
           kind: "Label",
-          labelName: "bar:",
+          labelName: "bar",
           srcLoc: {
             line: 3,
             startCol: 0,
@@ -105,7 +105,7 @@ describe("parseVicProgram success", () => {
       statements: [
         {
           kind: "Label",
-          labelName: "foo:",
+          labelName: "foo",
           srcLoc: {
             line: 1,
             startCol: 0,

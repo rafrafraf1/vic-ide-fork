@@ -40,7 +40,7 @@ describe("parseLine success", () => {
     expect(parseLine(0, "foo:")).toEqual<ParseLineResult>({
       statement: {
         kind: "Label",
-        labelName: "foo:",
+        labelName: "foo",
         srcLoc: {
           line: 0,
           startCol: 0,
@@ -55,7 +55,7 @@ describe("parseLine success", () => {
     expect(parseLine(0, "foo://comment")).toEqual<ParseLineResult>({
       statement: {
         kind: "Label",
-        labelName: "foo:",
+        labelName: "foo",
         srcLoc: {
           line: 0,
           startCol: 0,
@@ -536,7 +536,7 @@ describe("parseLine errors", () => {
     expect(parseLine(0, "foo:  bar")).toEqual<ParseLineResult>({
       statement: {
         kind: "Label",
-        labelName: "foo:",
+        labelName: "foo",
         srcLoc: {
           endCol: 3,
           line: 0,
