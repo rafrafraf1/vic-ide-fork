@@ -5,7 +5,7 @@ import { getNonce, renderPageHtml } from "./PanelHtml";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 import type { WebviewPanel } from "vscode";
-import { getVicAsmErrors } from "./VicDiagnostics";
+import { getVicAsmErrors } from "../src/common/VicDiagnostics";
 import { vicLanguageId } from "./VicLanguage";
 
 // This method is called when your extension is activated
