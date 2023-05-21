@@ -14,7 +14,7 @@
     "onWebviewPanel:vic-ide",
     "onLanguage:vic"
   ],
-  "main": "./out/ext-src/extension.js",
+  "main": "./out/src-ext/extension.js",
   "contributes": {
     "commands": [
       {
@@ -52,12 +52,12 @@
   "homepage": ".",
   "scripts": {
     "vscode:prepublish": "npm run compile-ext",
-    "compile-ext": "tsc -p ./ext-src/tsconfig.json",
-    "watch-ext": "tsc -watch -p ./ext-src/tsconfig.json",
-    "lint": "eslint --max-warnings=0 src && eslint --max-warnings=0 ext-src",
-    "format-fix": "prettier --write ./src ./ext-src ./public",
-    "format": "prettier --check ./src ./ext-src ./public",
-    "test-ext": "npm run compile-ext && node ./out/ext-src/test/runTest.js",
+    "compile-ext": "tsc -p ./src-ext/tsconfig.json",
+    "watch-ext": "tsc -watch -p ./src-ext/tsconfig.json",
+    "lint": "eslint --max-warnings=0 src && eslint --max-warnings=0 src-ext",
+    "format-fix": "prettier --write ./src ./src-ext ./public",
+    "format": "prettier --check ./src ./src-ext ./public",
+    "test-ext": "npm run compile-ext && node ./out/src-ext/test/runTest.js",
     "start": "TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test --coverage",
