@@ -22,6 +22,7 @@ export function getHighlights(statements: Statement[], pos: SrcPos): SrcLoc[] {
       return getLabelHighlights(statements, symbol.name);
     case "Variable":
       return getVariableHighlights(statements, symbol.name);
+    /* istanbul ignore next */
     default:
       return assertNever(symbol);
   }
@@ -74,11 +75,13 @@ function lookupSymbol(
                 kind: "Variable",
                 name: statement.arg.name,
               };
+            /* istanbul ignore next */
             default:
               return assertNever(argKind);
           }
         }
         break;
+      /* istanbul ignore next */
       default:
         return assertNever(statement);
     }
@@ -114,11 +117,13 @@ function getLabelHighlights(statements: Statement[], name: string): SrcLoc[] {
             break;
           case "VARIABLE":
             break;
+          /* istanbul ignore next */
           default:
             return assertNever(argKind);
         }
         break;
       }
+      /* istanbul ignore next */
       default:
         return assertNever(statement);
     }
@@ -154,11 +159,13 @@ function getVariableHighlights(
               result.push(statement.arg.srcLoc);
             }
             break;
+          /* istanbul ignore next */
           default:
             return assertNever(argKind);
         }
         break;
       }
+      /* istanbul ignore next */
       default:
         return assertNever(statement);
     }

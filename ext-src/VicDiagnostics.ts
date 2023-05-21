@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
-import { parseVicProgram } from "../src/common/VicLangParser";
+import type { SrcError } from "../src/common/SrcError";
+import { assertNever } from "assert-never";
+import { compileVicProgram } from "../src/common/VicLangFullCompiler";
 import { vicLanguageId } from "./VicLanguage";
 
 export function activateVicDiagnostics(context: vscode.ExtensionContext): void {
@@ -37,23 +39,37 @@ function updateDiagnostics(
   }
 
   const source = textDocument.getText();
-  const parsedProgram = parseVicProgram(source);
-  if (parsedProgram.errors.length === 0) {
-    diagnosticCollection.set(textDocument.uri, undefined);
-    return;
+  const result = compileVicProgram(source);
+
+  switch (result.program.kind) {
+    case "Ok":
+      diagnosticCollection.set(textDocument.uri, undefined);
+      break;
+    case "Error": {
+      const errors: SrcError[] = result.program.error;
+      const diagnostics = errors.map(convertSrcErrorToDiagnostic);
+      diagnosticCollection.set(textDocument.uri, diagnostics);
+      break;
+    }
+    default:
+      assertNever(result.program);
   }
+}
 
-  const diagnostics = parsedProgram.errors.map<vscode.Diagnostic>((error) => ({
-    range: new vscode.Range(
-      error.srcLoc.line,
-      error.srcLoc.startCol,
-      error.srcLoc.line,
-      error.srcLoc.endCol
-    ),
-    message: error.message,
-    severity: vscode.DiagnosticSeverity.Error,
-    source: vicLanguageId,
-  }));
+function convertSrcErrorToDiagnostic(error: SrcError): vscode.Diagnostic {
+  const range = new vscode.Range(
+    error.srcLoc.line,
+    error.srcLoc.startCol,
+    error.srcLoc.line,
+    error.srcLoc.endCol
+  );
 
-  diagnosticCollection.set(textDocument.uri, diagnostics);
+  const diagnostic = new vscode.Diagnostic(
+    range,
+    error.message,
+    vscode.DiagnosticSeverity.Error
+  );
+  diagnostic.source = vicLanguageId;
+
+  return diagnostic;
 }
