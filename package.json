@@ -14,7 +14,7 @@
     "onWebviewPanel:vic-ide",
     "onLanguage:vic"
   ],
-  "main": "./out/src-ext/extension.js",
+  "main": "./build-ext/src-ext/extension.js",
   "contributes": {
     "commands": [
       {
@@ -57,7 +57,7 @@
     "lint": "eslint --max-warnings=0 src && eslint --max-warnings=0 src-ext",
     "format-fix": "prettier --write ./src ./src-ext ./public",
     "format": "prettier --check ./src ./src-ext ./public",
-    "test-ext": "npm run compile-ext && node ./out/src-ext/test/runTest.js",
+    "test-ext": "npm run compile-ext && node ./build-ext/src-ext/test/runTest.js",
     "start": "TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test --coverage",

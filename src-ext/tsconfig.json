@@ -5,7 +5,7 @@
     "module": "commonjs",
     "target": "ES2020",
     "rootDir": "..",
-    "outDir": "../out",
+    "outDir": "../build-ext",
     "lib": ["ES2020"],
     "skipLibCheck": true,
     "sourceMap": true
