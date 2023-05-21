@@ -60,7 +60,7 @@
     "test-ext": "npm run compile-ext && node ./out/ext-src/test/runTest.js",
     "start": "TSC_COMPILE_ON_ERROR=true DISABLE_ESLINT_PLUGIN=true react-scripts start",
     "build": "react-scripts build",
-    "test": "CI=true react-scripts test",
+    "test": "CI=true react-scripts test --coverage",
     "start-test": "react-scripts test",
     "ci": "npm run build && npm run format && npm run lint && npm run test && npm run test-ext",
     "eject": "react-scripts eject"
