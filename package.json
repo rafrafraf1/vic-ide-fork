@@ -1,6 +1,6 @@
 {
   "name": "vic-ide",
-  "displayName": "vic-ide",
+  "displayName": "Vic IDE",
   "description": "Development tools for the Visual Computer (Vic)",
   "version": "0.0.1",
   "engines": {
