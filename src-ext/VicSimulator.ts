@@ -1,17 +1,18 @@
 import * as vscode from "vscode";
 import { getNonce, renderPageHtml } from "./PanelHtml";
+import { vicOpenSimulatorCommand, vicWebviewPanelType } from "./ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 
 export function activateVicSimulator(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand("vic-ide.openSimulator", () => {
+    vscode.commands.registerCommand(vicOpenSimulatorCommand, () => {
       showVicSimulator(context.extensionUri);
     })
   );
 
   context.subscriptions.push(
-    vscode.window.registerWebviewPanelSerializer(vicViewType, {
+    vscode.window.registerWebviewPanelSerializer(vicWebviewPanelType, {
       async deserializeWebviewPanel(
         webviewPanel: vscode.WebviewPanel,
         state: AppState
@@ -33,8 +34,6 @@ export function activateVicSimulator(context: vscode.ExtensionContext): void {
     })
   );
 }
-
-const vicViewType = "vic-ide";
 
 interface VicPanel {
   panel: vscode.WebviewPanel;
@@ -66,7 +65,7 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
   }
 
   const panel = vscode.window.createWebviewPanel(
-    vicViewType,
+    vicWebviewPanelType,
     "Vic Simulator",
     vscode.ViewColumn.One,
     getWebviewOptions(extensionUri)

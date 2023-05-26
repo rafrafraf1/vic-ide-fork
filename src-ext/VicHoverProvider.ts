@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { vicLanguageId } from "./VicLanguage";
+import { vicLanguageId } from "./ExtManifest";
 
 export function activateVicHoverProvider(
   context: vscode.ExtensionContext

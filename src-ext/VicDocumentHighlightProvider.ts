@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { getHighlights } from "../src/common/VicLangSrcAnalysis";
 import { parseVicProgram } from "../src/common/VicLangParser";
-import { vicLanguageId } from "./VicLanguage";
+import { vicLanguageId } from "./ExtManifest";
 
 export function activateVicDocumentHighlightProvider(
   context: vscode.ExtensionContext
