@@ -10,17 +10,13 @@
     "Programming Languages"
   ],
   "activationEvents": [
-    "onCommand:vic-ide.helloWorld",
+    "onCommand:vic-ide.openSimulator",
     "onWebviewPanel:vic-ide",
     "onLanguage:vic"
   ],
   "main": "./build-ext/src-ext/extension.js",
   "contributes": {
     "commands": [
-      {
-        "command": "vic-ide.helloWorld",
-        "title": "Hello World"
-      },
       {
         "command": "vic-ide.openSimulator",
         "title": "Open Vic Simulator",
