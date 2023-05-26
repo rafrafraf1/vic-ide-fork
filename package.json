@@ -51,7 +51,7 @@
   },
   "homepage": ".",
   "scripts": {
-    "vscode:prepublish": "npm run compile-ext",
+    "vscode:prepublish": "npm run build && npm run compile-ext",
     "compile-ext": "tsc -p ./src-ext/tsconfig.json",
     "watch-ext": "tsc -watch -p ./src-ext/tsconfig.json",
     "lint": "eslint --max-warnings=0 src && eslint --max-warnings=0 src-ext",
