@@ -20,14 +20,14 @@
       {
         "command": "vic-ide.openSimulator",
         "title": "Open Vic Simulator",
-        "category": "Vic"
+        "category": "Vic IDE"
       }
     ],
     "languages": [
       {
         "id": "vic",
         "aliases": [
-          "Vic assembly",
+          "Vic Assembly",
           "vic"
         ],
         "extensions": [
