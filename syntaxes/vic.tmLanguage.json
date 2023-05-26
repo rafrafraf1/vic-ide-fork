@@ -29,11 +29,6 @@
                    "begin": "//",
                    "end": "$",
                    "name": "comment.line.double-slash.astra"
-                },
-                {
-                    "begin": "/\\*",
-                    "end" : "\\*/",
-                    "name": "comment.block.astra"
                 }
              ]
         },
