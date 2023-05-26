@@ -1,9 +1,9 @@
 import type * as vscode from "vscode";
-import { activateVicCompletionItemProvider } from "./VicCompletionItemProvider";
-import { activateVicDiagnostics } from "./VicDiagnostics";
-import { activateVicDocumentHighlightProvider } from "./VicDocumentHighlightProvider";
-import { activateVicHoverProvider } from "./VicHoverProvider";
-import { activateVicSimulator } from "./VicSimulator";
+import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
+import { activateVicDiagnostics } from "./VicLanguageFeatures/VicDiagnostics";
+import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
+import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
+import { activateVicSimulator } from "./VicSimulator/VicSimulator";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed

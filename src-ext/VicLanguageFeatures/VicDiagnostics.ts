@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import type { SrcError } from "../src/common/SrcError";
+import type { SrcError } from "../../src/common/SrcError";
 import { assertNever } from "assert-never";
-import { compileVicProgram } from "../src/common/VicLangFullCompiler";
-import { vicLanguageId } from "./ExtManifest";
+import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+import { vicLanguageId } from "../ExtManifest";
 
 export function activateVicDiagnostics(context: vscode.ExtensionContext): void {
   const diagnosticCollection =

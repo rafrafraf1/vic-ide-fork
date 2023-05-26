@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { getNonce, renderPageHtml } from "./PanelHtml";
-import { vicOpenSimulatorCommand, vicWebviewPanelType } from "./ExtManifest";
+import { vicOpenSimulatorCommand, vicWebviewPanelType } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 

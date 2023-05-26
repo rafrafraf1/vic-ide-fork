@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { vicLanguageId } from "./ExtManifest";
+import { vicLanguageId } from "../ExtManifest";
 
 export function activateVicCompletionItemProvider(
   context: vscode.ExtensionContext
