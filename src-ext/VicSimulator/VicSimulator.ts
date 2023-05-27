@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getNonce, renderPageHtml } from "./PanelHtml";
+import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
 import {
   vicOpenSimulatorCommand,
   vicWebviewPanelType,
@@ -132,8 +132,7 @@ function renderVicPanel(
           `Error loading asset-manifest.json:\n${assetManifest}`
         );
       } else {
-        // Use a nonce to only allow specific scripts to be run
-        const nonce = getNonce();
+        const nonce = generateSecureNonce();
 
         const pageHtml = renderPageHtml(
           extensionUri,

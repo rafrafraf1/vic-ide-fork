@@ -9,7 +9,7 @@ import { webviewBuildDir } from "../ExtManifest";
  *
  * @param nonce A secure random token used in the Content-Security-Policy to
  * restrict loading of scripts. This can be created using the function
- * `getNonce`.
+ * `generateSecureNonce`.
  *
  * @param cspSource Content security policy source for webview resources. This
  * is the origin that should be used in a content security policy rule. This
@@ -81,7 +81,14 @@ export function renderPageHtml(
   return pageHtml;
 }
 
-export function getNonce(): string {
+/**
+ * Creates a secure random token, that can be used as a
+ * Content-Security-Policy nonce policy to restrict loading of scripts.
+ *
+ * See:
+ * <https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src>
+ */
+export function generateSecureNonce(): string {
   return crypto.randomBytes(16).toString("base64");
 }
 
