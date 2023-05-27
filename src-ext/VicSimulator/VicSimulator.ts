@@ -68,10 +68,23 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
     return;
   }
 
+  // The title of the tab that will contain the simulator:
+  const title = "Vic Simulator";
+
+  // Split the VS code editor into two columns, and place the simulator in the
+  // right view column. (If the editor is already split, then the simulator
+  // will open in a new tab in the right view column).
+  //
+  // Note: another good choice might be to use `vscode.ViewColumn.Beside`.
+  //
+  // See:
+  // <https://stackoverflow.com/questions/56961523/how-do-i-get-the-number-of-viewcolumns-the-user-has-open-from-a-vscode-extension/58896667#58896667>
+  const viewColumn: vscode.ViewColumn = vscode.ViewColumn.Two;
+
   const panel = vscode.window.createWebviewPanel(
     vicWebviewPanelType,
-    "Vic Simulator",
-    vscode.ViewColumn.One,
+    title,
+    viewColumn,
     getWebviewOptions(extensionUri)
   );
 
