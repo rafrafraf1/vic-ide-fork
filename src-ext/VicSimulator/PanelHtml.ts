@@ -60,6 +60,7 @@ export function renderPageHtml(
     </script>
     `;
 
+  // This should (more-or-less) match the "public/index.html" source file:
   const pageHtml = `
     <!doctype html>
     <html lang="en">
