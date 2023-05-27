@@ -3,6 +3,10 @@
   "displayName": "Vic IDE",
   "description": "Development tools for the Visual Computer (Vic)",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vic-IDE/vic-ide.git"
+  },
   "engines": {
     "vscode": "^1.74.0"
   },
