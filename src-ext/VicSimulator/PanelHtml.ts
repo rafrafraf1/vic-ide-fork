@@ -2,6 +2,7 @@ import * as crypto from "crypto";
 import * as vscode from "vscode";
 import type { AppState } from "./AppState";
 import type { AssetManifest } from "./AssetManifest";
+import { webviewBuildDir } from "../ExtManifest";
 
 /**
  * Renders the HTML page for the Vic-IDE web panel.
@@ -88,7 +89,11 @@ function entrypointUri(
   asWebviewUri: (localResource: vscode.Uri) => vscode.Uri,
   entrypoint: string
 ): vscode.Uri {
-  const pathOnDisk = vscode.Uri.joinPath(extensionUri, "build", entrypoint);
+  const pathOnDisk = vscode.Uri.joinPath(
+    extensionUri,
+    webviewBuildDir,
+    entrypoint
+  );
   return asWebviewUri(pathOnDisk);
 }
 

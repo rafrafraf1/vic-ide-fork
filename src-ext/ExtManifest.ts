@@ -15,3 +15,9 @@ export const vicWebviewPanelType = "vic-ide";
  * The command registered by the extension to open the Vic Simulator.
  */
 export const vicOpenSimulatorCommand = "vic-ide.openSimulator";
+
+/**
+ * The "build" directory of the create-react-app that is loaded into the
+ * webview.
+ */
+export const webviewBuildDir = "build";

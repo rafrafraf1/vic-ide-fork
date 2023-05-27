@@ -1,6 +1,10 @@
 import * as vscode from "vscode";
 import { getNonce, renderPageHtml } from "./PanelHtml";
-import { vicOpenSimulatorCommand, vicWebviewPanelType } from "../ExtManifest";
+import {
+  vicOpenSimulatorCommand,
+  vicWebviewPanelType,
+  webviewBuildDir,
+} from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 
@@ -89,7 +93,7 @@ function renderVicPanel(
 ): void {
   const assetMannifestPath = vscode.Uri.joinPath(
     extensionUri,
-    "build",
+    webviewBuildDir,
     "asset-manifest.json"
   );
 
@@ -138,13 +142,15 @@ function renderVicPanel(
   );
 }
 
-function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
+function getWebviewOptions(
+  extensionUri: vscode.Uri
+): vscode.WebviewPanelOptions & vscode.WebviewOptions {
   return {
     // Enable javascript in the webview
     enableScripts: true,
 
     // And restrict the webview to only loading content from the specified
     // directories.
-    localResourceRoots: [vscode.Uri.joinPath(extensionUri, "build")],
+    localResourceRoots: [vscode.Uri.joinPath(extensionUri, webviewBuildDir)],
   };
 }
