@@ -1,4 +1,8 @@
 import * as vscode from "vscode";
+import type {
+  ExtensionMessage,
+  SimulatorMessage,
+} from "../../src/common/Vic/Messages";
 import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
 import {
   vicOpenSimulatorCommand,
@@ -7,6 +11,7 @@ import {
 } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
+import { assertNever } from "assert-never";
 
 export function activateVicSimulator(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
@@ -36,6 +41,27 @@ export function activateVicSimulator(context: vscode.ExtensionContext): void {
         await Promise.resolve();
       },
     })
+  );
+
+  // TODO This event needs more polish (handle initial load, handle closing of
+  // last file, etc...).
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor(
+      (activeTextEditor: vscode.TextEditor | undefined): void => {
+        if (activeTextEditor !== undefined) {
+          webviewPostMessage({
+            kind: "SourceFileChange",
+            sourceFile: {
+              filename: getUriBasename(activeTextEditor.document.uri),
+              info: {
+                kind: "ValidSourceFile",
+                hasErrors: false,
+              },
+            },
+          });
+        }
+      }
+    )
   );
 }
 
@@ -95,10 +121,6 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
   };
 }
 
-interface StateMessage<StateType> {
-  state: StateType | undefined;
-}
-
 function renderVicPanel(
   panel: vscode.WebviewPanel,
   extensionUri: vscode.Uri,
@@ -116,12 +138,21 @@ function renderVicPanel(
   });
 
   panel.webview.onDidReceiveMessage((e) => {
-    // TODO In the future there will be different message types. For now
-    // assuming that it is a state-update message.
+    const message: SimulatorMessage<AppState> = e as SimulatorMessage<AppState>;
 
-    const stateMessage: StateMessage<AppState> = e as StateMessage<AppState>;
-
-    globalState = stateMessage.state;
+    switch (message.kind) {
+      case "SetState":
+        globalState = message.state;
+        break;
+      case "LoadSourceFile":
+        console.log("LoadSourceFile");
+        break;
+      case "ShowErrors":
+        // TODO ...
+        break;
+      default:
+        assertNever(message);
+    }
   });
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
@@ -154,6 +185,26 @@ function renderVicPanel(
   );
 }
 
+/**
+ * Tag all messages that are sent with a "source", because the browser
+ * environment is chaotic, and there may be other components (like browser
+ * extensions) that post messages to the window.
+ *
+ * We need the app to be able to identity the messages that come from us.
+ */
+type OutgoingMessage<T> = T & { source: "vic-ide-ext" };
+
+function webviewPostMessage(message: ExtensionMessage): void {
+  if (globalPanel !== undefined) {
+    const outgoingMessage: OutgoingMessage<ExtensionMessage> = {
+      source: "vic-ide-ext",
+      ...message,
+    };
+
+    void globalPanel.panel.webview.postMessage(outgoingMessage);
+  }
+}
+
 function getWebviewOptions(
   extensionUri: vscode.Uri
 ): vscode.WebviewPanelOptions & vscode.WebviewOptions {
@@ -165,4 +216,13 @@ function getWebviewOptions(
     // directories.
     localResourceRoots: [vscode.Uri.joinPath(extensionUri, webviewBuildDir)],
   };
+}
+
+function getUriBasename(uri: vscode.Uri): string {
+  const i = uri.path.lastIndexOf("/");
+  if (i < 0) {
+    return uri.path;
+  }
+
+  return uri.path.substring(i + 1);
 }

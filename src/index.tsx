@@ -5,7 +5,7 @@ import App from "./App";
 import ReactDOM from "react-dom/client";
 import type { SimulatorState } from "./Computer/SimulatorState";
 import { ValueCellInputPlayground } from "./Playgrounds/ValueCellInputPlayground";
-import { getSystemStateService } from "./System/SystemState";
+import { getExtensionBridge } from "./System/ExtensionBridge";
 import reportWebVitals from "./reportWebVitals";
 
 function getRequiredElement(elementId: string): HTMLElement {
@@ -25,14 +25,14 @@ function boot(): void {
 
   const root = ReactDOM.createRoot(getRequiredElement("root"));
 
-  const systemStateService = getSystemStateService<SimulatorState>();
+  const extensionBridge = getExtensionBridge<SimulatorState>();
 
   root.render(
     <React.StrictMode>
       {devMode() ? (
         <ValueCellInputPlayground />
       ) : (
-        <App systemStateService={systemStateService} />
+        <App extensionBridge={extensionBridge} />
       )}
     </React.StrictMode>
   );

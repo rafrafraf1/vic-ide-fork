@@ -29,7 +29,9 @@ import {
   lookupExampleProgram,
 } from "./Examples/ExampleProgram";
 import type { Address } from "./Computer/Instruction";
-import type { SystemStateService } from "./System/SystemState";
+import type { ExtensionBridge } from "./System/ExtensionBridge";
+import type { ExtensionMessage } from "./common/Vic/Messages";
+import type { SourceFile } from "./common/Vic/SourceFile";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
 import { assertNever } from "assert-never";
@@ -37,20 +39,20 @@ import { nextInstructionAnimation } from "./UI/Simulator/Animations";
 import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
 import { useEvents } from "./UI/ReactHooks/UseEvents";
+import { useWindowMessages } from "./UI/ReactHooks/UseWindowMessages";
 
 export interface AppProps {
-  systemStateService: SystemStateService<SimulatorState>;
+  extensionBridge: ExtensionBridge<SimulatorState>;
 }
 
 /**
  * Initializes an initial state, by either loading a saved state from the
- * SystemStateService, or if there is no saved state, creating a new empty
- * state.
+ * ExtensionBridge, or if there is no saved state, creating a new empty state.
  */
 function initSimulatorState(
-  systemStateService: SystemStateService<SimulatorState>
+  extensionBridge: ExtensionBridge<SimulatorState>
 ): SimulatorState {
-  const savedState = systemStateService.getState();
+  const savedState = extensionBridge.getState();
   if (savedState !== undefined) {
     return savedState;
   } else {
@@ -72,11 +74,11 @@ namespace StepComplete {
 }
 
 function App(props: AppProps): JSX.Element {
-  const { systemStateService } = props;
+  const { extensionBridge } = props;
 
   const initialState = React.useMemo(
-    () => initSimulatorState(systemStateService),
-    [systemStateService]
+    () => initSimulatorState(extensionBridge),
+    [extensionBridge]
   );
 
   const [computer, setComputer] = React.useState(
@@ -90,6 +92,32 @@ function App(props: AppProps): JSX.Element {
 
   const [simulationState, setSimulationState] =
     React.useState<SimulationState>("IDLE");
+
+  const [sourceFile, setSourceFile] = React.useState<SourceFile | undefined>(
+    undefined
+  );
+
+  const onMessage = React.useCallback(
+    (message: ExtensionMessage.SourceFileChange): void => {
+      switch (message.kind) {
+        case "SourceFileChange":
+          setSourceFile(message.sourceFile);
+          break;
+        default:
+          console.log("Unknown message:", message);
+          assertNever(message.kind);
+      }
+    },
+    []
+  );
+
+  useWindowMessages<ExtensionMessage>(onMessage);
+
+  const handleLoadSourceFileClick = React.useCallback(() => {
+    extensionBridge.postMessage({
+      kind: "LoadSourceFile",
+    });
+  }, [extensionBridge]);
 
   const triggerStepComplete = useEvents<StepComplete>(
     (step: StepComplete): void => {
@@ -146,9 +174,9 @@ function App(props: AppProps): JSX.Element {
 
   // Whenever any part of the `SimulatorState` changes (`computer`, `input`,
   // `output`, or `animationSpeed`), we send a message to the
-  // `systemStateService` to persist the updated state.
+  // `extensionBridge` to persist the updated state.
   React.useEffect(() => {
-    systemStateService.setState({
+    extensionBridge.setState({
       hardwareState: {
         computer: computer,
         input: input,
@@ -156,7 +184,7 @@ function App(props: AppProps): JSX.Element {
       },
       animationSpeed: animationSpeed,
     });
-  }, [animationSpeed, computer, input, output, systemStateService]);
+  }, [animationSpeed, computer, extensionBridge, input, output]);
 
   const animate = useAnimate();
 
@@ -316,6 +344,8 @@ function App(props: AppProps): JSX.Element {
         simulationState={simulationState}
         examples={getExampleProgramNames()}
         onLoadExample={handleLoadExample}
+        sourceFile={sourceFile}
+        onLoadSourceFileClick={handleLoadSourceFileClick}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={handleAnimationSpeedChange}
         onFetchInstructionClick={handleFetchInstructionClick}

@@ -21,6 +21,7 @@ import { BsHourglass } from "react-icons/bs";
 import { IS_DEMO_ENVIRONMENT } from "../System/Environment";
 import type { IconType } from "react-icons";
 import { MenuButton } from "./Components/MenuButton";
+import type { SourceFile } from "../common/Vic/SourceFile";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
 
@@ -31,6 +32,9 @@ interface ToolbarProps {
 
   examples: string[];
   onLoadExample?: (example: string) => void;
+
+  sourceFile: SourceFile | undefined;
+  onLoadSourceFileClick?: () => void;
 
   animationSpeed: AnimationSpeed;
   onAnimationSpeedChange?: (value: AnimationSpeed) => void;
@@ -50,6 +54,8 @@ export const Toolbar = React.memo(function Toolbar(
     simulationState,
     examples,
     onLoadExample,
+    sourceFile,
+    onLoadSourceFileClick,
     animationSpeed,
     onAnimationSpeedChange,
     onFetchInstructionClick,
@@ -91,12 +97,18 @@ export const Toolbar = React.memo(function Toolbar(
   return (
     <div className={classNames(className, "Toolbar-root")}>
       {IS_DEMO_ENVIRONMENT ? <ThemeSwitcher /> : null}
-      <MenuButton
-        disabled={simulationActive(simulationState)}
-        label="Load Example"
-        values={examples}
-        onValueClick={onLoadExample}
-      />
+      {IS_DEMO_ENVIRONMENT ? (
+        <MenuButton
+          disabled={simulationActive(simulationState)}
+          label="Load Example"
+          values={examples}
+          onValueClick={onLoadExample}
+        />
+      ) : (
+        <ToolbarButton onClick={onLoadSourceFileClick}>
+          {sourceFile === undefined ? "NONE" : sourceFile.filename}
+        </ToolbarButton>
+      )}
       <ToolbarButton
         disabled={simulationActive(simulationState)}
         onClick={onFetchInstructionClick}

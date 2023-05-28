@@ -1,7 +1,7 @@
 import App from "./App";
-import { DummySystemStateService } from "./System/SystemState";
+import { DummyExtensionBridge } from "./System/ExtensionBridge";
 import { render } from "@testing-library/react";
 
 test("renders app", () => {
-  render(<App systemStateService={new DummySystemStateService()} />);
+  render(<App extensionBridge={new DummyExtensionBridge()} />);
 });
