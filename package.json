@@ -7,6 +7,7 @@
     "type": "git",
     "url": "https://github.com/Vic-IDE/vic-ide.git"
   },
+  "publisher": "vic-ide",
   "license": "MIT",
   "engines": {
     "vscode": "^1.74.0"
