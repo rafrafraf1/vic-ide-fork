@@ -3,6 +3,11 @@
  */
 export interface SourceFile {
   /**
+   * An identifier used only by the extension.
+   */
+  id: SourceFileId;
+
+  /**
    * The name of the file open in the editor.
    */
   filename: string;
@@ -12,6 +17,8 @@ export interface SourceFile {
    */
   info: SourceFileInfo;
 }
+
+export type SourceFileId = string;
 
 /**
  * Additional information about a SourceFile.

@@ -10,9 +10,11 @@ export type MemoryCell = Value | null;
 /**
  * The amount of memory available in the Vic computer.
  *
- * It doesn't make sense to make this larger, because the CPU instructions can only
+ * It doesn't make sense to make this larger, because the GOTO CPU
+ * instructions can only reference 2-digit addresses.
  */
 export const MEMORY_SIZE = 100;
+export const WRITABLE_MEMORY_SIZE = 98;
 export const MEMORY_READONLY_REGION = 98;
 
 /**

@@ -33,7 +33,7 @@ interface ToolbarProps {
   examples: string[];
   onLoadExample?: (example: string) => void;
 
-  sourceFile: SourceFile | undefined;
+  sourceFile: SourceFile | null;
   onLoadSourceFileClick?: () => void;
 
   animationSpeed: AnimationSpeed;
@@ -106,7 +106,7 @@ export const Toolbar = React.memo(function Toolbar(
         />
       ) : (
         <ToolbarButton onClick={onLoadSourceFileClick}>
-          {sourceFile === undefined ? "NONE" : sourceFile.filename}
+          {sourceFile === null ? "NONE" : sourceFile.filename}
         </ToolbarButton>
       )}
       <ToolbarButton

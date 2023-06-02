@@ -11,7 +11,9 @@ import {
 } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
+import type { SourceFileId } from "../../src/common/Vic/SourceFile";
 import { assertNever } from "assert-never";
+import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
 
 export function activateVicSimulator(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
@@ -52,6 +54,7 @@ export function activateVicSimulator(context: vscode.ExtensionContext): void {
           webviewPostMessage({
             kind: "SourceFileChange",
             sourceFile: {
+              id: uriToSourceFileId(activeTextEditor.document.uri),
               filename: getUriBasename(activeTextEditor.document.uri),
               info: {
                 kind: "ValidSourceFile",
@@ -139,20 +142,7 @@ function renderVicPanel(
 
   panel.webview.onDidReceiveMessage((e) => {
     const message: SimulatorMessage<AppState> = e as SimulatorMessage<AppState>;
-
-    switch (message.kind) {
-      case "SetState":
-        globalState = message.state;
-        break;
-      case "LoadSourceFile":
-        console.log("LoadSourceFile");
-        break;
-      case "ShowErrors":
-        // TODO ...
-        break;
-      default:
-        assertNever(message);
-    }
+    handleSimulatorMessage(message);
   });
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
@@ -183,6 +173,73 @@ function renderVicPanel(
       );
     }
   );
+}
+
+function handleSimulatorMessage(message: SimulatorMessage<AppState>): void {
+  switch (message.kind) {
+    case "SetState":
+      globalState = message.state;
+      break;
+    case "LoadSourceFile":
+      handleLoadSourceFile(message.sourceFileId);
+      break;
+    case "ShowErrors":
+      // TODO ...
+      break;
+    default:
+      assertNever(message);
+  }
+}
+
+// [Note about message passing race conditions]
+//
+// There are several points in the code that contain a reference to this note.
+//
+// In general, these branches should not happen. But because the Extension and
+// the Simulator communicate using asynchronous message passing, it is
+// possible for race conditions to happen that will lead to these branches.
+//
+// The race conditions can happen as a result of very quick user interactions.
+//
+// For example: The user clicks the button in the Simulator to load a source
+// file (containing no errors). But before the message arrives to the
+// Extension, the user very quickly modifies the source file to introduce an
+// error. When the Extension receives the message and tries to compile the
+// source file it will encounter an unexpected error.
+//
+// Note: I have not observed these race conditions happening in practice, but
+// they are possible in theory.
+
+function handleLoadSourceFile(sourceFileId: SourceFileId): void {
+  const textDocument = vscode.workspace.textDocuments.find(
+    (t) => uriToSourceFileId(t.uri) === sourceFileId
+  );
+
+  if (textDocument === undefined) {
+    // See [Note about message passing race conditions]
+    void vscode.window.showErrorMessage(`No file to load`);
+    return;
+  }
+
+  const source = textDocument.getText();
+  const result = compileVicProgram(source);
+  switch (result.program.kind) {
+    case "Ok":
+      webviewPostMessage({
+        kind: "LoadProgram",
+        program: result.program.value,
+      });
+      break;
+    case "Error": {
+      // See [Note about message passing race conditions]
+      void vscode.window.showErrorMessage(
+        `Error loading ${getUriBasename(textDocument.uri)}`
+      );
+      break;
+    }
+    default:
+      assertNever(result.program);
+  }
 }
 
 /**
@@ -216,6 +273,16 @@ function getWebviewOptions(
     // directories.
     localResourceRoots: [vscode.Uri.joinPath(extensionUri, webviewBuildDir)],
   };
+}
+
+/**
+ * Converts a `vscode.Uri` to a `SourceFileId`. This allows the uri to be
+ * serialized (to be sent as part of a message). It also allows comparing uris
+ * for equality (If two uris map ot the same `SourceFileId` then the two uris
+ * are equal).
+ */
+function uriToSourceFileId(uri: vscode.Uri): SourceFileId {
+  return uri.toString();
 }
 
 function getUriBasename(uri: vscode.Uri): string {

@@ -35,6 +35,7 @@ import type { SourceFile } from "./common/Vic/SourceFile";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
 import { assertNever } from "assert-never";
+import { loadProgram } from "./Computer/Program";
 import { nextInstructionAnimation } from "./UI/Simulator/Animations";
 import { nonNull } from "./Functional/Nullability";
 import { useAnimate } from "./UI/UseAnimate";
@@ -93,22 +94,34 @@ function App(props: AppProps): JSX.Element {
   const [simulationState, setSimulationState] =
     React.useState<SimulationState>("IDLE");
 
-  const [sourceFile, setSourceFile] = React.useState<SourceFile | undefined>(
-    undefined
-  );
+  const [sourceFile, setSourceFile] = React.useState<SourceFile | null>(null);
 
   const onMessage = React.useCallback(
-    (message: ExtensionMessage.SourceFileChange): void => {
+    (message: ExtensionMessage): void => {
       switch (message.kind) {
         case "SourceFileChange":
           setSourceFile(message.sourceFile);
           break;
+        case "LoadProgram": {
+          const hardwareState = loadProgram(
+            {
+              computer: computer,
+              input: input,
+              output: output,
+            },
+            message.program
+          );
+
+          setComputer(hardwareState.computer);
+          setInput(hardwareState.input);
+          setOutput(hardwareState.output);
+          break;
+        }
         default:
-          console.log("Unknown message:", message);
-          assertNever(message.kind);
+          assertNever(message);
       }
     },
-    []
+    [computer, input, output]
   );
 
   useWindowMessages<ExtensionMessage>(onMessage);
@@ -116,8 +129,9 @@ function App(props: AppProps): JSX.Element {
   const handleLoadSourceFileClick = React.useCallback(() => {
     extensionBridge.postMessage({
       kind: "LoadSourceFile",
+      sourceFileId: nonNull(sourceFile).id,
     });
-  }, [extensionBridge]);
+  }, [extensionBridge, sourceFile]);
 
   const triggerStepComplete = useEvents<StepComplete>(
     (step: StepComplete): void => {
