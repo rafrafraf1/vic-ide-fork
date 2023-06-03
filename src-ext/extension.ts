@@ -3,10 +3,13 @@ import {
   activateDiagnosticsService,
   createDiagnosticsService,
 } from "./VicLanguageFeatures/VicDiagnostics";
+import {
+  activateVicSimulator,
+  createSimulatorManager,
+} from "./VicSimulator/VicSimulator";
 import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
 import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
 import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
-import { activateVicSimulator } from "./VicSimulator/VicSimulator";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -23,7 +26,8 @@ export function activate(context: vscode.ExtensionContext): void {
   activateVicDocumentHighlightProvider(context);
 
   // Vic Simulator:
-  activateVicSimulator(context, diagnosticsService);
+  const simulatorManager = createSimulatorManager(diagnosticsService);
+  activateVicSimulator(context, simulatorManager);
 }
 
 // This method is called when your extension is deactivated

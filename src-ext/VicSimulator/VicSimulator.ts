@@ -19,13 +19,47 @@ import type { SourceFileId } from "../../src/common/Vic/SourceFile";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
 
+export interface SimulatorManager {
+  readonly diagnosticsService: DiagnosticsService;
+
+  /**
+   * We only want to allow a single tab with the Vic Simulator to exist. If
+   * the user tries to open a new Vic Simulator, then we reveal the existing
+   * tab.
+   */
+  panel: VicPanel | null;
+
+  /**
+   * The VSCode extension API supports saving/restoring state of the webview.
+   * This functionality is only used when the tab is hidden/revealed. If the
+   * tab is closed, then the state is lost.
+   *
+   * So we use this variable to store the state, so that we have it available
+   * afte the user closes the tab and opens a "new" Vic Simulator.
+   */
+  state: AppState | undefined;
+
+  activeTextDocument: vscode.Uri | null;
+}
+
+export function createSimulatorManager(
+  diagnosticsService: DiagnosticsService
+): SimulatorManager {
+  return {
+    activeTextDocument: null,
+    diagnosticsService: diagnosticsService,
+    panel: null,
+    state: undefined,
+  };
+}
+
 export function activateVicSimulator(
   context: vscode.ExtensionContext,
-  diagnosticsService: DiagnosticsService
+  simulatorManager: SimulatorManager
 ): void {
   context.subscriptions.push(
     vscode.commands.registerCommand(vicOpenSimulatorCommand, () => {
-      showVicSimulator(context.extensionUri);
+      showVicSimulator(simulatorManager, context.extensionUri);
     })
   );
 
@@ -39,13 +73,18 @@ export function activateVicSimulator(
 
         webviewPanel.webview.options = getWebviewOptions(context.extensionUri);
 
-        renderVicPanel(webviewPanel, context.extensionUri, undefined);
+        renderVicPanel(
+          simulatorManager,
+          webviewPanel,
+          context.extensionUri,
+          undefined
+        );
 
-        globalPanel = {
+        simulatorManager.panel = {
           panel: webviewPanel,
         };
 
-        globalState = state;
+        simulatorManager.state = state;
 
         await Promise.resolve();
       },
@@ -59,10 +98,13 @@ export function activateVicSimulator(
       (activeTextEditor: vscode.TextEditor | undefined): void => {
         if (activeTextEditor !== undefined) {
           const uri = activeTextEditor.document.uri;
-          globalActiveTextDocument = uri;
-          const hasErrors = getTextDocumentHasErrors(diagnosticsService, uri);
+          simulatorManager.activeTextDocument = uri;
+          const hasErrors = getTextDocumentHasErrors(
+            simulatorManager.diagnosticsService,
+            uri
+          );
 
-          webviewPostMessage({
+          webviewPostMessage(simulatorManager, {
             kind: "SourceFileChange",
             sourceFile: {
               id: uriToSourceFileId(uri),
@@ -78,14 +120,14 @@ export function activateVicSimulator(
     )
   );
 
-  diagnosticsService.observer = {
+  simulatorManager.diagnosticsService.observer = {
     onTextDocumentHasErrors: (uri: vscode.Uri, hasErrors: boolean): void => {
-      if (globalActiveTextDocument === null) {
+      if (simulatorManager.activeTextDocument === null) {
         return;
       }
 
-      if (uri.toString() === globalActiveTextDocument.toString()) {
-        webviewPostMessage({
+      if (uri.toString() === simulatorManager.activeTextDocument.toString()) {
+        webviewPostMessage(simulatorManager, {
           kind: "SourceFileChange",
           sourceFile: {
             id: uriToSourceFileId(uri),
@@ -105,30 +147,12 @@ interface VicPanel {
   panel: vscode.WebviewPanel;
 }
 
-/**
- * We only allow a single tab with the Vic IDE to exist. If the user tries to
- * open a new Vic IDE, then we reveal the existing tab.
- *
- * This variable is used to keep track of the existing (single) panel, so that
- * it can be revealed.
- */
-let globalPanel: VicPanel | undefined = undefined;
-
-/**
- * The VSCode extension API supports saving/restoring state of the webview.
- * This functionality is only used when the tab is hidden/revealed. If the tab
- * is closed, then the state is lost.
- *
- * So we use this variable to store the state, so that we have it available
- * afte the user closes the tab and opens a "new" Vic IDE.
- */
-let globalState: AppState | undefined = undefined;
-
-let globalActiveTextDocument: vscode.Uri | null = null;
-
-function showVicSimulator(extensionUri: vscode.Uri): void {
-  if (globalPanel !== undefined) {
-    globalPanel.panel.reveal();
+function showVicSimulator(
+  simulatorManager: SimulatorManager,
+  extensionUri: vscode.Uri
+): void {
+  if (simulatorManager.panel !== null) {
+    simulatorManager.panel.panel.reveal();
     return;
   }
 
@@ -152,14 +176,15 @@ function showVicSimulator(extensionUri: vscode.Uri): void {
     getWebviewOptions(extensionUri)
   );
 
-  renderVicPanel(panel, extensionUri, globalState);
+  renderVicPanel(simulatorManager, panel, extensionUri, simulatorManager.state);
 
-  globalPanel = {
+  simulatorManager.panel = {
     panel: panel,
   };
 }
 
 function renderVicPanel(
+  simulatorManager: SimulatorManager,
   panel: vscode.WebviewPanel,
   extensionUri: vscode.Uri,
   appState: AppState | undefined
@@ -172,12 +197,12 @@ function renderVicPanel(
 
   // User closes the VSCode tab containing the panel:
   panel.onDidDispose(() => {
-    globalPanel = undefined;
+    simulatorManager.panel = null;
   });
 
   panel.webview.onDidReceiveMessage((e) => {
     const message: SimulatorMessage<AppState> = e as SimulatorMessage<AppState>;
-    handleSimulatorMessage(message);
+    handleSimulatorMessage(simulatorManager, message);
   });
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
@@ -210,13 +235,16 @@ function renderVicPanel(
   );
 }
 
-function handleSimulatorMessage(message: SimulatorMessage<AppState>): void {
+function handleSimulatorMessage(
+  simulatorManager: SimulatorManager,
+  message: SimulatorMessage<AppState>
+): void {
   switch (message.kind) {
     case "SetState":
-      globalState = message.state;
+      simulatorManager.state = message.state;
       break;
     case "LoadSourceFile":
-      handleLoadSourceFile(message.sourceFileId);
+      handleLoadSourceFile(simulatorManager, message.sourceFileId);
       break;
     case "ShowErrors":
       handleShowErrors(message.sourceFileId);
@@ -245,7 +273,10 @@ function handleSimulatorMessage(message: SimulatorMessage<AppState>): void {
 // Note: I have not observed these race conditions happening in practice, but
 // they are possible in theory.
 
-function handleLoadSourceFile(sourceFileId: SourceFileId): void {
+function handleLoadSourceFile(
+  simulatorManager: SimulatorManager,
+  sourceFileId: SourceFileId
+): void {
   const textDocument = vscode.workspace.textDocuments.find(
     (t) => uriToSourceFileId(t.uri) === sourceFileId
   );
@@ -260,7 +291,7 @@ function handleLoadSourceFile(sourceFileId: SourceFileId): void {
   const result = compileVicProgram(source);
   switch (result.program.kind) {
     case "Ok":
-      webviewPostMessage({
+      webviewPostMessage(simulatorManager, {
         kind: "LoadProgram",
         program: result.program.value,
       });
@@ -302,14 +333,17 @@ function handleShowErrors(sourceFileId: SourceFileId): void {
  */
 type OutgoingMessage<T> = T & { source: "vic-ide-ext" };
 
-function webviewPostMessage(message: ExtensionMessage): void {
-  if (globalPanel !== undefined) {
+function webviewPostMessage(
+  simulatorManager: SimulatorManager,
+  message: ExtensionMessage
+): void {
+  if (simulatorManager.panel !== null) {
     const outgoingMessage: OutgoingMessage<ExtensionMessage> = {
       source: "vic-ide-ext",
       ...message,
     };
 
-    void globalPanel.panel.webview.postMessage(outgoingMessage);
+    void simulatorManager.panel.panel.webview.postMessage(outgoingMessage);
   }
 }
 
