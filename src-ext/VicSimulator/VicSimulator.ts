@@ -343,7 +343,19 @@ function webviewPostMessage(
       ...message,
     };
 
-    void simulatorManager.panel.panel.webview.postMessage(outgoingMessage);
+    simulatorManager.panel.panel.webview.postMessage(outgoingMessage).then(
+      () => {
+        // Message sent to webview. Do Nothing.
+      },
+      () => {
+        // Ignore this error.
+        //
+        // This happens sometimes when the user closes the webview panel.
+        // Focus switches to another text editor, and VS Code emits the
+        // "onDidChangeActiveTextEditor" event before the "panel.onDidDispose"
+        // event.
+      }
+    );
   }
 }
 
