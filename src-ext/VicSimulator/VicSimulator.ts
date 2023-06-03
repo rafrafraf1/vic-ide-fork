@@ -27,7 +27,7 @@ export interface SimulatorManager {
    * the user tries to open a new Vic Simulator, then we reveal the existing
    * tab.
    */
-  panel: VicPanel | null;
+  panel: vscode.WebviewPanel | null;
 
   /**
    * The VSCode extension API supports saving/restoring state of the webview.
@@ -80,9 +80,7 @@ export function activateVicSimulator(
           undefined
         );
 
-        simulatorManager.panel = {
-          panel: webviewPanel,
-        };
+        simulatorManager.panel = webviewPanel;
 
         simulatorManager.state = state;
 
@@ -143,16 +141,12 @@ export function activateVicSimulator(
   };
 }
 
-interface VicPanel {
-  panel: vscode.WebviewPanel;
-}
-
 function showVicSimulator(
   simulatorManager: SimulatorManager,
   extensionUri: vscode.Uri
 ): void {
   if (simulatorManager.panel !== null) {
-    simulatorManager.panel.panel.reveal();
+    simulatorManager.panel.reveal();
     return;
   }
 
@@ -178,9 +172,7 @@ function showVicSimulator(
 
   renderVicPanel(simulatorManager, panel, extensionUri, simulatorManager.state);
 
-  simulatorManager.panel = {
-    panel: panel,
-  };
+  simulatorManager.panel = panel;
 }
 
 function renderVicPanel(
@@ -343,7 +335,7 @@ function webviewPostMessage(
       ...message,
     };
 
-    simulatorManager.panel.panel.webview.postMessage(outgoingMessage).then(
+    simulatorManager.panel.webview.postMessage(outgoingMessage).then(
       () => {
         // Message sent to webview. Do Nothing.
       },
