@@ -1,4 +1,8 @@
 import * as vscode from "vscode";
+import {
+  type DiagnosticsService,
+  getTextDocumentHasErrors,
+} from "../VicLanguageFeatures/VicDiagnostics";
 import type {
   ExtensionMessage,
   SimulatorMessage,
@@ -15,7 +19,10 @@ import type { SourceFileId } from "../../src/common/Vic/SourceFile";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
 
-export function activateVicSimulator(context: vscode.ExtensionContext): void {
+export function activateVicSimulator(
+  context: vscode.ExtensionContext,
+  diagnosticsService: DiagnosticsService
+): void {
   context.subscriptions.push(
     vscode.commands.registerCommand(vicOpenSimulatorCommand, () => {
       showVicSimulator(context.extensionUri);
@@ -51,14 +58,18 @@ export function activateVicSimulator(context: vscode.ExtensionContext): void {
     vscode.window.onDidChangeActiveTextEditor(
       (activeTextEditor: vscode.TextEditor | undefined): void => {
         if (activeTextEditor !== undefined) {
+          const uri = activeTextEditor.document.uri;
+          globalActiveTextDocument = uri;
+          const hasErrors = getTextDocumentHasErrors(diagnosticsService, uri);
+
           webviewPostMessage({
             kind: "SourceFileChange",
             sourceFile: {
-              id: uriToSourceFileId(activeTextEditor.document.uri),
-              filename: getUriBasename(activeTextEditor.document.uri),
+              id: uriToSourceFileId(uri),
+              filename: getUriBasename(uri),
               info: {
                 kind: "ValidSourceFile",
-                hasErrors: false,
+                hasErrors: hasErrors,
               },
             },
           });
@@ -66,6 +77,28 @@ export function activateVicSimulator(context: vscode.ExtensionContext): void {
       }
     )
   );
+
+  diagnosticsService.observer = {
+    onTextDocumentHasErrors: (uri: vscode.Uri, hasErrors: boolean): void => {
+      if (globalActiveTextDocument === null) {
+        return;
+      }
+
+      if (uri.toString() === globalActiveTextDocument.toString()) {
+        webviewPostMessage({
+          kind: "SourceFileChange",
+          sourceFile: {
+            id: uriToSourceFileId(uri),
+            filename: getUriBasename(uri),
+            info: {
+              kind: "ValidSourceFile",
+              hasErrors: hasErrors,
+            },
+          },
+        });
+      }
+    },
+  };
 }
 
 interface VicPanel {
@@ -90,6 +123,8 @@ let globalPanel: VicPanel | undefined = undefined;
  * afte the user closes the tab and opens a "new" Vic IDE.
  */
 let globalState: AppState | undefined = undefined;
+
+let globalActiveTextDocument: vscode.Uri | null = null;
 
 function showVicSimulator(extensionUri: vscode.Uri): void {
   if (globalPanel !== undefined) {
@@ -184,7 +219,7 @@ function handleSimulatorMessage(message: SimulatorMessage<AppState>): void {
       handleLoadSourceFile(message.sourceFileId);
       break;
     case "ShowErrors":
-      // TODO ...
+      handleShowErrors(message.sourceFileId);
       break;
     default:
       assertNever(message);
@@ -240,6 +275,22 @@ function handleLoadSourceFile(sourceFileId: SourceFileId): void {
     default:
       assertNever(result.program);
   }
+}
+
+function handleShowErrors(sourceFileId: SourceFileId): void {
+  const textDocument = vscode.workspace.textDocuments.find(
+    (t) => uriToSourceFileId(t.uri) === sourceFileId
+  );
+
+  void vscode.commands.executeCommand("workbench.panel.markers.view.focus");
+
+  if (textDocument === undefined) {
+    // See [Note about message passing race conditions]
+    return;
+  }
+
+  // TODO This sometimes opens in a new tab
+  void vscode.window.showTextDocument(textDocument);
 }
 
 /**

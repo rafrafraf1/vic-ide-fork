@@ -42,6 +42,7 @@ export namespace SimulatorMessage {
    */
   export interface ShowErrors {
     kind: "ShowErrors";
+    sourceFileId: SourceFileId;
   }
 }
 

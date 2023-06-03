@@ -1,6 +1,9 @@
 import type * as vscode from "vscode";
+import {
+  activateDiagnosticsService,
+  createDiagnosticsService,
+} from "./VicLanguageFeatures/VicDiagnostics";
 import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
-import { activateVicDiagnostics } from "./VicLanguageFeatures/VicDiagnostics";
 import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
 import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
 import { activateVicSimulator } from "./VicSimulator/VicSimulator";
@@ -13,13 +16,14 @@ export function activate(context: vscode.ExtensionContext): void {
   console.log('Congratulations, your extension "vic-ide" is now active!');
 
   // Vic Language features:
-  activateVicDiagnostics(context);
+  const diagnosticsService = createDiagnosticsService();
+  activateDiagnosticsService(context, diagnosticsService);
   activateVicHoverProvider(context);
   activateVicCompletionItemProvider(context);
   activateVicDocumentHighlightProvider(context);
 
   // Vic Simulator:
-  activateVicSimulator(context);
+  activateVicSimulator(context, diagnosticsService);
 }
 
 // This method is called when your extension is deactivated

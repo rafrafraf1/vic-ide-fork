@@ -35,6 +35,7 @@ interface ToolbarProps {
 
   sourceFile: SourceFile | null;
   onLoadSourceFileClick?: () => void;
+  onShowErrorsClick?: () => void;
 
   animationSpeed: AnimationSpeed;
   onAnimationSpeedChange?: (value: AnimationSpeed) => void;
@@ -56,6 +57,7 @@ export const Toolbar = React.memo(function Toolbar(
     onLoadExample,
     sourceFile,
     onLoadSourceFileClick,
+    onShowErrorsClick,
     animationSpeed,
     onAnimationSpeedChange,
     onFetchInstructionClick,
@@ -94,6 +96,30 @@ export const Toolbar = React.memo(function Toolbar(
     }
   }, [onRunClick, onStopClick, simulationState]);
 
+  const handleLoadClick = React.useCallback((): void => {
+    if (sourceFile === null) {
+      return;
+    }
+
+    switch (sourceFile.info.kind) {
+      case "InvalidSourceFile":
+        break;
+      case "ValidSourceFile":
+        if (sourceFile.info.hasErrors) {
+          if (onShowErrorsClick !== undefined) {
+            onShowErrorsClick();
+          }
+        } else {
+          if (onLoadSourceFileClick !== undefined) {
+            onLoadSourceFileClick();
+          }
+        }
+        break;
+      default:
+        assertNever(sourceFile.info);
+    }
+  }, [onLoadSourceFileClick, onShowErrorsClick, sourceFile]);
+
   return (
     <div className={classNames(className, "Toolbar-root")}>
       {IS_DEMO_ENVIRONMENT ? <ThemeSwitcher /> : null}
@@ -105,8 +131,13 @@ export const Toolbar = React.memo(function Toolbar(
           onValueClick={onLoadExample}
         />
       ) : (
-        <ToolbarButton onClick={onLoadSourceFileClick}>
+        <ToolbarButton onClick={handleLoadClick}>
           {sourceFile === null ? "NONE" : sourceFile.filename}
+          {sourceFile !== null &&
+          sourceFile.info.kind === "ValidSourceFile" &&
+          sourceFile.info.hasErrors
+            ? "[ERRORS]"
+            : null}
         </ToolbarButton>
       )}
       <ToolbarButton

@@ -133,6 +133,13 @@ function App(props: AppProps): JSX.Element {
     });
   }, [extensionBridge, sourceFile]);
 
+  const handleShowErrorsClick = React.useCallback(() => {
+    extensionBridge.postMessage({
+      kind: "ShowErrors",
+      sourceFileId: nonNull(sourceFile).id,
+    });
+  }, [extensionBridge, sourceFile]);
+
   const triggerStepComplete = useEvents<StepComplete>(
     (step: StepComplete): void => {
       switch (simulationState) {
@@ -360,6 +367,7 @@ function App(props: AppProps): JSX.Element {
         onLoadExample={handleLoadExample}
         sourceFile={sourceFile}
         onLoadSourceFileClick={handleLoadSourceFileClick}
+        onShowErrorsClick={handleShowErrorsClick}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={handleAnimationSpeedChange}
         onFetchInstructionClick={handleFetchInstructionClick}

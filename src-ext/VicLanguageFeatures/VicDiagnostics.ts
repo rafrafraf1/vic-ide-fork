@@ -4,19 +4,39 @@ import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
 import { vicLanguageId } from "../ExtManifest";
 
-export function activateVicDiagnostics(context: vscode.ExtensionContext): void {
+export interface DiagnosticsService {
+  readonly diagnosticCollection: vscode.DiagnosticCollection;
+  observer: DiagnosticsObserver | undefined;
+}
+
+export interface DiagnosticsObserver {
+  onTextDocumentHasErrors: (uri: vscode.Uri, hasErrors: boolean) => void;
+}
+
+export function createDiagnosticsService(): DiagnosticsService {
   const diagnosticCollection =
     vscode.languages.createDiagnosticCollection(vicLanguageId);
-  context.subscriptions.push(diagnosticCollection);
+
+  return {
+    diagnosticCollection: diagnosticCollection,
+    observer: undefined,
+  };
+}
+
+export function activateDiagnosticsService(
+  context: vscode.ExtensionContext,
+  service: DiagnosticsService
+): void {
+  context.subscriptions.push(service.diagnosticCollection);
 
   for (const textDocument of vscode.workspace.textDocuments) {
-    updateDiagnostics(diagnosticCollection, textDocument);
+    updateDiagnostics(service, textDocument);
   }
 
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument(
       (textDocument: vscode.TextDocument) => {
-        updateDiagnostics(diagnosticCollection, textDocument);
+        updateDiagnostics(service, textDocument);
       }
     )
   );
@@ -24,14 +44,14 @@ export function activateVicDiagnostics(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument(
       (e: vscode.TextDocumentChangeEvent) => {
-        updateDiagnostics(diagnosticCollection, e.document);
+        updateDiagnostics(service, e.document);
       }
     )
   );
 }
 
 function updateDiagnostics(
-  diagnosticCollection: vscode.DiagnosticCollection,
+  service: DiagnosticsService,
   textDocument: vscode.TextDocument
 ): void {
   if (textDocument.languageId !== vicLanguageId) {
@@ -43,16 +63,21 @@ function updateDiagnostics(
 
   switch (result.program.kind) {
     case "Ok":
-      diagnosticCollection.set(textDocument.uri, undefined);
+      service.diagnosticCollection.set(textDocument.uri, undefined);
       break;
     case "Error": {
       const errors: SrcError[] = result.program.error;
       const diagnostics = errors.map(convertSrcErrorToDiagnostic);
-      diagnosticCollection.set(textDocument.uri, diagnostics);
+      service.diagnosticCollection.set(textDocument.uri, diagnostics);
       break;
     }
     default:
       assertNever(result.program);
+  }
+
+  if (service.observer !== undefined) {
+    const hasErrors = result.program.kind === "Error";
+    service.observer.onTextDocumentHasErrors(textDocument.uri, hasErrors);
   }
 }
 
@@ -72,4 +97,21 @@ function convertSrcErrorToDiagnostic(error: SrcError): vscode.Diagnostic {
   diagnostic.source = vicLanguageId;
 
   return diagnostic;
+}
+
+/**
+ * @returns true if the source file located at uri contains any Vic
+ * parse/compile errors.
+ */
+export function getTextDocumentHasErrors(
+  diagnosticsService: DiagnosticsService,
+  uri: vscode.Uri
+): boolean {
+  const diags = diagnosticsService.diagnosticCollection.get(uri);
+  if (diags === undefined) {
+    return false;
+  }
+
+  // This assumes that we only use diagnostics with severity "Error":
+  return diags.length > 0;
 }
