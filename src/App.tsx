@@ -5,17 +5,8 @@ import {
   animationSpeedDuration,
 } from "./UI/Simulator/AnimationSpeed";
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
-import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
 import {
-  type SimulationState,
-  simulationActive,
-} from "./UI/Simulator/SimulationState";
-import {
-  type SimulatorState,
-  newSimulatorState,
-} from "./Computer/SimulatorState";
-import { emptyOutput, processExecuteResult } from "./Computer/Output";
-import {
+  type ComputerState,
   executeInstruction,
   fetchInstruction,
   setDataRegister,
@@ -24,12 +15,24 @@ import {
   writeMemory,
 } from "./Computer/Computer";
 import {
+  type HardwareState,
+  type SimulatorState,
+  newSimulatorState,
+} from "./Computer/SimulatorState";
+import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
+import {
+  type SimulationState,
+  simulationActive,
+} from "./UI/Simulator/SimulationState";
+import { emptyOutput, processExecuteResult } from "./Computer/Output";
+import {
   getExampleProgramNames,
   loadExampleProgram,
   lookupExampleProgram,
 } from "./Examples/ExampleProgram";
 import type { Address } from "./Computer/Instruction";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
+import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
 import type { ExtensionMessage } from "./common/Vic/Messages";
 import type { SourceFile } from "./common/Vic/SourceFile";
 import { Toolbar } from "./UI/Toolbar";
@@ -96,7 +99,41 @@ function App(props: AppProps): JSX.Element {
 
   const [sourceFile, setSourceFile] = React.useState<SourceFile | null>(null);
 
-  const onMessage = React.useCallback(
+  const hardwareState = React.useMemo<HardwareState>(
+    () => ({
+      computer: computer,
+      input: input,
+      output: output,
+    }),
+    [computer, input, output]
+  );
+
+  const handleDebugMessage = React.useCallback(
+    (message: ExtensionDebugMessage): void => {
+      switch (message.kind) {
+        case "RequestState":
+          extensionBridge.postMessage({
+            kind: "DebugMessage",
+            message: {
+              kind: "RequestStateResponse",
+              state: {
+                hardwareState: hardwareState,
+                animationSpeed: animationSpeed,
+              },
+            },
+          });
+          break;
+        case "SetCpuRegisters":
+          setComputer(processDebugSetCpuRegisters(message, computer));
+          break;
+        default:
+          assertNever(message);
+      }
+    },
+    [animationSpeed, computer, extensionBridge, hardwareState]
+  );
+
+  const handleMessage = React.useCallback(
     (message: ExtensionMessage): void => {
       switch (message.kind) {
         case "SourceFileChange":
@@ -117,14 +154,17 @@ function App(props: AppProps): JSX.Element {
           setOutput(hardwareState.output);
           break;
         }
+        case "DebugMessage":
+          handleDebugMessage(message.message);
+          break;
         default:
           assertNever(message);
       }
     },
-    [computer, input, output]
+    [computer, handleDebugMessage, input, output]
   );
 
-  useWindowMessages<ExtensionMessage>(onMessage);
+  useWindowMessages(extensionBridge, handleMessage);
 
   const handleLoadSourceFileClick = React.useCallback(() => {
     extensionBridge.postMessage({
@@ -198,14 +238,10 @@ function App(props: AppProps): JSX.Element {
   // `extensionBridge` to persist the updated state.
   React.useEffect(() => {
     extensionBridge.setState({
-      hardwareState: {
-        computer: computer,
-        input: input,
-        output: output,
-      },
+      hardwareState: hardwareState,
       animationSpeed: animationSpeed,
     });
-  }, [animationSpeed, computer, extensionBridge, input, output]);
+  }, [animationSpeed, extensionBridge, hardwareState]);
 
   const animate = useAnimate();
 
@@ -392,6 +428,24 @@ function App(props: AppProps): JSX.Element {
       />
     </div>
   );
+}
+
+function processDebugSetCpuRegisters(
+  message: ExtensionDebugMessage.SetCpuRegisters,
+  computer: ComputerState
+): ComputerState {
+  return {
+    ...computer,
+    ...(message.instructionRegister !== null
+      ? { instructionRegister: message.instructionRegister }
+      : {}),
+    ...(message.dataRegister !== null
+      ? { dataRegister: message.dataRegister }
+      : {}),
+    ...(message.programCounter !== null
+      ? { programCounter: message.programCounter }
+      : {}),
+  };
 }
 
 export default App;

@@ -7,7 +7,6 @@
     "rootDir": "..",
     "outDir": "../build-ext",
     "lib": ["ES2020"],
-    "skipLibCheck": true,
     "sourceMap": true
   },
   "include": [".", "../src/common"]

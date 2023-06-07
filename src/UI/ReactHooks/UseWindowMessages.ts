@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { ExtensionBridge } from "../../System/ExtensionBridge";
 
 /**
  * All incoming messages are meant for us are tagged with a "source", so that
@@ -21,21 +22,27 @@ type IncomingMessage<T> = T & { source?: "vic-ide-ext" };
  *
  * @param onMessage This will be called whenever a new message arrives.
  */
-export function useWindowMessages<T>(onMessage: (e: T) => void): void {
-  const handleEvent = React.useCallback(
-    (e: MessageEvent) => {
-      const message = e.data as IncomingMessage<T>;
-      if (message.source === "vic-ide-ext") {
-        onMessage(message);
-      }
-    },
-    [onMessage]
-  );
+export function useWindowMessages<T, U>(
+  extensionBridge: ExtensionBridge<U>,
+  onMessage: (e: T) => void
+): void {
+  const onMessageRef = React.useRef<(e: T) => void>(onMessage);
+  onMessageRef.current = onMessage;
 
   React.useEffect(() => {
+    function handleEvent(e: MessageEvent): void {
+      const message = e.data as IncomingMessage<T>;
+      if (message.source === "vic-ide-ext") {
+        onMessageRef.current(message);
+      }
+    }
+
     window.addEventListener("message", handleEvent);
+    extensionBridge.postMessage({
+      kind: "Ready",
+    });
     return () => {
       window.removeEventListener("message", handleEvent);
     };
-  }, [handleEvent]);
+  }, [extensionBridge]);
 }

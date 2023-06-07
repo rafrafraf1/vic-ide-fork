@@ -15,6 +15,7 @@ import {
 } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
+import type { ExtensionDebugMessage } from "../../src/common/Vic/MessagesDebug";
 import type { SourceFileId } from "../../src/common/Vic/SourceFile";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
@@ -29,6 +30,10 @@ export interface SimulatorManager {
    */
   panel: vscode.WebviewPanel | null;
 
+  panelReady: boolean;
+
+  panelReadyListeners: (() => void)[];
+
   /**
    * The VSCode extension API supports saving/restoring state of the webview.
    * This functionality is only used when the tab is hidden/revealed. If the
@@ -39,6 +44,9 @@ export interface SimulatorManager {
    */
   state: AppState | undefined;
 
+  stateUpdateListener: (() => void) | null;
+  debugResponseStateListener: ((state: AppState) => void) | null;
+
   activeTextDocument: vscode.Uri | null;
 }
 
@@ -46,10 +54,14 @@ export function createSimulatorManager(
   diagnosticsService: DiagnosticsService
 ): SimulatorManager {
   return {
-    activeTextDocument: null,
     diagnosticsService: diagnosticsService,
     panel: null,
+    panelReady: false,
+    panelReadyListeners: [],
     state: undefined,
+    stateUpdateListener: null,
+    debugResponseStateListener: null,
+    activeTextDocument: null,
   };
 }
 
@@ -141,6 +153,63 @@ export function activateVicSimulator(
   };
 }
 
+/**
+ * Should be used only in tests.
+ */
+export async function waitForSimulatorReady(
+  simulatorManager: SimulatorManager
+): Promise<void> {
+  if (simulatorManager.panelReady) {
+    return;
+  }
+
+  await new Promise<void>((resolve) => {
+    simulatorManager.panelReadyListeners.push(resolve);
+  });
+}
+
+/**
+ * Should be used only in tests.
+ */
+export async function simulatorSetCpuRegisters(
+  simulatorManager: SimulatorManager,
+  setCpuRegisters: ExtensionDebugMessage.SetCpuRegisters
+): Promise<void> {
+  if (simulatorManager.panel === null) {
+    throw new Error("Simulator not ready");
+  }
+  await new Promise<void>((resolve) => {
+    simulatorManager.stateUpdateListener = resolve;
+
+    webviewPostMessage(simulatorManager, {
+      kind: "DebugMessage",
+      message: setCpuRegisters,
+    });
+  });
+}
+
+/**
+ * Should be used only in tests.
+ */
+export async function simulatorGetState(
+  simulatorManager: SimulatorManager
+): Promise<AppState> {
+  if (simulatorManager.panel === null) {
+    throw new Error("Simulator not ready");
+  }
+
+  return await new Promise<AppState>((resolve) => {
+    simulatorManager.debugResponseStateListener = resolve;
+
+    webviewPostMessage(simulatorManager, {
+      kind: "DebugMessage",
+      message: {
+        kind: "RequestState",
+      },
+    });
+  });
+}
+
 function showVicSimulator(
   simulatorManager: SimulatorManager,
   extensionUri: vscode.Uri
@@ -220,6 +289,7 @@ function renderVicPanel(
       }
     },
     (err) => {
+      console.error(`Error loading asset-manifest.json:\n${err as string}`);
       void vscode.window.showErrorMessage(
         `Error loading asset-manifest.json:\n${err as string}`
       );
@@ -232,14 +302,37 @@ function handleSimulatorMessage(
   message: SimulatorMessage<AppState>
 ): void {
   switch (message.kind) {
+    case "Ready":
+      simulatorManager.panelReady = true;
+      simulatorManager.panelReadyListeners.forEach((listener) => {
+        listener();
+      });
+      break;
     case "SetState":
       simulatorManager.state = message.state;
+      if (simulatorManager.stateUpdateListener !== null) {
+        simulatorManager.stateUpdateListener();
+        simulatorManager.stateUpdateListener = null;
+      }
       break;
     case "LoadSourceFile":
       handleLoadSourceFile(simulatorManager, message.sourceFileId);
       break;
     case "ShowErrors":
       handleShowErrors(message.sourceFileId);
+      break;
+    case "DebugMessage":
+      switch (message.message.kind) {
+        case "RequestStateResponse":
+          if (simulatorManager.debugResponseStateListener === null) {
+            throw new Error("Expected debugResponseStateListener to be set");
+          }
+          simulatorManager.debugResponseStateListener(message.message.state);
+          simulatorManager.debugResponseStateListener = null;
+          break;
+        default:
+          assertNever(message.message.kind);
+      }
       break;
     default:
       assertNever(message);

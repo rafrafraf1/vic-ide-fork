@@ -7,23 +7,37 @@
 // This module specifies the types of messages that are sent in both
 // directions.
 
+import type {
+  ExtensionDebugMessage,
+  SimulatorDebugMessage,
+} from "./MessagesDebug";
 import type { SourceFile, SourceFileId } from "./SourceFile";
 
 /**
  * Messages that the Simulator sends to the VS Code Extension.
  */
-export type SimulatorMessage<SetState> =
-  | SimulatorMessage.SetState<SetState>
+export type SimulatorMessage<StateType> =
+  | SimulatorMessage.Ready
+  | SimulatorMessage.SetState<StateType>
   | SimulatorMessage.LoadSourceFile
-  | SimulatorMessage.ShowErrors;
+  | SimulatorMessage.ShowErrors
+  | SimulatorMessage.DebugMessage<StateType>;
 
 export namespace SimulatorMessage {
+  /**
+   * This is an internal message that is sent when the app has loaded. It lets
+   * the extension know that it can start posting messages.
+   */
+  export interface Ready {
+    kind: "Ready";
+  }
+
   /**
    * This is an internal message that shouldn't be used directly.
    */
   export interface SetState<StateType> {
     kind: "SetState";
-    state: StateType | undefined;
+    state: StateType;
   }
 
   /**
@@ -44,6 +58,14 @@ export namespace SimulatorMessage {
     kind: "ShowErrors";
     sourceFileId: SourceFileId;
   }
+
+  /**
+   * Special message that should only be used during debugging and in tests.
+   */
+  export interface DebugMessage<StateType> {
+    kind: "DebugMessage";
+    message: SimulatorDebugMessage<StateType>;
+  }
 }
 
 /**
@@ -51,7 +73,8 @@ export namespace SimulatorMessage {
  */
 export type ExtensionMessage =
   | ExtensionMessage.SourceFileChange
-  | ExtensionMessage.LoadProgram;
+  | ExtensionMessage.LoadProgram
+  | ExtensionMessage.DebugMessage;
 
 export namespace ExtensionMessage {
   /**
@@ -71,5 +94,13 @@ export namespace ExtensionMessage {
   export interface LoadProgram {
     kind: "LoadProgram";
     program: number[];
+  }
+
+  /**
+   * Special message that should only be used during debugging and in tests.
+   */
+  export interface DebugMessage {
+    kind: "DebugMessage";
+    message: ExtensionDebugMessage;
   }
 }

@@ -21,7 +21,7 @@ import type { WebviewApi } from "vscode-webview";
  */
 export interface ExtensionBridge<StateType> {
   getState: () => StateType | undefined;
-  setState: (newState: StateType | undefined) => void;
+  setState: (newState: StateType) => void;
   postMessage: (message: SimulatorMessage<StateType>) => void;
 }
 
@@ -75,7 +75,7 @@ export class VSCodeExtensionBridge<StateType>
     }
   }
 
-  setState(newState: StateType | undefined): void {
+  setState(newState: StateType): void {
     this.vscode.setState(newState);
     const stateMessage: SimulatorMessage.SetState<StateType> = {
       kind: "SetState",
@@ -96,7 +96,7 @@ export class DummyExtensionBridge<StateType>
     return undefined;
   }
 
-  setState(newState: StateType | undefined): void {
+  setState(newState: StateType): void {
     // Do Nothing
   }
 
@@ -113,7 +113,7 @@ export class BrowserExtensionBridge<StateType>
     throw new Error("TODO");
   }
 
-  setState(newState: StateType | undefined): void {
+  setState(newState: StateType): void {
     // TODO Implement this using Browser LocalStorage API
     throw new Error("TODO");
   }

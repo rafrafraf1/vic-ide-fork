@@ -1,12 +1,13 @@
 import type * as vscode from "vscode";
 import {
-  activateDiagnosticsService,
-  createDiagnosticsService,
-} from "./VicLanguageFeatures/VicDiagnostics";
-import {
+  type SimulatorManager,
   activateVicSimulator,
   createSimulatorManager,
 } from "./VicSimulator/VicSimulator";
+import {
+  activateDiagnosticsService,
+  createDiagnosticsService,
+} from "./VicLanguageFeatures/VicDiagnostics";
 import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
 import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
 import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
@@ -28,6 +29,23 @@ export function activate(context: vscode.ExtensionContext): void {
   // Vic Simulator:
   const simulatorManager = createSimulatorManager(diagnosticsService);
   activateVicSimulator(context, simulatorManager);
+
+  globalSimulatorManager = simulatorManager;
+}
+
+/**
+ * Should be used only in tests.
+ */
+let globalSimulatorManager: SimulatorManager | null = null;
+
+/**
+ * Should be used only in tests.
+ */
+export function getSimulatorManager(): SimulatorManager {
+  if (globalSimulatorManager === null) {
+    throw new Error("Extension not activated");
+  }
+  return globalSimulatorManager;
 }
 
 // This method is called when your extension is deactivated
