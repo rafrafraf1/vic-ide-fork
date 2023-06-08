@@ -33,9 +33,15 @@ export const COVERAGE_REQUESTED: boolean =
  */
 export function resetCodeCoverageDirectory(): void {
   // Clear the .nyc_output directory where the tests store their coverage
-  // data:
+  // data. This is needed to delete all leftover files from previous runs.
   rimraf.sync(NYC_TEMP_DIRECTORY);
+
+  // Re-create the .nyc_output directory structure.
+  //
+  // See:
+  // <https://github.com/istanbuljs/nyc/blob/ab7c53b2f340b458789a746dff2abd3e2e4790c3/index.js#L343>
   mkdirp.sync(NYC_TEMP_DIRECTORY);
+  mkdirp.sync(path.resolve(NYC_TEMP_DIRECTORY, "processinfo"));
 }
 
 /**
