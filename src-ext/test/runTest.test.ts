@@ -1,6 +1,7 @@
 import * as glob from "glob";
 import * as path from "path";
 import {
+  COVERAGE_REQUESTED,
   resetCodeCoverageDirectory,
   writeCodeCoverageReport,
 } from "./CodeCoverage";
@@ -22,11 +23,15 @@ describe("Vic IDE Extension Test Suite", () => {
   jest.setTimeout(TESTS_TIMEOUT + 10000);
 
   beforeAll(() => {
-    resetCodeCoverageDirectory();
+    if (COVERAGE_REQUESTED) {
+      resetCodeCoverageDirectory();
+    }
   });
 
   afterAll(async (): Promise<void> => {
-    await writeCodeCoverageReport();
+    if (COVERAGE_REQUESTED) {
+      await writeCodeCoverageReport();
+    }
   });
 
   for (const testFile of testFiles) {

@@ -1,5 +1,7 @@
 import "source-map-support/register"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 
-import { initCodeCoverageForProcess } from "./CodeCoverage";
+import { COVERAGE_REQUESTED, initCodeCoverageForProcess } from "./CodeCoverage";
 
-initCodeCoverageForProcess();
+if (COVERAGE_REQUESTED) {
+  initCodeCoverageForProcess();
+}

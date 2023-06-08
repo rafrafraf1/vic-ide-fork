@@ -23,6 +23,12 @@ const NYC_TEMP_DIRECTORY = path.resolve(
 );
 
 /**
+ * Will be true if the COVERAGE environment variable is set.
+ */
+export const COVERAGE_REQUESTED: boolean =
+  process.env["COVERAGE"] !== undefined && process.env["COVERAGE"] !== "0";
+
+/**
  * Call this before running any tests.
  */
 export function resetCodeCoverageDirectory(): void {

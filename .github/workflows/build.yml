@@ -83,4 +83,4 @@ jobs:
         run: |
           npm install
           npm run build
-          xvfb-run -a npm run test-ext
+          COVERAGE=true xvfb-run -a npm run test-ext
