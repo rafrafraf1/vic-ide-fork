@@ -1,3 +1,5 @@
+import "../test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+
 import * as assert from "assert";
 import * as vscode from "vscode";
 import {

@@ -1,4 +1,3 @@
-import "source-map-support/register"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import { TESTS_TIMEOUT } from "./Config";
 
 export function testCase(code: () => Promise<void>): () => Promise<void> {

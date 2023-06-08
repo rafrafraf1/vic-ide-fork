@@ -1,5 +1,9 @@
 import * as glob from "glob";
 import * as path from "path";
+import {
+  resetCodeCoverageDirectory,
+  writeCodeCoverageReport,
+} from "./CodeCoverage";
 import { TESTS_TIMEOUT } from "./Config";
 import { runTests } from "@vscode/test-electron";
 
@@ -16,6 +20,14 @@ describe("Vic IDE Extension Test Suite", () => {
   // Add an extra margin to the timeout, because the tests themselves have a
   // timeout mechanism that we would like to give a chance to fully complete.
   jest.setTimeout(TESTS_TIMEOUT + 10000);
+
+  beforeAll(() => {
+    resetCodeCoverageDirectory();
+  });
+
+  afterAll(async (): Promise<void> => {
+    await writeCodeCoverageReport();
+  });
 
   for (const testFile of testFiles) {
     // eslint-disable-next-line jest/valid-title
