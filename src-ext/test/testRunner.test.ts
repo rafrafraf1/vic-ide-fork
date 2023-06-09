@@ -3,9 +3,9 @@ import * as path from "path";
 import {
   resetCodeCoverageDirectory,
   writeCodeCoverageReport,
-} from "./CodeCoverage";
+} from "./infra/CodeCoverage";
 import { ENABLE_COVERAGE_ENV_VAR } from "../code_coverage_support";
-import { TESTS_TIMEOUT } from "./Config";
+import { TESTS_TIMEOUT } from "./infra/Config";
 import { runTests } from "@vscode/test-electron";
 import { withPersistentStateAvailable } from "./infra/TestPersistence";
 

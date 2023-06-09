@@ -1,4 +1,4 @@
-import "../test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 
 import * as assert from "assert";
 import * as vscode from "vscode";
@@ -8,7 +8,7 @@ import {
 } from "../../VicSimulator/VicSimulator";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
-import { testCase } from "../TestCase";
+import { testCase } from "../infra/TestCase";
 import { vicOpenSimulatorCommand } from "../../ExtManifest";
 
 export const run = testCase(async (): Promise<void> => {

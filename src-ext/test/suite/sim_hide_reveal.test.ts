@@ -1,4 +1,4 @@
-import "../test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 
 import * as assert from "assert";
 import * as vscode from "vscode";
@@ -10,7 +10,7 @@ import {
 import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
-import { testCase } from "../TestCase";
+import { testCase } from "../infra/TestCase";
 
 export const run = testCase(async (): Promise<void> => {
   const simulatorManager = await step("Open Simulator", async () => {

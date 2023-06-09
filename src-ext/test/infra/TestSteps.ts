@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { delay } from "../Delay";
+import { delay } from "./Delay";
 
 /**
  * Set this environment variable in your shell to slow down the tests, so that
