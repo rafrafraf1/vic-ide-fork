@@ -7,14 +7,21 @@ import {
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulator";
 import { getSimulatorManager } from "../../extension";
+import { step } from "../infra/TestSteps";
 import { testCase } from "../TestCase";
 import { vicOpenSimulatorCommand } from "../../ExtManifest";
 
 export const run = testCase(async (): Promise<void> => {
-  await vscode.commands.executeCommand(vicOpenSimulatorCommand);
-  const simulatorManager = getSimulatorManager();
-  await waitForSimulatorReady(simulatorManager);
-  const state = await simulatorGetState(simulatorManager);
+  const simulatorManager = await step("Open Simulator", async () => {
+    await vscode.commands.executeCommand(vicOpenSimulatorCommand);
+    const simulatorManager = getSimulatorManager();
+    await waitForSimulatorReady(simulatorManager);
+    return simulatorManager;
+  });
+
+  const state = await step("Get State", async () => {
+    return await simulatorGetState(simulatorManager);
+  });
 
   assert.deepStrictEqual(
     [

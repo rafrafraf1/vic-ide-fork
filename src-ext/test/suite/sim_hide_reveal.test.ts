@@ -9,30 +9,42 @@ import {
 } from "../../VicSimulator/VicSimulator";
 import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
+import { step } from "../infra/TestSteps";
 import { testCase } from "../TestCase";
 
 export const run = testCase(async (): Promise<void> => {
-  await vscode.commands.executeCommand(vicOpenSimulatorCommand);
-  const simulatorManager = getSimulatorManager();
-  await waitForSimulatorReady(simulatorManager);
-
-  await simulatorSetCpuRegisters(simulatorManager, {
-    kind: "SetCpuRegisters",
-    instructionRegister: 1,
-    dataRegister: 1,
-    programCounter: 1,
+  const simulatorManager = await step("Open Simulator", async () => {
+    await vscode.commands.executeCommand(vicOpenSimulatorCommand);
+    const simulatorManager = getSimulatorManager();
+    await waitForSimulatorReady(simulatorManager);
+    return simulatorManager;
   });
 
-  const textDocument = await vscode.workspace.openTextDocument({
-    language: vicLanguageId,
-    content: "// Test file",
+  await step("Set CPU Registers", async () => {
+    await simulatorSetCpuRegisters(simulatorManager, {
+      kind: "SetCpuRegisters",
+      instructionRegister: 1,
+      dataRegister: 1,
+      programCounter: 1,
+    });
   });
-  await vscode.window.showTextDocument(textDocument);
 
-  await vscode.commands.executeCommand(vicOpenSimulatorCommand);
-  await waitForSimulatorReady(simulatorManager);
+  await step("Open Text Document", async () => {
+    const textDocument = await vscode.workspace.openTextDocument({
+      language: vicLanguageId,
+      content: "// Test file",
+    });
+    await vscode.window.showTextDocument(textDocument);
+  });
 
-  const state = await simulatorGetState(simulatorManager);
+  await step("Open Simulator", async () => {
+    await vscode.commands.executeCommand(vicOpenSimulatorCommand);
+    await waitForSimulatorReady(simulatorManager);
+  });
+
+  const state = await step("Get State", async () => {
+    return await simulatorGetState(simulatorManager);
+  });
 
   assert.deepStrictEqual(
     [

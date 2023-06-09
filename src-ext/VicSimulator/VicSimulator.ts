@@ -178,6 +178,7 @@ export async function simulatorSetCpuRegisters(
   if (simulatorManager.panel === null) {
     throw new Error("Simulator not ready");
   }
+
   await new Promise<void>((resolve) => {
     simulatorManager.stateUpdateListener = resolve;
 
@@ -186,6 +187,19 @@ export async function simulatorSetCpuRegisters(
       message: setCpuRegisters,
     });
   });
+
+  // This delay is needed so that VS Code WebviewPanels will have enough time
+  // to persist their internal state. (When the Webview code calls
+  // `vscode.setState`).
+  //
+  // Even though we waited for the "SetState" message to arrive from the
+  // Simulator, it is still not guaranted that VS Code has completed
+  // processing and persisting the `vscode.setState` call that came along with
+  // it.
+  //
+  // I couldn't figure out a proper way to deterministically wait for this
+  // wihout adding an artificial delay.
+  await delay(200);
 }
 
 /**
@@ -481,4 +495,10 @@ function getUriBasename(uri: vscode.Uri): string {
   }
 
   return uri.path.substring(i + 1);
+}
+
+async function delay(milliseconds: number): Promise<void> {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
 }

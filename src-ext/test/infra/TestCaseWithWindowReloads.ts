@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
+import { SLOW_TESTS_ENABLED, showStepDialog } from "./TestSteps";
 import { PersistentState } from "./TestPersistence";
-import { delay } from "../Delay";
 import { testCase } from "../TestCase";
 
 export class ReloadWindow {
@@ -39,13 +39,11 @@ export function testCaseWithWindowReloads(
     persistentState.set({ step: currentStep.step + 1 });
 
     if (currentStep.step < steps.length - 1) {
-      // This delay is needed so that VS Code WebviewPanels will have enough
-      // time to persist their internal state. (When the Webview code calls
-      // `vscode.setState`).
-      //
-      // I couldn't figure out any way to deterministically know when the
-      // state has been finished being persisted.
-      await delay(200);
+      console.log("STEP: Reload Window");
+
+      if (SLOW_TESTS_ENABLED) {
+        await showStepDialog("Reload Window");
+      }
 
       await vscode.commands.executeCommand("workbench.action.reloadWindow");
     }
