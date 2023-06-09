@@ -38,6 +38,15 @@ describe("Vic IDE Extension Test Suite", () => {
   for (const testFile of testFiles) {
     // eslint-disable-next-line jest/valid-title
     test(testFile, async () => {
+      // Output a banner so the test can be identified:
+      console.log(
+        [
+          "--------------------------------------------------------------",
+          `--- ${testFile}`,
+          "--------------------------------------------------------------",
+        ].join("\n")
+      );
+
       // The folder containing the Extension Manifest package.json
       // Passed to `--extensionDevelopmentPath`
       const extensionDevelopmentPath = path.resolve(__dirname, "../../../");
@@ -49,14 +58,20 @@ describe("Vic IDE Extension Test Suite", () => {
       const extensionTestsPath = path.resolve(__dirname, "suite", jsFile);
 
       // Download VS Code, unzip it and run the integration test
-      await runTests({
-        extensionDevelopmentPath,
-        extensionTestsPath,
-        version: VSCODE_VERSION,
-        extensionTestsEnv: {
-          ...(COVERAGE_REQUESTED ? { [ENABLE_COVERAGE_ENV_VAR]: "1" } : {}),
-        },
-      });
+      try {
+        await runTests({
+          extensionDevelopmentPath,
+          extensionTestsPath,
+          version: VSCODE_VERSION,
+          extensionTestsEnv: {
+            ...(COVERAGE_REQUESTED ? { [ENABLE_COVERAGE_ENV_VAR]: "1" } : {}),
+          },
+        });
+      } catch {
+        throw new Error(
+          `Test "${testFile}" failed. See above for the test output, which should contain the error.`
+        );
+      }
     });
   }
 });
