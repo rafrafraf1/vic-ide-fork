@@ -259,6 +259,13 @@ function renderVicPanel(
   // User closes the VSCode tab containing the panel:
   panel.onDidDispose(() => {
     simulatorManager.panel = null;
+    simulatorManager.panelReady = false;
+  });
+
+  panel.onDidChangeViewState(() => {
+    if (!panel.visible) {
+      simulatorManager.panelReady = false;
+    }
   });
 
   panel.webview.onDidReceiveMessage((e) => {
