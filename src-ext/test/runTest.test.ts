@@ -7,6 +7,7 @@ import {
 import { ENABLE_COVERAGE_ENV_VAR } from "../code_coverage_support";
 import { TESTS_TIMEOUT } from "./Config";
 import { runTests } from "@vscode/test-electron";
+import { withPersistentStateAvailable } from "./infra/TestPersistence";
 
 /**
  * The version of VS Code that we test against.
@@ -57,21 +58,28 @@ describe("Vic IDE Extension Test Suite", () => {
       // Passed to --extensionTestsPath
       const extensionTestsPath = path.resolve(__dirname, "suite", jsFile);
 
-      // Download VS Code, unzip it and run the integration test
-      try {
-        await runTests({
-          extensionDevelopmentPath,
-          extensionTestsPath,
-          version: VSCODE_VERSION,
-          extensionTestsEnv: {
-            ...(COVERAGE_REQUESTED ? { [ENABLE_COVERAGE_ENV_VAR]: "1" } : {}),
-          },
-        });
-      } catch {
-        throw new Error(
-          `Test "${testFile}" failed. See above for the test output, which should contain the error.`
-        );
-      }
+      await withPersistentStateAvailable(
+        async (stateVarName, stateVarValue) => {
+          // Download VS Code, unzip it and run the integration test
+          try {
+            await runTests({
+              extensionDevelopmentPath,
+              extensionTestsPath,
+              version: VSCODE_VERSION,
+              extensionTestsEnv: {
+                ...(COVERAGE_REQUESTED
+                  ? { [ENABLE_COVERAGE_ENV_VAR]: "1" }
+                  : {}),
+                [stateVarName]: stateVarValue,
+              },
+            });
+          } catch {
+            throw new Error(
+              `Test "${testFile}" failed. See above for the test output, which should contain the error.`
+            );
+          }
+        }
+      );
     });
   }
 });
