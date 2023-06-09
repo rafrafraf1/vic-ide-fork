@@ -1,3 +1,5 @@
+import "./code_coverage_init"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+
 import type * as vscode from "vscode";
 import {
   type SimulatorManager,

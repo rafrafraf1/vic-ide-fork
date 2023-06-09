@@ -1,26 +1,32 @@
 declare module "nyc" {
-  interface Config {
-    tempDirectory?: string;
-    cache?: boolean;
-    cwd?: string;
-    exclude?: string | string[];
-    sourceMap?: boolean;
-    hookRequire?: boolean;
-    hookRunInContext?: boolean;
-    hookRunInThisContext?: boolean;
-    reporter?: string[];
+  namespace NYC {
+    interface Config {
+      tempDirectory?: string;
+      cache?: boolean;
+      cwd?: string;
+      exclude?: string | string[];
+      sourceMap?: boolean;
+      hookRequire?: boolean;
+      hookRunInContext?: boolean;
+      hookRunInThisContext?: boolean;
+      reporter?: string[];
+    }
+
+    interface NYC {
+      wrap: () => void;
+      createTempDirectory: () => Promise<void>;
+      writeCoverageFile: () => Promise<void>;
+      getCoverageMapFromAllCoverageFiles: (
+        baseDirectory: string
+      ) => Promise<object>;
+      report: () => Promise<void>;
+    }
   }
 
-  class NYC {
-    constructor(config: Config);
-    wrap(): void;
-    createTempDirectory(): Promise<void>;
-    writeCoverageFile(): Promise<void>;
-    getCoverageMapFromAllCoverageFiles(baseDirectory: string): Promise<object>;
-    report(): Promise<void>;
-  }
-
-  namespace NYC {}
+  let NYC: {
+    new (config: NYC.Config): NYC.NYC;
+    name: string;
+  };
 
   export = NYC;
 }

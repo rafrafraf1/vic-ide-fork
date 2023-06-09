@@ -1,10 +1,10 @@
 import * as glob from "glob";
 import * as path from "path";
 import {
-  COVERAGE_REQUESTED,
   resetCodeCoverageDirectory,
   writeCodeCoverageReport,
 } from "./CodeCoverage";
+import { ENABLE_COVERAGE_ENV_VAR } from "../code_coverage_support";
 import { TESTS_TIMEOUT } from "./Config";
 import { runTests } from "@vscode/test-electron";
 
@@ -17,22 +17,23 @@ const testFiles = new glob.GlobSync("**/**.test.ts", {
   cwd: path.resolve(__dirname, "../../../src-ext/test/suite/"),
 }).found;
 
+const COVERAGE_REQUESTED: boolean =
+  process.env["COVERAGE"] !== undefined && process.env["COVERAGE"] !== "0";
+
 describe("Vic IDE Extension Test Suite", () => {
   // Add an extra margin to the timeout, because the tests themselves have a
   // timeout mechanism that we would like to give a chance to fully complete.
   jest.setTimeout(TESTS_TIMEOUT + 10000);
 
-  beforeAll(() => {
-    if (COVERAGE_REQUESTED) {
+  if (COVERAGE_REQUESTED) {
+    beforeAll(() => {
       resetCodeCoverageDirectory();
-    }
-  });
+    });
 
-  afterAll(async (): Promise<void> => {
-    if (COVERAGE_REQUESTED) {
+    afterAll(async (): Promise<void> => {
       await writeCodeCoverageReport();
-    }
-  });
+    });
+  }
 
   for (const testFile of testFiles) {
     // eslint-disable-next-line jest/valid-title
@@ -52,6 +53,9 @@ describe("Vic IDE Extension Test Suite", () => {
         extensionDevelopmentPath,
         extensionTestsPath,
         version: VSCODE_VERSION,
+        extensionTestsEnv: {
+          ...(COVERAGE_REQUESTED ? { [ENABLE_COVERAGE_ENV_VAR]: "1" } : {}),
+        },
       });
     });
   }
