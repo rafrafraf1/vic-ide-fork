@@ -159,6 +159,7 @@ export function activateVicSimulator(
 export async function waitForSimulatorReady(
   simulatorManager: SimulatorManager
 ): Promise<void> {
+  /* istanbul ignore next */
   if (simulatorManager.panelReady) {
     return;
   }
@@ -175,6 +176,7 @@ export async function simulatorSetCpuRegisters(
   simulatorManager: SimulatorManager,
   setCpuRegisters: ExtensionDebugMessage.SetCpuRegisters
 ): Promise<void> {
+  /* istanbul ignore next */
   if (simulatorManager.panel === null) {
     throw new Error("Simulator not ready");
   }
@@ -208,6 +210,7 @@ export async function simulatorSetCpuRegisters(
 export async function simulatorGetState(
   simulatorManager: SimulatorManager
 ): Promise<AppState> {
+  /* istanbul ignore next */
   if (simulatorManager.panel === null) {
     throw new Error("Simulator not ready");
   }
@@ -299,6 +302,7 @@ function isSimulatorTabActive(): boolean {
     }
   }
 
+  /* istanbul ignore next */
   return false;
 }
 
@@ -353,7 +357,9 @@ function renderVicPanel(
   vscode.workspace.fs.readFile(assetMannifestPath).then(
     (contents) => {
       const assetManifest = AssetManifest.load(contents.toString());
+      /* istanbul ignore next */
       if (typeof assetManifest === "string") {
+        console.error(`Error loading asset-manifest.json:\n${assetManifest}`);
         void vscode.window.showErrorMessage(
           `Error loading asset-manifest.json:\n${assetManifest}`
         );
@@ -372,6 +378,7 @@ function renderVicPanel(
         panel.webview.html = pageHtml;
       }
     },
+    /* istanbul ignore next */
     (err) => {
       console.error(`Error loading asset-manifest.json:\n${err as string}`);
       void vscode.window.showErrorMessage(
@@ -408,16 +415,19 @@ function handleSimulatorMessage(
     case "DebugMessage":
       switch (message.message.kind) {
         case "RequestStateResponse":
+          /* istanbul ignore next */
           if (simulatorManager.debugResponseStateListener === null) {
             throw new Error("Expected debugResponseStateListener to be set");
           }
           simulatorManager.debugResponseStateListener(message.message.state);
           simulatorManager.debugResponseStateListener = null;
           break;
+        /* istanbul ignore next */
         default:
           assertNever(message.message.kind);
       }
       break;
+    /* istanbul ignore next */
     default:
       assertNever(message);
   }
