@@ -233,6 +233,13 @@ function showVicSimulator(
     return;
   }
 
+  // This can happen if the user ran "Reload Window" while a Simulator tab
+  // exists that isn't active.
+  if (simulatorTabExists()) {
+    void switchToSimulatorTab();
+    return;
+  }
+
   // The title of the tab that will contain the simulator:
   const title = "Vic Simulator";
 
@@ -256,6 +263,62 @@ function showVicSimulator(
   renderVicPanel(simulatorManager, panel, extensionUri, simulatorManager.state);
 
   simulatorManager.panel = panel;
+}
+
+function isSimulatorTab(tabInput: vscode.TabInputWebview): boolean {
+  // For some reason, the `viewType` is: "mainThreadWebview-vic-ide"
+
+  return (
+    tabInput.viewType === vicWebviewPanelType ||
+    tabInput.viewType.endsWith(`-${vicWebviewPanelType}`)
+  );
+}
+
+function simulatorTabExists(): boolean {
+  for (const tabGroup of vscode.window.tabGroups.all) {
+    for (const tab of tabGroup.tabs) {
+      if (tab.input instanceof vscode.TabInputWebview) {
+        if (isSimulatorTab(tab.input)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+function isSimulatorTabActive(): boolean {
+  for (const tabGroup of vscode.window.tabGroups.all) {
+    for (const tab of tabGroup.tabs) {
+      if (tab.input instanceof vscode.TabInputWebview) {
+        if (isSimulatorTab(tab.input)) {
+          return tab.isActive;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+async function switchToSimulatorTab(): Promise<void> {
+  // This is a very hacky way to switch to the target tab. There doesn't
+  // appear to be a better way.
+
+  // TODO A slightly nicer hack would be to check if the target tab is in the
+  // current tab group, and then use "workbench.action.openEditorAtIndex1" or
+  // "workbench.action.openEditorAtIndex2", etc...
+  //
+  // If that doesn't work, then another improvement would be to go in the
+  // direction of "workbench.action.previousEditor" if the path is shorter.
+
+  for (;;) {
+    if (isSimulatorTabActive()) {
+      return;
+    }
+    await vscode.commands.executeCommand("workbench.action.nextEditor");
+  }
 }
 
 function renderVicPanel(
