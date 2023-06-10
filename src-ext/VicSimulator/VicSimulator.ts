@@ -159,7 +159,6 @@ export function activateVicSimulator(
 export async function waitForSimulatorReady(
   simulatorManager: SimulatorManager
 ): Promise<void> {
-  /* istanbul ignore next */
   if (simulatorManager.panelReady) {
     return;
   }
@@ -303,7 +302,7 @@ function isSimulatorTabActive(): boolean {
   }
 
   /* istanbul ignore next */
-  return false;
+  throw new Error("Simulator tab not found");
 }
 
 async function switchToSimulatorTab(): Promise<void> {
