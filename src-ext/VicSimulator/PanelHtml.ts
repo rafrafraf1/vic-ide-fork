@@ -107,14 +107,24 @@ function entrypointUri(
 
 function entrypointHtml(scriptNonce: string, entrypoint: vscode.Uri): string {
   const entrypointStr = entrypoint.toString();
-  if (entrypointStr.endsWith(".css")) {
-    return entrypointCssHtml(entrypointStr);
-  } else if (entrypointStr.endsWith(".js")) {
-    return entrypointJsHtml(scriptNonce, entrypointStr);
-  } else {
-    // TODO
-    return "";
+  switch (getExtension(entrypointStr)) {
+    case "css":
+      return entrypointCssHtml(entrypointStr);
+    case "js":
+      return entrypointJsHtml(scriptNonce, entrypointStr);
+    /* istanbul ignore next */
+    default:
+      throw new Error(`Unknown entrypoint type: ${entrypointStr}`);
   }
+}
+
+function getExtension(filename: string): string | null {
+  const index = filename.lastIndexOf(".");
+  /* istanbul ignore if  */
+  if (index < 0) {
+    return null;
+  }
+  return filename.substring(index + 1);
 }
 
 function entrypointCssHtml(entrypoint: string): string {
