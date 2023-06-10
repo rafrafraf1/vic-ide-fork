@@ -533,6 +533,8 @@ function webviewPostMessage(
         // Focus switches to another text editor, and VS Code emits the
         // "onDidChangeActiveTextEditor" event before the "panel.onDidDispose"
         // event.
+        //
+        // See: <https://github.com/microsoft/vscode/issues/48509>
       }
     );
   }
