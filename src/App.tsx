@@ -57,7 +57,7 @@ function initSimulatorState(
   extensionBridge: ExtensionBridge<SimulatorState>
 ): SimulatorState {
   const savedState = extensionBridge.getState();
-  if (savedState !== undefined) {
+  if (savedState !== null) {
     return savedState;
   } else {
     return newSimulatorState();
@@ -123,6 +123,16 @@ function App(props: AppProps): JSX.Element {
             },
           });
           break;
+        case "RequestSourceFile":
+          extensionBridge.postMessage({
+            kind: "DebugMessage",
+            message: {
+              kind: "RequestSourceFileResponse",
+              sourceFile: sourceFile,
+            },
+          });
+
+          break;
         case "SetCpuRegisters":
           setComputer(processDebugSetCpuRegisters(message, computer));
           break;
@@ -130,7 +140,7 @@ function App(props: AppProps): JSX.Element {
           assertNever(message);
       }
     },
-    [animationSpeed, computer, extensionBridge, hardwareState]
+    [animationSpeed, computer, extensionBridge, hardwareState, sourceFile]
   );
 
   const handleMessage = React.useCallback(

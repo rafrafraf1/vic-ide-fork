@@ -3,14 +3,13 @@ import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-i
 import * as assert from "assert";
 import * as vscode from "vscode";
 import {
-  simulatorGetState,
-  simulatorSetCpuRegisters,
+  simulatorGetSourceFile,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
+import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
 import { testCase } from "../infra/TestCase";
-import { vicOpenSimulatorCommand } from "../../ExtManifest";
 
 export const run = testCase(async (): Promise<void> => {
   const simulatorManager = await step("Open Simulator", async () => {
@@ -20,25 +19,24 @@ export const run = testCase(async (): Promise<void> => {
     return simulatorManager;
   });
 
-  await step("Set CPU Registers", async () => {
-    await simulatorSetCpuRegisters(simulatorManager, {
-      kind: "SetCpuRegisters",
-      instructionRegister: 1,
-      dataRegister: 1,
-      programCounter: 1,
+  await step("Open Text Document", async () => {
+    const textDocument = await vscode.workspace.openTextDocument({
+      language: vicLanguageId,
+      content: "// Test file",
     });
+    await vscode.window.showTextDocument(textDocument, vscode.ViewColumn.Two);
   });
 
-  const state = await step("Get State", async () => {
-    return await simulatorGetState(simulatorManager);
+  const sourceFile = await step("Get Source File", async () => {
+    return await simulatorGetSourceFile(simulatorManager);
   });
 
-  assert.deepStrictEqual(
-    [
-      state.hardwareState.computer.instructionRegister,
-      state.hardwareState.computer.dataRegister,
-      state.hardwareState.computer.programCounter,
-    ],
-    [1, 1, 1]
-  );
+  assert.deepStrictEqual<typeof sourceFile>(sourceFile, {
+    id: "untitled:Untitled-1",
+    filename: "Untitled-1",
+    info: {
+      kind: "ValidSourceFile",
+      hasErrors: false,
+    },
+  });
 });

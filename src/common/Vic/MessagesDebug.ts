@@ -1,11 +1,14 @@
 // This module contains message related types that should only be used during
 // debugging and in tests.
 
+import type { SourceFile } from "./SourceFile";
+
 /**
  * Debug Messages that the Simulator sends to the VS Code Extension.
  */
 export type SimulatorDebugMessage<StateType> =
-  SimulatorDebugMessage.RequestStateResponse<StateType>;
+  | SimulatorDebugMessage.RequestStateResponse<StateType>
+  | SimulatorDebugMessage.RequestSourceFileResponse;
 
 export namespace SimulatorDebugMessage {
   /**
@@ -16,6 +19,15 @@ export namespace SimulatorDebugMessage {
     kind: "RequestStateResponse";
     state: StateType;
   }
+
+  /**
+   * This is a response that will be sent after a `DebugRequestMessage` is
+   * received.
+   */
+  export interface RequestSourceFileResponse {
+    kind: "RequestSourceFileResponse";
+    sourceFile: SourceFile | null;
+  }
 }
 
 /**
@@ -23,6 +35,7 @@ export namespace SimulatorDebugMessage {
  */
 export type ExtensionDebugMessage =
   | ExtensionDebugMessage.RequestState
+  | ExtensionDebugMessage.RequestSourceFile
   | ExtensionDebugMessage.SetCpuRegisters;
 
 export namespace ExtensionDebugMessage {
@@ -33,6 +46,15 @@ export namespace ExtensionDebugMessage {
    */
   export interface RequestState {
     kind: "RequestState";
+  }
+
+  /**
+   * Instruct the Simulator to send back a
+   * `SimulatorDebugMessage.RequestSourceFileResponse` message containing the
+   * current source file of the Simulator.
+   */
+  export interface RequestSourceFile {
+    kind: "RequestSourceFile";
   }
 
   /**

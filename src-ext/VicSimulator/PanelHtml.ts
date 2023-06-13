@@ -24,7 +24,7 @@ export function renderPageHtml(
   cspSource: string,
   asWebviewUri: (localResource: vscode.Uri) => vscode.Uri,
   assetManifest: AssetManifest,
-  appState: AppState | undefined
+  appState: AppState | null
 ): string {
   const entrypointsHtml = assetManifest
     .getEntryPoints()
@@ -72,7 +72,7 @@ export function renderPageHtml(
         ${declareWebpackNonce}
         ${entrypointsHtml}
     </head>
-    <body ${appState === undefined ? "" : stateHtmlBodyAttribute(appState)}>
+    <body ${appState === null ? "" : stateHtmlBodyAttribute(appState)}>
         <div id="root"></div>
     </body>
     </html>

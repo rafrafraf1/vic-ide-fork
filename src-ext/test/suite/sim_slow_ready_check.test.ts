@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import {
   simulatorGetState,
   waitForSimulatorReady,
-} from "../../VicSimulator/VicSimulator";
+} from "../../VicSimulator/VicSimulatorDebug";
 import { delay } from "../infra/Delay";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";

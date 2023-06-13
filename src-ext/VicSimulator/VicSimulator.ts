@@ -1,5 +1,10 @@
 import * as vscode from "vscode";
 import {
+  type DebugState,
+  handleDebugMessage,
+  initDebugState,
+} from "./VicSimulatorDebug";
+import {
   type DiagnosticsService,
   getTextDocumentHasErrors,
 } from "../VicLanguageFeatures/VicDiagnostics";
@@ -7,6 +12,7 @@ import type {
   ExtensionMessage,
   SimulatorMessage,
 } from "../../src/common/Vic/Messages";
+import type { SourceFile, SourceFileId } from "../../src/common/Vic/SourceFile";
 import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
 import {
   vicOpenSimulatorCommand,
@@ -15,10 +21,13 @@ import {
 } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
-import type { ExtensionDebugMessage } from "../../src/common/Vic/MessagesDebug";
-import type { SourceFileId } from "../../src/common/Vic/SourceFile";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+
+export interface Panel {
+  webviewPanel: vscode.WebviewPanel;
+  ready: boolean;
+}
 
 export interface SimulatorManager {
   readonly diagnosticsService: DiagnosticsService;
@@ -28,11 +37,7 @@ export interface SimulatorManager {
    * the user tries to open a new Vic Simulator, then we reveal the existing
    * tab.
    */
-  panel: vscode.WebviewPanel | null;
-
-  panelReady: boolean;
-
-  panelReadyListeners: (() => void)[];
+  panel: Panel | null;
 
   /**
    * The VSCode extension API supports saving/restoring state of the webview.
@@ -42,12 +47,11 @@ export interface SimulatorManager {
    * So we use this variable to store the state, so that we have it available
    * afte the user closes the tab and opens a "new" Vic Simulator.
    */
-  state: AppState | undefined;
-
-  stateUpdateListener: (() => void) | null;
-  debugResponseStateListener: ((state: AppState) => void) | null;
+  state: AppState | null;
 
   activeTextDocument: vscode.Uri | null;
+
+  debugState: DebugState;
 }
 
 export function createSimulatorManager(
@@ -56,12 +60,9 @@ export function createSimulatorManager(
   return {
     diagnosticsService: diagnosticsService,
     panel: null,
-    panelReady: false,
-    panelReadyListeners: [],
-    state: undefined,
-    stateUpdateListener: null,
-    debugResponseStateListener: null,
+    state: null,
     activeTextDocument: null,
+    debugState: initDebugState(),
   };
 }
 
@@ -77,6 +78,7 @@ export function activateVicSimulator(
 
   context.subscriptions.push(
     vscode.window.registerWebviewPanelSerializer(vicWebviewPanelType, {
+      // Called when the user runs the "Developer: Reload Window" command.
       async deserializeWebviewPanel(
         webviewPanel: vscode.WebviewPanel,
         state: AppState
@@ -89,10 +91,13 @@ export function activateVicSimulator(
           simulatorManager,
           webviewPanel,
           context.extensionUri,
-          undefined
+          null
         );
 
-        simulatorManager.panel = webviewPanel;
+        simulatorManager.panel = {
+          webviewPanel: webviewPanel,
+          ready: false,
+        };
 
         simulatorManager.state = state;
 
@@ -109,26 +114,23 @@ export function activateVicSimulator(
         if (activeTextEditor !== undefined) {
           const uri = activeTextEditor.document.uri;
           simulatorManager.activeTextDocument = uri;
-          const hasErrors = getTextDocumentHasErrors(
-            simulatorManager.diagnosticsService,
-            uri
-          );
 
           webviewPostMessage(simulatorManager, {
             kind: "SourceFileChange",
-            sourceFile: {
-              id: uriToSourceFileId(uri),
-              filename: getUriBasename(uri),
-              info: {
-                kind: "ValidSourceFile",
-                hasErrors: hasErrors,
-              },
-            },
+            sourceFile: buildSourceFile(
+              simulatorManager.diagnosticsService,
+              uri
+            ),
           });
         }
       }
     )
   );
+
+  if (vscode.window.activeTextEditor !== undefined) {
+    simulatorManager.activeTextDocument =
+      vscode.window.activeTextEditor.document.uri;
+  }
 
   simulatorManager.diagnosticsService.observer = {
     onTextDocumentHasErrors: (uri: vscode.Uri, hasErrors: boolean): void => {
@@ -153,77 +155,18 @@ export function activateVicSimulator(
   };
 }
 
-/**
- * Should be used only in tests.
- */
-export async function waitForSimulatorReady(
-  simulatorManager: SimulatorManager
-): Promise<void> {
-  if (simulatorManager.panelReady) {
-    return;
-  }
-
-  await new Promise<void>((resolve) => {
-    simulatorManager.panelReadyListeners.push(resolve);
-  });
-}
-
-/**
- * Should be used only in tests.
- */
-export async function simulatorSetCpuRegisters(
-  simulatorManager: SimulatorManager,
-  setCpuRegisters: ExtensionDebugMessage.SetCpuRegisters
-): Promise<void> {
-  /* istanbul ignore next */
-  if (simulatorManager.panel === null) {
-    throw new Error("Simulator not ready");
-  }
-
-  await new Promise<void>((resolve) => {
-    simulatorManager.stateUpdateListener = resolve;
-
-    webviewPostMessage(simulatorManager, {
-      kind: "DebugMessage",
-      message: setCpuRegisters,
-    });
-  });
-
-  // This delay is needed so that VS Code WebviewPanels will have enough time
-  // to persist their internal state. (When the Webview code calls
-  // `vscode.setState`).
-  //
-  // Even though we waited for the "SetState" message to arrive from the
-  // Simulator, it is still not guaranted that VS Code has completed
-  // processing and persisting the `vscode.setState` call that came along with
-  // it.
-  //
-  // I couldn't figure out a proper way to deterministically wait for this
-  // wihout adding an artificial delay.
-  await delay(200);
-}
-
-/**
- * Should be used only in tests.
- */
-export async function simulatorGetState(
-  simulatorManager: SimulatorManager
-): Promise<AppState> {
-  /* istanbul ignore next */
-  if (simulatorManager.panel === null) {
-    throw new Error("Simulator not ready");
-  }
-
-  return await new Promise<AppState>((resolve) => {
-    simulatorManager.debugResponseStateListener = resolve;
-
-    webviewPostMessage(simulatorManager, {
-      kind: "DebugMessage",
-      message: {
-        kind: "RequestState",
-      },
-    });
-  });
+function buildSourceFile(
+  diagnosticsService: DiagnosticsService,
+  uri: vscode.Uri
+): SourceFile {
+  return {
+    id: uriToSourceFileId(uri),
+    filename: getUriBasename(uri),
+    info: {
+      kind: "ValidSourceFile",
+      hasErrors: getTextDocumentHasErrors(diagnosticsService, uri),
+    },
+  };
 }
 
 function showVicSimulator(
@@ -231,7 +174,7 @@ function showVicSimulator(
   extensionUri: vscode.Uri
 ): void {
   if (simulatorManager.panel !== null) {
-    simulatorManager.panel.reveal();
+    simulatorManager.panel.webviewPanel.reveal();
     return;
   }
 
@@ -264,7 +207,10 @@ function showVicSimulator(
 
   renderVicPanel(simulatorManager, panel, extensionUri, simulatorManager.state);
 
-  simulatorManager.panel = panel;
+  simulatorManager.panel = {
+    webviewPanel: panel,
+    ready: false,
+  };
 }
 
 function isSimulatorTab(tabInput: vscode.TabInputWebview): boolean {
@@ -328,7 +274,7 @@ function renderVicPanel(
   simulatorManager: SimulatorManager,
   panel: vscode.WebviewPanel,
   extensionUri: vscode.Uri,
-  appState: AppState | undefined
+  appState: AppState | null
 ): void {
   const assetMannifestPath = vscode.Uri.joinPath(
     extensionUri,
@@ -339,12 +285,31 @@ function renderVicPanel(
   // User closes the VSCode tab containing the panel:
   panel.onDidDispose(() => {
     simulatorManager.panel = null;
-    simulatorManager.panelReady = false;
   });
 
   panel.onDidChangeViewState(() => {
     if (!panel.visible) {
-      simulatorManager.panelReady = false;
+      if (simulatorManager.panel !== null) {
+        simulatorManager.panel.ready = false;
+      }
+    }
+  });
+
+  panel.onDidChangeViewState((e) => {
+    if (e.webviewPanel.active) {
+      if (
+        simulatorManager.panel !== null &&
+        simulatorManager.panel.ready &&
+        simulatorManager.activeTextDocument !== null
+      ) {
+        webviewPostMessage(simulatorManager, {
+          kind: "SourceFileChange",
+          sourceFile: buildSourceFile(
+            simulatorManager.diagnosticsService,
+            simulatorManager.activeTextDocument
+          ),
+        });
+      }
     }
   });
 
@@ -393,16 +358,27 @@ function handleSimulatorMessage(
 ): void {
   switch (message.kind) {
     case "Ready":
-      simulatorManager.panelReady = true;
-      simulatorManager.panelReadyListeners.forEach((listener) => {
+      if (simulatorManager.panel !== null) {
+        simulatorManager.panel.ready = true;
+        if (simulatorManager.activeTextDocument !== null) {
+          webviewPostMessage(simulatorManager, {
+            kind: "SourceFileChange",
+            sourceFile: buildSourceFile(
+              simulatorManager.diagnosticsService,
+              simulatorManager.activeTextDocument
+            ),
+          });
+        }
+      }
+      simulatorManager.debugState.panelReadyListeners.forEach((listener) => {
         listener();
       });
       break;
     case "SetState":
       simulatorManager.state = message.state;
-      if (simulatorManager.stateUpdateListener !== null) {
-        simulatorManager.stateUpdateListener();
-        simulatorManager.stateUpdateListener = null;
+      if (simulatorManager.debugState.stateUpdateListener !== null) {
+        simulatorManager.debugState.stateUpdateListener();
+        simulatorManager.debugState.stateUpdateListener = null;
       }
       break;
     case "LoadSourceFile":
@@ -412,19 +388,7 @@ function handleSimulatorMessage(
       handleShowErrors(message.sourceFileId);
       break;
     case "DebugMessage":
-      switch (message.message.kind) {
-        case "RequestStateResponse":
-          /* istanbul ignore next */
-          if (simulatorManager.debugResponseStateListener === null) {
-            throw new Error("Expected debugResponseStateListener to be set");
-          }
-          simulatorManager.debugResponseStateListener(message.message.state);
-          simulatorManager.debugResponseStateListener = null;
-          break;
-        /* istanbul ignore next */
-        default:
-          assertNever(message.message.kind);
-      }
+      handleDebugMessage(simulatorManager, message.message);
       break;
     /* istanbul ignore next */
     default:
@@ -511,7 +475,7 @@ function handleShowErrors(sourceFileId: SourceFileId): void {
  */
 type OutgoingMessage<T> = T & { source: "vic-ide-ext" };
 
-function webviewPostMessage(
+export function webviewPostMessage(
   simulatorManager: SimulatorManager,
   message: ExtensionMessage
 ): void {
@@ -521,21 +485,23 @@ function webviewPostMessage(
       ...message,
     };
 
-    simulatorManager.panel.webview.postMessage(outgoingMessage).then(
-      () => {
-        // Message sent to webview. Do Nothing.
-      },
-      () => {
-        // Ignore this error.
-        //
-        // This happens sometimes when the user closes the webview panel.
-        // Focus switches to another text editor, and VS Code emits the
-        // "onDidChangeActiveTextEditor" event before the "panel.onDidDispose"
-        // event.
-        //
-        // See: <https://github.com/microsoft/vscode/issues/48509>
-      }
-    );
+    simulatorManager.panel.webviewPanel.webview
+      .postMessage(outgoingMessage)
+      .then(
+        () => {
+          // Message sent to webview. Do Nothing.
+        },
+        () => {
+          // Ignore this error.
+          //
+          // This happens sometimes when the user closes the webview panel.
+          // Focus switches to another text editor, and VS Code emits the
+          // "onDidChangeActiveTextEditor" event before the "panel.onDidDispose"
+          // event.
+          //
+          // See: <https://github.com/microsoft/vscode/issues/48509>
+        }
+      );
   }
 }
 
@@ -569,10 +535,4 @@ function getUriBasename(uri: vscode.Uri): string {
   }
 
   return uri.path.substring(i + 1);
-}
-
-async function delay(milliseconds: number): Promise<void> {
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
 }
