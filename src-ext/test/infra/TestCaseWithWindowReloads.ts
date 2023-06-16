@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
-import { SLOW_TESTS_ENABLED, showStepDialog } from "./TestSteps";
 import { PersistentState } from "./TestPersistence";
+import { SLOW_TESTS_ENABLED } from "./Config";
+import { showStepDialog } from "./TestSteps";
 import { testCase } from "./TestCase";
 
 export class ReloadWindow {

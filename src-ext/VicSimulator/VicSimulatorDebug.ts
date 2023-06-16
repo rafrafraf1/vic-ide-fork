@@ -87,8 +87,9 @@ export async function simulatorGetState(
     throw new Error("Simulator not ready");
   }
 
-  return await new Promise<AppState>((resolve) => {
-    simulatorManager.debugState.debugResponseStateListener = resolve;
+  return await new Promise<AppState>((resolve, reject) => {
+    simulatorManager.debugState.debugResponseStateListener =
+      callbackWithTimeout("simulatorGetState", resolve, reject);
 
     webviewPostMessage(simulatorManager, {
       kind: "DebugMessage",
@@ -110,8 +111,9 @@ export async function simulatorGetSourceFile(
     throw new Error("Simulator not ready");
   }
 
-  return await new Promise<SourceFile | null>((resolve) => {
-    simulatorManager.debugState.debugResponseSourceFileListener = resolve;
+  return await new Promise<SourceFile | null>((resolve, reject) => {
+    simulatorManager.debugState.debugResponseSourceFileListener =
+      callbackWithTimeout("simulatorGetSourceFile", resolve, reject);
 
     webviewPostMessage(simulatorManager, {
       kind: "DebugMessage",
@@ -120,6 +122,31 @@ export async function simulatorGetSourceFile(
       },
     });
   });
+}
+
+function callbackWithTimeout<T>(
+  label: string,
+  resolve: (value: T) => void,
+  reject: (error: Error) => void
+): (value: T) => void {
+  let rejected = false;
+
+  const timeout = setTimeout(
+    /* istanbul ignore next */
+    () => {
+      rejected = true;
+      reject(new Error(`${label} timeout`));
+    },
+    5000
+  );
+
+  return (sourceFile: T): void => {
+    /* istanbul ignore else */
+    if (!rejected) {
+      clearTimeout(timeout);
+      resolve(sourceFile);
+    }
+  };
 }
 
 export function handleDebugMessage(

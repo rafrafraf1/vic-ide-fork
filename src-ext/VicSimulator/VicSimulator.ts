@@ -49,7 +49,7 @@ export interface SimulatorManager {
    */
   state: AppState | null;
 
-  activeTextDocument: vscode.Uri | null;
+  activeTextDocument: vscode.TextDocument | null;
 
   debugState: DebugState;
 }
@@ -106,14 +106,12 @@ export function activateVicSimulator(
     })
   );
 
-  // TODO This event needs more polish (handle initial load, handle closing of
-  // last file, etc...).
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(
       (activeTextEditor: vscode.TextEditor | undefined): void => {
         if (activeTextEditor !== undefined) {
           const uri = activeTextEditor.document.uri;
-          simulatorManager.activeTextDocument = uri;
+          simulatorManager.activeTextDocument = activeTextEditor.document;
 
           webviewPostMessage(simulatorManager, {
             kind: "SourceFileChange",
@@ -127,9 +125,22 @@ export function activateVicSimulator(
     )
   );
 
+  context.subscriptions.push(
+    vscode.workspace.onDidCloseTextDocument((d) => {
+      if (simulatorManager.activeTextDocument === d) {
+        simulatorManager.activeTextDocument = null;
+
+        webviewPostMessage(simulatorManager, {
+          kind: "SourceFileChange",
+          sourceFile: null,
+        });
+      }
+    })
+  );
+
   if (vscode.window.activeTextEditor !== undefined) {
     simulatorManager.activeTextDocument =
-      vscode.window.activeTextEditor.document.uri;
+      vscode.window.activeTextEditor.document;
   }
 
   simulatorManager.diagnosticsService.observer = {
@@ -138,7 +149,9 @@ export function activateVicSimulator(
         return;
       }
 
-      if (uri.toString() === simulatorManager.activeTextDocument.toString()) {
+      if (
+        uri.toString() === simulatorManager.activeTextDocument.uri.toString()
+      ) {
         webviewPostMessage(simulatorManager, {
           kind: "SourceFileChange",
           sourceFile: {
@@ -306,7 +319,7 @@ function renderVicPanel(
           kind: "SourceFileChange",
           sourceFile: buildSourceFile(
             simulatorManager.diagnosticsService,
-            simulatorManager.activeTextDocument
+            simulatorManager.activeTextDocument.uri
           ),
         });
       }
@@ -365,7 +378,7 @@ function handleSimulatorMessage(
             kind: "SourceFileChange",
             sourceFile: buildSourceFile(
               simulatorManager.diagnosticsService,
-              simulatorManager.activeTextDocument
+              simulatorManager.activeTextDocument.uri
             ),
           });
         }

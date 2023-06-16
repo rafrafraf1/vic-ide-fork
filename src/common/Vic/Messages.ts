@@ -83,7 +83,7 @@ export namespace ExtensionMessage {
    */
   export interface SourceFileChange {
     kind: "SourceFileChange";
-    sourceFile: SourceFile;
+    sourceFile: SourceFile | null;
   }
 
   /**

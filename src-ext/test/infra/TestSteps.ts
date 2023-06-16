@@ -1,16 +1,6 @@
 import * as vscode from "vscode";
+import { SLOW_TESTS_ENABLED } from "./Config";
 import { delay } from "./Delay";
-
-/**
- * Set this environment variable in your shell to slow down the tests, so that
- * you can see them running live. Useful for seeing what is happening during
- * the test.
- */
-export const SLOW_TESTS_ENV_VAR = "SLOW_TESTS";
-
-export const SLOW_TESTS_ENABLED: boolean =
-  process.env[SLOW_TESTS_ENV_VAR] !== undefined &&
-  process.env[SLOW_TESTS_ENV_VAR] !== "0";
 
 /**
  * Give a label a section of code within the test case, in order to give more
