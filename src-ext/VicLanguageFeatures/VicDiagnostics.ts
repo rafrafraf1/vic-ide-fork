@@ -71,6 +71,7 @@ function updateDiagnostics(
       service.diagnosticCollection.set(textDocument.uri, diagnostics);
       break;
     }
+    /* istanbul ignore next */
     default:
       assertNever(result.program);
   }
