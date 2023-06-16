@@ -79,6 +79,29 @@ export async function simulatorSetCpuRegisters(
 /**
  * Should be used only in tests.
  */
+export async function simulatorDoLoadSourceFile(
+  simulatorManager: SimulatorManager
+): Promise<void> {
+  /* istanbul ignore next */
+  if (simulatorManager.panel === null) {
+    throw new Error("Simulator not ready");
+  }
+
+  await new Promise<void>((resolve) => {
+    simulatorManager.debugState.stateUpdateListener = resolve;
+
+    webviewPostMessage(simulatorManager, {
+      kind: "DebugMessage",
+      message: {
+        kind: "DoLoadSourceFile",
+      },
+    });
+  });
+}
+
+/**
+ * Should be used only in tests.
+ */
 export async function simulatorGetState(
   simulatorManager: SimulatorManager
 ): Promise<AppState> {

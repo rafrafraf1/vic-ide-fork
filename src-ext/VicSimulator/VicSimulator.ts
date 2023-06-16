@@ -436,6 +436,7 @@ function handleLoadSourceFile(
     (t) => uriToSourceFileId(t.uri) === sourceFileId
   );
 
+  /* istanbul ignore if */
   if (textDocument === undefined) {
     // See [Note about message passing race conditions]
     void vscode.window.showErrorMessage(`No file to load`);
@@ -451,6 +452,7 @@ function handleLoadSourceFile(
         program: result.program.value,
       });
       break;
+    /* istanbul ignore next */
     case "Error": {
       // See [Note about message passing race conditions]
       void vscode.window.showErrorMessage(
@@ -458,6 +460,7 @@ function handleLoadSourceFile(
       );
       break;
     }
+    /* istanbul ignore next */
     default:
       assertNever(result.program);
   }
@@ -470,6 +473,7 @@ function handleShowErrors(sourceFileId: SourceFileId): void {
 
   void vscode.commands.executeCommand("workbench.panel.markers.view.focus");
 
+  /* istanbul ignore if */
   if (textDocument === undefined) {
     // See [Note about message passing race conditions]
     return;
@@ -504,6 +508,7 @@ export function webviewPostMessage(
         () => {
           // Message sent to webview. Do Nothing.
         },
+        /* istanbul ignore next */
         () => {
           // Ignore this error.
           //

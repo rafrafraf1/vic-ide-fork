@@ -36,7 +36,8 @@ export namespace SimulatorDebugMessage {
 export type ExtensionDebugMessage =
   | ExtensionDebugMessage.RequestState
   | ExtensionDebugMessage.RequestSourceFile
-  | ExtensionDebugMessage.SetCpuRegisters;
+  | ExtensionDebugMessage.SetCpuRegisters
+  | ExtensionDebugMessage.DoLoadSourceFile;
 
 export namespace ExtensionDebugMessage {
   /**
@@ -67,5 +68,13 @@ export namespace ExtensionDebugMessage {
     instructionRegister: number | null;
     dataRegister: number | null;
     programCounter: number | null;
+  }
+
+  /**
+   * Instruct the Simulator to act as if the user clicked the "Load Source
+   * File" button.
+   */
+  export interface DoLoadSourceFile {
+    kind: "DoLoadSourceFile";
   }
 }

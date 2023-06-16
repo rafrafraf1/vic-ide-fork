@@ -108,88 +108,6 @@ function App(props: AppProps): JSX.Element {
     [computer, input, output]
   );
 
-  const handleDebugMessage = React.useCallback(
-    (message: ExtensionDebugMessage): void => {
-      switch (message.kind) {
-        case "RequestState":
-          extensionBridge.postMessage({
-            kind: "DebugMessage",
-            message: {
-              kind: "RequestStateResponse",
-              state: {
-                hardwareState: hardwareState,
-                animationSpeed: animationSpeed,
-              },
-            },
-          });
-          break;
-        case "RequestSourceFile":
-          extensionBridge.postMessage({
-            kind: "DebugMessage",
-            message: {
-              kind: "RequestSourceFileResponse",
-              sourceFile: sourceFile,
-            },
-          });
-
-          break;
-        case "SetCpuRegisters":
-          setComputer(processDebugSetCpuRegisters(message, computer));
-          break;
-        default:
-          assertNever(message);
-      }
-    },
-    [animationSpeed, computer, extensionBridge, hardwareState, sourceFile]
-  );
-
-  const handleMessage = React.useCallback(
-    (message: ExtensionMessage): void => {
-      switch (message.kind) {
-        case "SourceFileChange":
-          setSourceFile(message.sourceFile);
-          break;
-        case "LoadProgram": {
-          const hardwareState = loadProgram(
-            {
-              computer: computer,
-              input: input,
-              output: output,
-            },
-            message.program
-          );
-
-          setComputer(hardwareState.computer);
-          setInput(hardwareState.input);
-          setOutput(hardwareState.output);
-          break;
-        }
-        case "DebugMessage":
-          handleDebugMessage(message.message);
-          break;
-        default:
-          assertNever(message);
-      }
-    },
-    [computer, handleDebugMessage, input, output]
-  );
-
-  useWindowMessages(extensionBridge, handleMessage);
-
-  const handleLoadSourceFileClick = React.useCallback(() => {
-    extensionBridge.postMessage({
-      kind: "LoadSourceFile",
-      sourceFileId: nonNull(sourceFile).id,
-    });
-  }, [extensionBridge, sourceFile]);
-
-  const handleShowErrorsClick = React.useCallback(() => {
-    extensionBridge.postMessage({
-      kind: "ShowErrors",
-      sourceFileId: nonNull(sourceFile).id,
-    });
-  }, [extensionBridge, sourceFile]);
-
   const triggerStepComplete = useEvents<StepComplete>(
     (step: StepComplete): void => {
       switch (simulationState) {
@@ -353,6 +271,20 @@ function App(props: AppProps): JSX.Element {
     );
   }, [animate, animationSpeed, computer, input, triggerStepComplete]);
 
+  const handleLoadSourceFileClick = React.useCallback((): void => {
+    extensionBridge.postMessage({
+      kind: "LoadSourceFile",
+      sourceFileId: nonNull(sourceFile).id,
+    });
+  }, [extensionBridge, sourceFile]);
+
+  const handleShowErrorsClick = React.useCallback((): void => {
+    extensionBridge.postMessage({
+      kind: "ShowErrors",
+      sourceFileId: nonNull(sourceFile).id,
+    });
+  }, [extensionBridge, sourceFile]);
+
   const handleFetchInstructionClick = React.useCallback((): void => {
     setSimulationState("FETCH_INSTRUCTION");
     doFetchInstruction();
@@ -403,6 +335,84 @@ function App(props: AppProps): JSX.Element {
   const handleInputChange = React.useCallback((input: InputState): void => {
     setInput(input);
   }, []);
+
+  const handleDebugMessage = React.useCallback(
+    (message: ExtensionDebugMessage): void => {
+      switch (message.kind) {
+        case "RequestState":
+          extensionBridge.postMessage({
+            kind: "DebugMessage",
+            message: {
+              kind: "RequestStateResponse",
+              state: {
+                hardwareState: hardwareState,
+                animationSpeed: animationSpeed,
+              },
+            },
+          });
+          break;
+        case "RequestSourceFile":
+          extensionBridge.postMessage({
+            kind: "DebugMessage",
+            message: {
+              kind: "RequestSourceFileResponse",
+              sourceFile: sourceFile,
+            },
+          });
+
+          break;
+        case "SetCpuRegisters":
+          setComputer(processDebugSetCpuRegisters(message, computer));
+          break;
+        case "DoLoadSourceFile":
+          handleLoadSourceFileClick();
+          break;
+        default:
+          assertNever(message);
+      }
+    },
+    [
+      animationSpeed,
+      computer,
+      extensionBridge,
+      handleLoadSourceFileClick,
+      hardwareState,
+      sourceFile,
+    ]
+  );
+
+  const handleMessage = React.useCallback(
+    (message: ExtensionMessage): void => {
+      switch (message.kind) {
+        case "SourceFileChange":
+          setSourceFile(message.sourceFile);
+          break;
+        case "LoadProgram": {
+          const hardwareState = loadProgram(
+            {
+              computer: computer,
+              input: input,
+              output: output,
+            },
+            message.program
+          );
+
+          setComputer(hardwareState.computer);
+          setInput(hardwareState.input);
+          setOutput(hardwareState.output);
+          break;
+        }
+        case "DebugMessage":
+          handleDebugMessage(message.message);
+          break;
+        default:
+          assertNever(message);
+      }
+    },
+    [computer, handleDebugMessage, input, output]
+  );
+
+  useWindowMessages(extensionBridge, handleMessage);
 
   return (
     <div className="App-Root">

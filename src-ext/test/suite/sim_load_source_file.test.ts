@@ -1,0 +1,43 @@
+import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+
+import * as assert from "assert";
+import * as vscode from "vscode";
+import {
+  simulatorDoLoadSourceFile,
+  simulatorGetState,
+  waitForSimulatorReady,
+} from "../../VicSimulator/VicSimulatorDebug";
+import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
+import { getSimulatorManager } from "../../extension";
+import { step } from "../infra/TestSteps";
+import { testCase } from "../infra/TestCase";
+
+export const run = testCase(async (): Promise<void> => {
+  await step("Open Text Document", async () => {
+    const textDocument = await vscode.workspace.openTextDocument({
+      language: vicLanguageId,
+      content: ["// Test file", "READ", "WRITE", "STOP"].join("\n"),
+    });
+    await vscode.window.showTextDocument(textDocument);
+  });
+
+  const simulatorManager = await step("Open Simulator", async () => {
+    await vscode.commands.executeCommand(vicOpenSimulatorCommand);
+    const simulatorManager = getSimulatorManager();
+    await waitForSimulatorReady(simulatorManager);
+    return simulatorManager;
+  });
+
+  await step("Load Source File", async () => {
+    await simulatorDoLoadSourceFile(simulatorManager);
+  });
+
+  const state = await step("Get State", async () => {
+    return await simulatorGetState(simulatorManager);
+  });
+
+  assert.deepStrictEqual(
+    state.hardwareState.computer.memory.slice(0, 3),
+    [800, 900, 0]
+  );
+});
