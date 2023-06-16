@@ -182,6 +182,11 @@ function buildSourceFile(
   };
 }
 
+/**
+ * The title of the tab that will contain the simulator
+ */
+export const simulatorTabTitle = "Vic Simulator";
+
 function showVicSimulator(
   simulatorManager: SimulatorManager,
   extensionUri: vscode.Uri
@@ -198,9 +203,6 @@ function showVicSimulator(
     return;
   }
 
-  // The title of the tab that will contain the simulator:
-  const title = "Vic Simulator";
-
   // Split the VS code editor into two columns, and place the simulator in the
   // right view column. (If the editor is already split, then the simulator
   // will open in a new tab in the right view column).
@@ -213,7 +215,7 @@ function showVicSimulator(
 
   const panel = vscode.window.createWebviewPanel(
     vicWebviewPanelType,
-    title,
+    simulatorTabTitle,
     viewColumn,
     getWebviewOptions(extensionUri)
   );
@@ -398,7 +400,13 @@ function handleSimulatorMessage(
       handleLoadSourceFile(simulatorManager, message.sourceFileId);
       break;
     case "ShowErrors":
-      handleShowErrors(message.sourceFileId);
+      void handleShowErrors(simulatorManager).then(() => {
+        if (
+          simulatorManager.debugState.debugResponseShowErrorsListener !== null
+        ) {
+          simulatorManager.debugState.debugResponseShowErrorsListener();
+        }
+      });
       break;
     case "DebugMessage":
       handleDebugMessage(simulatorManager, message.message);
@@ -466,21 +474,50 @@ function handleLoadSourceFile(
   }
 }
 
-function handleShowErrors(sourceFileId: SourceFileId): void {
-  const textDocument = vscode.workspace.textDocuments.find(
-    (t) => uriToSourceFileId(t.uri) === sourceFileId
-  );
-
-  void vscode.commands.executeCommand("workbench.panel.markers.view.focus");
-
+async function handleShowErrors(
+  simulatorManager: SimulatorManager
+): Promise<void> {
   /* istanbul ignore if */
-  if (textDocument === undefined) {
+  if (simulatorManager.activeTextDocument === null) {
     // See [Note about message passing race conditions]
     return;
   }
 
-  // TODO This sometimes opens in a new tab
-  void vscode.window.showTextDocument(textDocument);
+  await vscode.commands.executeCommand("workbench.panel.markers.view.focus");
+
+  const viewColumn = textDocumentViewColumn(
+    simulatorManager.activeTextDocument
+  );
+  if (viewColumn !== null) {
+    await vscode.window.showTextDocument(
+      simulatorManager.activeTextDocument,
+      viewColumn
+    );
+  }
+}
+
+function textDocumentViewColumn(
+  document: vscode.TextDocument
+): vscode.ViewColumn | null {
+  for (const textEditor of vscode.window.visibleTextEditors) {
+    if (textEditor.document === document) {
+      if (textEditor.viewColumn !== undefined) {
+        return textEditor.viewColumn;
+      }
+    }
+  }
+
+  for (const tabGroup of vscode.window.tabGroups.all) {
+    for (const tab of tabGroup.tabs) {
+      if (tab.input instanceof vscode.TabInputText) {
+        if (tab.input.uri.toString() === document.uri.toString()) {
+          return tabGroup.viewColumn;
+        }
+      }
+    }
+  }
+
+  return null;
 }
 
 /**

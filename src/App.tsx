@@ -364,8 +364,11 @@ function App(props: AppProps): JSX.Element {
         case "SetCpuRegisters":
           setComputer(processDebugSetCpuRegisters(message, computer));
           break;
-        case "DoLoadSourceFile":
+        case "DoLoadSourceFileClick":
           handleLoadSourceFileClick();
+          break;
+        case "DoShowErrorsClick":
+          handleShowErrorsClick();
           break;
         default:
           assertNever(message);
@@ -376,6 +379,7 @@ function App(props: AppProps): JSX.Element {
       computer,
       extensionBridge,
       handleLoadSourceFileClick,
+      handleShowErrorsClick,
       hardwareState,
       sourceFile,
     ]

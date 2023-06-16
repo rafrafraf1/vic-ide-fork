@@ -3,21 +3,22 @@ import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-i
 import * as assert from "assert";
 import * as vscode from "vscode";
 import {
-  simulatorDoLoadSourceFileClick,
+  simulatorDoShowErrorsClick,
   simulatorGetSourceFile,
-  simulatorGetState,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
 import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
+import { simulatorTabTitle } from "../../VicSimulator/VicSimulator";
 import { step } from "../infra/TestSteps";
+import { tabGroupView } from "../infra/VSCodeHelpers";
 import { testCase } from "../infra/TestCase";
 
 export const run = testCase(async (): Promise<void> => {
-  await step("Open Text Document", async () => {
+  await step("Open Text Document (with error)", async () => {
     const textDocument = await vscode.workspace.openTextDocument({
       language: vicLanguageId,
-      content: ["// Test file", "READ", "WRITE", "STOP"].join("\n"),
+      content: ["// Test file", "READ", "WRITEx", "STOP"].join("\n"),
     });
     await vscode.window.showTextDocument(textDocument);
   });
@@ -38,20 +39,48 @@ export const run = testCase(async (): Promise<void> => {
     filename: "Untitled-1",
     info: {
       kind: "ValidSourceFile",
-      hasErrors: false,
+      hasErrors: true,
     },
   });
 
-  await step("Load Source File", async () => {
-    await simulatorDoLoadSourceFileClick(simulatorManager);
+  await step("Show Errors", async () => {
+    await simulatorDoShowErrorsClick(simulatorManager);
   });
 
-  const state = await step("Get State", async () => {
-    return await simulatorGetState(simulatorManager);
-  });
+  if (vscode.window.activeTextEditor === undefined) {
+    throw new Error("No activeTextEditor");
+  }
 
-  assert.deepStrictEqual(
-    state.hardwareState.computer.memory.slice(0, 3),
-    [800, 900, 0]
+  const activeTextEditorUri =
+    vscode.window.activeTextEditor.document.uri.toString();
+
+  assert.deepStrictEqual<typeof activeTextEditorUri>(
+    activeTextEditorUri,
+    "untitled:Untitled-1"
   );
+
+  const tabGroups = vscode.window.tabGroups.all.map(tabGroupView);
+
+  assert.deepStrictEqual<typeof tabGroups>(tabGroups, [
+    {
+      viewColumn: 1,
+      isActive: true,
+      tabs: [
+        {
+          isActive: true,
+          label: "// Test file",
+        },
+      ],
+    },
+    {
+      viewColumn: 2,
+      isActive: false,
+      tabs: [
+        {
+          isActive: true,
+          label: simulatorTabTitle,
+        },
+      ],
+    },
+  ]);
 });

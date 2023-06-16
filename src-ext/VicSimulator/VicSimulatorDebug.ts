@@ -15,6 +15,7 @@ export interface DebugState {
   debugResponseSourceFileListener:
     | ((sourceFile: SourceFile | null) => void)
     | null;
+  debugResponseShowErrorsListener: (() => void) | null;
 }
 
 export function initDebugState(): DebugState {
@@ -23,6 +24,7 @@ export function initDebugState(): DebugState {
     stateUpdateListener: null,
     debugResponseStateListener: null,
     debugResponseSourceFileListener: null,
+    debugResponseShowErrorsListener: null,
   };
 }
 
@@ -48,19 +50,13 @@ export async function simulatorSetCpuRegisters(
   simulatorManager: SimulatorManager,
   setCpuRegisters: ExtensionDebugMessage.SetCpuRegisters
 ): Promise<void> {
-  /* istanbul ignore next */
-  if (simulatorManager.panel === null) {
-    throw new Error("Simulator not ready");
-  }
-
-  await new Promise<void>((resolve) => {
-    simulatorManager.debugState.stateUpdateListener = resolve;
-
-    webviewPostMessage(simulatorManager, {
-      kind: "DebugMessage",
-      message: setCpuRegisters,
-    });
-  });
+  await sendDebugMessage(
+    simulatorManager,
+    (resolve) => {
+      simulatorManager.debugState.stateUpdateListener = resolve;
+    },
+    setCpuRegisters
+  );
 
   // This delay is needed so that VS Code WebviewPanels will have enough time
   // to persist their internal state. (When the Webview code calls
@@ -79,8 +75,37 @@ export async function simulatorSetCpuRegisters(
 /**
  * Should be used only in tests.
  */
-export async function simulatorDoLoadSourceFile(
+export async function simulatorDoLoadSourceFileClick(
   simulatorManager: SimulatorManager
+): Promise<void> {
+  await sendDebugMessage(
+    simulatorManager,
+    (resolve) => {
+      simulatorManager.debugState.stateUpdateListener = resolve;
+    },
+    { kind: "DoLoadSourceFileClick" }
+  );
+}
+
+/**
+ * Should be used only in tests.
+ */
+export async function simulatorDoShowErrorsClick(
+  simulatorManager: SimulatorManager
+): Promise<void> {
+  await sendDebugMessage(
+    simulatorManager,
+    (resolve) => {
+      simulatorManager.debugState.debugResponseShowErrorsListener = resolve;
+    },
+    { kind: "DoShowErrorsClick" }
+  );
+}
+
+async function sendDebugMessage(
+  simulatorManager: SimulatorManager,
+  assignResolve: (value: () => void) => void,
+  message: ExtensionDebugMessage
 ): Promise<void> {
   /* istanbul ignore next */
   if (simulatorManager.panel === null) {
@@ -88,13 +113,11 @@ export async function simulatorDoLoadSourceFile(
   }
 
   await new Promise<void>((resolve) => {
-    simulatorManager.debugState.stateUpdateListener = resolve;
+    assignResolve(resolve);
 
     webviewPostMessage(simulatorManager, {
       kind: "DebugMessage",
-      message: {
-        kind: "DoLoadSourceFile",
-      },
+      message: message,
     });
   });
 }

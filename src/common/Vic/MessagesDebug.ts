@@ -37,7 +37,8 @@ export type ExtensionDebugMessage =
   | ExtensionDebugMessage.RequestState
   | ExtensionDebugMessage.RequestSourceFile
   | ExtensionDebugMessage.SetCpuRegisters
-  | ExtensionDebugMessage.DoLoadSourceFile;
+  | ExtensionDebugMessage.DoLoadSourceFileClick
+  | ExtensionDebugMessage.DoShowErrorsClick;
 
 export namespace ExtensionDebugMessage {
   /**
@@ -74,7 +75,15 @@ export namespace ExtensionDebugMessage {
    * Instruct the Simulator to act as if the user clicked the "Load Source
    * File" button.
    */
-  export interface DoLoadSourceFile {
-    kind: "DoLoadSourceFile";
+  export interface DoLoadSourceFileClick {
+    kind: "DoLoadSourceFileClick";
+  }
+
+  /**
+   * Instruct the Simulator to act as if the user clicked the "Show Errors"
+   * button.
+   */
+  export interface DoShowErrorsClick {
+    kind: "DoShowErrorsClick";
   }
 }
