@@ -29,11 +29,40 @@ export function useWindowMessages<T, U>(
   const onMessageRef = React.useRef<(e: T) => void>(onMessage);
   onMessageRef.current = onMessage;
 
+  // We want the property that if multiple messages arrives quickly, a full
+  // re-render happens between each dispatch.
+  //
+  // This is important so that if the handler of the first message calls a
+  // React "setState" function, then the handler of the next message will see
+  // the updated state.
+  //
+  // The achieve this, we use a message queue, and a "counter" state variable
+  // used to trigger re-renders.
+
+  const messageQueueRef = React.useRef<T[]>([]);
+  const [counter, setCounter] = React.useState(0);
+
+  React.useEffect(() => {
+    const nextMessage = messageQueueRef.current.shift();
+    if (nextMessage !== undefined) {
+      onMessageRef.current(nextMessage);
+      if (messageQueueRef.current.length > 0) {
+        // Trigger a re-render, so that the next message in the queue will be
+        // dispatched:
+        setCounter(counter + 1);
+      }
+    }
+  }, [counter]);
+
   React.useEffect(() => {
     function handleEvent(e: MessageEvent): void {
       const message = e.data as IncomingMessage<T>;
       if (message.source === "vic-ide-ext") {
-        onMessageRef.current(message);
+        messageQueueRef.current.push(message);
+
+        // Trigger a re-render, so that the message that was just queued will
+        // be dispatched:
+        setCounter((c) => c + 1);
       }
     }
 
@@ -44,5 +73,10 @@ export function useWindowMessages<T, U>(
     return () => {
       window.removeEventListener("message", handleEvent);
     };
+
+    // It is important that there are no dependencies here (other than
+    // "extensionBridge") so that the event listener is not
+    // de-registered/re-registered unnecessarily (which could cause us to miss
+    // events):
   }, [extensionBridge]);
 }
