@@ -12,12 +12,14 @@ export async function step<A>(
 ): Promise<A> {
   console.log(`BEGIN STEP: ${label}`);
 
+  /* istanbul ignore if */
   if (SLOW_TESTS_ENABLED) {
     await showStepDialog(label);
   }
 
   const result = await body();
 
+  /* istanbul ignore if */
   if (SLOW_TESTS_ENABLED) {
     await delay(2000);
   }
@@ -26,6 +28,7 @@ export async function step<A>(
   return result;
 }
 
+/* istanbul ignore next */
 export async function showStepDialog(label: string): Promise<void> {
   await vscode.window.withProgress(
     {

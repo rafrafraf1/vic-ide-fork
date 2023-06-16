@@ -26,6 +26,7 @@ export class PersistentState<T> {
 
 function readPersistentStateFile(): string {
   const filename = process.env[STATE_FILE_ENV_VAR];
+  /* istanbul ignore if */
   if (filename === undefined) {
     throw new Error(`${STATE_FILE_ENV_VAR} environment var not set`);
   }
@@ -34,12 +35,14 @@ function readPersistentStateFile(): string {
 
 function writePersistentStateFile(value: string): void {
   const filename = process.env[STATE_FILE_ENV_VAR];
+  /* istanbul ignore if */
   if (filename === undefined) {
     throw new Error(`${STATE_FILE_ENV_VAR} environment var not set`);
   }
   fs.writeFileSync(filename, value, "utf8");
 }
 
+/* istanbul ignore next */
 async function withTmpFile<A>(
   body: (filename: string) => Promise<A>
 ): Promise<A> {
@@ -53,6 +56,7 @@ async function withTmpFile<A>(
   }
 }
 
+/* istanbul ignore next */
 export async function withPersistentStateAvailable<A>(
   body: (envVarName: string, envVarValue: string) => Promise<A>
 ): Promise<A> {

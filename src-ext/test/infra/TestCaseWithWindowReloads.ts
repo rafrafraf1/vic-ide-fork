@@ -31,6 +31,7 @@ export function testCaseWithWindowReloads(
     const persistentState = new PersistentState<TestStep>({ step: 0 });
     const currentStep = persistentState.get();
     const step = steps[currentStep.step];
+    /* istanbul ignore if */
     if (step === undefined) {
       throw new Error(`Invalid step: ${currentStep.step}`);
     }
@@ -42,6 +43,7 @@ export function testCaseWithWindowReloads(
     if (currentStep.step < steps.length - 1) {
       console.log("STEP: Reload Window");
 
+      /* istanbul ignore if */
       if (SLOW_TESTS_ENABLED) {
         await showStepDialog("Reload Window");
       }

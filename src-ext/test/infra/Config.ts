@@ -13,4 +13,6 @@ export const SLOW_TESTS_ENABLED: boolean =
  * Each test can take a few seconds to run, because it opens up a new VS Code
  * window, and manipulates the UI.
  */
-export const TESTS_TIMEOUT = SLOW_TESTS_ENABLED ? 120000 : 30000;
+export const TESTS_TIMEOUT = SLOW_TESTS_ENABLED
+  ? /* istanbul ignore next */ 120000
+  : 30000;
