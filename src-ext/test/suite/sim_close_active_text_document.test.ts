@@ -32,10 +32,10 @@ export const run = testCase(async (): Promise<void> => {
   });
 
   assert.deepStrictEqual<typeof sourceFile1>(sourceFile1, {
-    id: "untitled:Untitled-1",
     filename: "Untitled-1",
     info: {
       kind: "ValidSourceFile",
+      id: "untitled:Untitled-1",
       hasErrors: false,
     },
   });

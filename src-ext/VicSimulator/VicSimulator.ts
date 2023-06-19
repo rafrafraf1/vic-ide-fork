@@ -15,6 +15,7 @@ import type {
 import type { SourceFile, SourceFileId } from "../../src/common/Vic/SourceFile";
 import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
 import {
+  vicLanguageId,
   vicOpenSimulatorCommand,
   vicWebviewPanelType,
   webviewBuildDir,
@@ -110,14 +111,13 @@ export function activateVicSimulator(
     vscode.window.onDidChangeActiveTextEditor(
       (activeTextEditor: vscode.TextEditor | undefined): void => {
         if (activeTextEditor !== undefined) {
-          const uri = activeTextEditor.document.uri;
           simulatorManager.activeTextDocument = activeTextEditor.document;
 
           webviewPostMessage(simulatorManager, {
             kind: "SourceFileChange",
             sourceFile: buildSourceFile(
               simulatorManager.diagnosticsService,
-              uri
+              activeTextEditor.document
             ),
           });
         }
@@ -155,10 +155,10 @@ export function activateVicSimulator(
         webviewPostMessage(simulatorManager, {
           kind: "SourceFileChange",
           sourceFile: {
-            id: uriToSourceFileId(uri),
             filename: getUriBasename(uri),
             info: {
               kind: "ValidSourceFile",
+              id: uriToSourceFileId(uri),
               hasErrors: hasErrors,
             },
           },
@@ -170,14 +170,25 @@ export function activateVicSimulator(
 
 function buildSourceFile(
   diagnosticsService: DiagnosticsService,
-  uri: vscode.Uri
+  textDocument: vscode.TextDocument
 ): SourceFile {
+  const filename = getUriBasename(textDocument.uri);
+  if (textDocument.languageId !== vicLanguageId) {
+    return {
+      filename: filename,
+      info: {
+        kind: "InvalidSourceFile",
+        languageId: textDocument.languageId,
+      },
+    };
+  }
+
   return {
-    id: uriToSourceFileId(uri),
-    filename: getUriBasename(uri),
+    filename: filename,
     info: {
       kind: "ValidSourceFile",
-      hasErrors: getTextDocumentHasErrors(diagnosticsService, uri),
+      id: uriToSourceFileId(textDocument.uri),
+      hasErrors: getTextDocumentHasErrors(diagnosticsService, textDocument.uri),
     },
   };
 }
@@ -321,7 +332,7 @@ function renderVicPanel(
           kind: "SourceFileChange",
           sourceFile: buildSourceFile(
             simulatorManager.diagnosticsService,
-            simulatorManager.activeTextDocument.uri
+            simulatorManager.activeTextDocument
           ),
         });
       }
@@ -380,7 +391,7 @@ function handleSimulatorMessage(
             kind: "SourceFileChange",
             sourceFile: buildSourceFile(
               simulatorManager.diagnosticsService,
-              simulatorManager.activeTextDocument.uri
+              simulatorManager.activeTextDocument
             ),
           });
         }

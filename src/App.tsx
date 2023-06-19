@@ -24,6 +24,7 @@ import {
   type SimulationState,
   simulationActive,
 } from "./UI/Simulator/SimulationState";
+import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
 import { emptyOutput, processExecuteResult } from "./Computer/Output";
 import {
   getExampleProgramNames,
@@ -34,7 +35,6 @@ import type { Address } from "./Computer/Instruction";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
 import type { ExtensionMessage } from "./common/Vic/Messages";
-import type { SourceFile } from "./common/Vic/SourceFile";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
 import { assertNever } from "assert-never";
@@ -274,14 +274,14 @@ function App(props: AppProps): JSX.Element {
   const handleLoadSourceFileClick = React.useCallback((): void => {
     extensionBridge.postMessage({
       kind: "LoadSourceFile",
-      sourceFileId: nonNull(sourceFile).id,
+      sourceFileId: getSourceFileId(sourceFile),
     });
   }, [extensionBridge, sourceFile]);
 
   const handleShowErrorsClick = React.useCallback((): void => {
     extensionBridge.postMessage({
       kind: "ShowErrors",
-      sourceFileId: nonNull(sourceFile).id,
+      sourceFileId: getSourceFileId(sourceFile),
     });
   }, [extensionBridge, sourceFile]);
 
@@ -470,6 +470,23 @@ function processDebugSetCpuRegisters(
       ? { programCounter: message.programCounter }
       : {}),
   };
+}
+
+function getSourceFileId(sourceFile: SourceFile | null): SourceFileId {
+  if (sourceFile === null) {
+    throw new Error("Invalid null sourceFile");
+  }
+
+  switch (sourceFile.info.kind) {
+    case "InvalidSourceFile":
+      throw new Error(
+        `Invalid "InvalidSourceFile" sourceFile: ${JSON.stringify(sourceFile)}`
+      );
+    case "ValidSourceFile":
+      return sourceFile.info.id;
+    default:
+      return assertNever(sourceFile.info);
+  }
 }
 
 export default App;

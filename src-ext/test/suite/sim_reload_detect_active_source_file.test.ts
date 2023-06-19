@@ -46,9 +46,9 @@ export const run = testCaseWithWindowReloads(
     });
 
     assert.deepStrictEqual<typeof sourceFile>(sourceFile, {
-      id: "untitled:Untitled-1",
       filename: "Untitled-1",
       info: {
+        id: "untitled:Untitled-1",
         kind: "ValidSourceFile",
         hasErrors: false,
       },

@@ -96,30 +96,6 @@ export const Toolbar = React.memo(function Toolbar(
     }
   }, [onRunClick, onStopClick, simulationState]);
 
-  const handleLoadClick = React.useCallback((): void => {
-    if (sourceFile === null) {
-      return;
-    }
-
-    switch (sourceFile.info.kind) {
-      case "InvalidSourceFile":
-        break;
-      case "ValidSourceFile":
-        if (sourceFile.info.hasErrors) {
-          if (onShowErrorsClick !== undefined) {
-            onShowErrorsClick();
-          }
-        } else {
-          if (onLoadSourceFileClick !== undefined) {
-            onLoadSourceFileClick();
-          }
-        }
-        break;
-      default:
-        assertNever(sourceFile.info);
-    }
-  }, [onLoadSourceFileClick, onShowErrorsClick, sourceFile]);
-
   return (
     <div className={classNames(className, "Toolbar-root")}>
       {IS_DEMO_ENVIRONMENT ? <ThemeSwitcher /> : null}
@@ -131,14 +107,11 @@ export const Toolbar = React.memo(function Toolbar(
           onValueClick={onLoadExample}
         />
       ) : (
-        <ToolbarButton onClick={handleLoadClick}>
-          {sourceFile === null ? "NONE" : sourceFile.filename}
-          {sourceFile !== null &&
-          sourceFile.info.kind === "ValidSourceFile" &&
-          sourceFile.info.hasErrors
-            ? "[ERRORS]"
-            : null}
-        </ToolbarButton>
+        <SourceFileLoader
+          sourceFile={sourceFile}
+          onLoadSourceFileClick={onLoadSourceFileClick}
+          onShowErrorsClick={onShowErrorsClick}
+        />
       )}
       <ToolbarButton
         disabled={simulationActive(simulationState)}
@@ -167,6 +140,52 @@ export const Toolbar = React.memo(function Toolbar(
     </div>
   );
 });
+
+interface SourceFileLoaderProps {
+  sourceFile: SourceFile | null;
+  onLoadSourceFileClick?: () => void;
+  onShowErrorsClick?: () => void;
+}
+
+function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
+  const { sourceFile, onLoadSourceFileClick, onShowErrorsClick } = props;
+
+  if (sourceFile === null) {
+    return <ToolbarButton>NONE</ToolbarButton>;
+  }
+
+  switch (sourceFile.info.kind) {
+    case "InvalidSourceFile":
+      return (
+        <ToolbarButton>INVALID ({sourceFile.info.languageId})</ToolbarButton>
+      );
+
+    case "ValidSourceFile": {
+      const sourceFileInfo = sourceFile.info;
+
+      const handleLoadClick = (): void => {
+        if (sourceFileInfo.hasErrors) {
+          if (onShowErrorsClick !== undefined) {
+            onShowErrorsClick();
+          }
+        } else {
+          if (onLoadSourceFileClick !== undefined) {
+            onLoadSourceFileClick();
+          }
+        }
+      };
+
+      return (
+        <ToolbarButton onClick={handleLoadClick}>
+          {sourceFile.filename}
+          {sourceFile.info.hasErrors ? "[ERRORS]" : null}
+        </ToolbarButton>
+      );
+    }
+    default:
+      return assertNever(sourceFile.info);
+  }
+}
 
 interface RunButtonProps {
   simulationState: SimulationState;

@@ -3,11 +3,6 @@
  */
 export interface SourceFile {
   /**
-   * An identifier used only by the extension.
-   */
-  id: SourceFileId;
-
-  /**
    * The name of the file open in the editor.
    */
   filename: string;
@@ -35,6 +30,11 @@ export namespace SourceFileInfo {
     kind: "ValidSourceFile";
 
     /**
+     * An identifier used only by the extension.
+     */
+    id: SourceFileId;
+
+    /**
      * If there are any parse or compile errors. If so, the file cannot be
      * loaded into the Simulator.
      */
@@ -46,5 +46,11 @@ export namespace SourceFileInfo {
    */
   export interface InvalidSourceFile {
     kind: "InvalidSourceFile";
+
+    /**
+     * The language that the source file is in (which will be something other
+     * than "Vic").
+     */
+    languageId: string;
   }
 }

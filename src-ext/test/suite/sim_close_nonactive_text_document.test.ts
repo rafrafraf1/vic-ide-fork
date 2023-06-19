@@ -44,9 +44,9 @@ export const run = testCase(async (): Promise<void> => {
   });
 
   assert.deepStrictEqual<typeof sourceFile1>(sourceFile1, {
-    id: "untitled:Untitled-1",
     filename: "Untitled-1",
     info: {
+      id: "untitled:Untitled-1",
       kind: "ValidSourceFile",
       hasErrors: false,
     },
@@ -63,9 +63,9 @@ export const run = testCase(async (): Promise<void> => {
   });
 
   assert.deepStrictEqual<typeof sourceFile2>(sourceFile2, {
-    id: "untitled:Untitled-1",
     filename: "Untitled-1",
     info: {
+      id: "untitled:Untitled-1",
       kind: "ValidSourceFile",
       hasErrors: false,
     },
