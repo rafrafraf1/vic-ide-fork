@@ -18,7 +18,6 @@ import { VscDebugContinue, VscDebugStart, VscDebugStop } from "react-icons/vsc";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import { BsHourglass } from "react-icons/bs";
-import { IS_DEMO_ENVIRONMENT } from "../System/Environment";
 import type { IconType } from "react-icons";
 import { MenuButton } from "./Components/MenuButton";
 import type { SourceFile } from "../common/Vic/SourceFile";
@@ -27,6 +26,28 @@ import classNames from "classnames";
 
 interface ToolbarProps {
   className?: string;
+
+  /**
+   * Show the button that allows changing themes. This should not be shown
+   * when running as a VS Code extension, because it has builtin theme
+   * switching functionality.
+   */
+  showThemeSwitcher: boolean;
+
+  /**
+   * Show the button that allows to load example programs. This is mainly
+   * useful in the web demo.
+   */
+  showExamples: boolean;
+
+  /**
+   * Show source file loader widget. This is useful only in the VS Code
+   * extension.
+   *
+   * (In the future the web demo may be extended to include a text editor, in
+   * which case this would be useful in that environment as well.)
+   */
+  showSourceLoader: boolean;
 
   simulationState: SimulationState;
 
@@ -52,6 +73,9 @@ export const Toolbar = React.memo(function Toolbar(
 ): JSX.Element {
   const {
     className,
+    showThemeSwitcher,
+    showExamples,
+    showSourceLoader,
     simulationState,
     examples,
     onLoadExample,
@@ -98,21 +122,22 @@ export const Toolbar = React.memo(function Toolbar(
 
   return (
     <div className={classNames(className, "Toolbar-root")}>
-      {IS_DEMO_ENVIRONMENT ? <ThemeSwitcher /> : null}
-      {IS_DEMO_ENVIRONMENT ? (
+      {showThemeSwitcher ? <ThemeSwitcher /> : null}
+      {showExamples ? (
         <MenuButton
           disabled={simulationActive(simulationState)}
           label="Load Example"
           values={examples}
           onValueClick={onLoadExample}
         />
-      ) : (
+      ) : null}
+      {showSourceLoader ? (
         <SourceFileLoader
           sourceFile={sourceFile}
           onLoadSourceFileClick={onLoadSourceFileClick}
           onShowErrorsClick={onShowErrorsClick}
         />
-      )}
+      ) : null}
       <ToolbarButton
         disabled={simulationActive(simulationState)}
         onClick={onFetchInstructionClick}

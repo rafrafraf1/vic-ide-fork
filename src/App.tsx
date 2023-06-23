@@ -35,6 +35,7 @@ import type { Address } from "./Computer/Instruction";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
 import type { ExtensionMessage } from "./common/Vic/Messages";
+import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
 import { Toolbar } from "./UI/Toolbar";
 import type { Value } from "./Computer/Value";
 import { assertNever } from "assert-never";
@@ -422,6 +423,9 @@ function App(props: AppProps): JSX.Element {
     <div className="App-Root">
       <Toolbar
         className="App-Toolbar-Cont"
+        showExamples={IS_DEMO_ENVIRONMENT}
+        showThemeSwitcher={IS_DEMO_ENVIRONMENT}
+        showSourceLoader={!IS_DEMO_ENVIRONMENT}
         simulationState={simulationState}
         examples={getExampleProgramNames()}
         onLoadExample={handleLoadExample}
