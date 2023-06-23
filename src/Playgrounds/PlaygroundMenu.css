@@ -1,0 +1,8 @@
+.PlaygroundMenu-menu {
+  display: flex;
+  height: 60px;
+}
+
+.PlaygroundMenu-activity-root {
+  color: #888;
+}

@@ -254,7 +254,7 @@ export function RunButton(props: RunButtonProps): JSX.Element {
   );
 }
 
-function ThemeSwitcher(): JSX.Element {
+export function ThemeSwitcher(): JSX.Element {
   const [theme, setTheme] = React.useState<DemoTheme>(() => getCurrentTheme());
 
   React.useEffect(() => {
