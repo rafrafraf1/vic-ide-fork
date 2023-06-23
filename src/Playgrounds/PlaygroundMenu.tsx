@@ -1,6 +1,7 @@
 import "./PlaygroundMenu.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import { ThemeSwitcher, ToolbarButton } from "../UI/Toolbar";
+import { ToolbarPlayground } from "./ToolbarPlayground";
 import { ValueCellInputPlayground } from "./ValueCellInputPlayground";
 import { assertNever } from "assert-never";
 
@@ -50,7 +51,7 @@ function PlaygroundActivity(props: PlaygroundActivityProps): JSX.Element {
     case "ValueCellInputPlayground":
       return <ValueCellInputPlayground />;
     case "ToolbarPlayground":
-      throw new Error("TODO");
+      return <ToolbarPlayground />;
     default:
       return assertNever(playground);
   }

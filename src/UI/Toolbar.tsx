@@ -133,6 +133,7 @@ export const Toolbar = React.memo(function Toolbar(
       ) : null}
       {showSourceLoader ? (
         <SourceFileLoader
+          disabled={simulationActive(simulationState)}
           sourceFile={sourceFile}
           onLoadSourceFileClick={onLoadSourceFileClick}
           onShowErrorsClick={onShowErrorsClick}
@@ -167,22 +168,24 @@ export const Toolbar = React.memo(function Toolbar(
 });
 
 interface SourceFileLoaderProps {
+  disabled?: boolean;
   sourceFile: SourceFile | null;
   onLoadSourceFileClick?: () => void;
   onShowErrorsClick?: () => void;
 }
 
 function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
-  const { sourceFile, onLoadSourceFileClick, onShowErrorsClick } = props;
+  const { disabled, sourceFile, onLoadSourceFileClick, onShowErrorsClick } =
+    props;
 
   if (sourceFile === null) {
-    return <ToolbarButton>NONE</ToolbarButton>;
+    return <ToolbarButton disabled={disabled}>NONE</ToolbarButton>;
   }
 
   switch (sourceFile.info.kind) {
     case "InvalidSourceFile":
       return (
-        <ToolbarButton>
+        <ToolbarButton disabled={disabled}>
           {sourceFile.filename} [INVALID] ({sourceFile.info.languageId})
         </ToolbarButton>
       );
@@ -203,7 +206,7 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
       };
 
       return (
-        <ToolbarButton onClick={handleLoadClick}>
+        <ToolbarButton disabled={disabled} onClick={handleLoadClick}>
           {sourceFile.filename}
           {sourceFile.info.hasErrors ? "[ERRORS]" : null}
         </ToolbarButton>
