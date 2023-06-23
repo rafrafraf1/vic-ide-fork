@@ -126,6 +126,25 @@ export function activateVicSimulator(
   );
 
   context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument((d) => {
+      if (vscode.window.activeTextEditor !== undefined) {
+        const activeDocument = vscode.window.activeTextEditor.document;
+        if (simulatorManager.activeTextDocument !== activeDocument) {
+          simulatorManager.activeTextDocument = activeDocument;
+
+          webviewPostMessage(simulatorManager, {
+            kind: "SourceFileChange",
+            sourceFile: buildSourceFile(
+              simulatorManager.diagnosticsService,
+              activeDocument
+            ),
+          });
+        }
+      }
+    })
+  );
+
+  context.subscriptions.push(
     vscode.workspace.onDidCloseTextDocument((d) => {
       if (simulatorManager.activeTextDocument === d) {
         simulatorManager.activeTextDocument = null;

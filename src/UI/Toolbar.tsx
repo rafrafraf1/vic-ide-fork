@@ -157,7 +157,9 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
   switch (sourceFile.info.kind) {
     case "InvalidSourceFile":
       return (
-        <ToolbarButton>INVALID ({sourceFile.info.languageId})</ToolbarButton>
+        <ToolbarButton>
+          {sourceFile.filename} [INVALID] ({sourceFile.info.languageId})
+        </ToolbarButton>
       );
 
     case "ValidSourceFile": {
