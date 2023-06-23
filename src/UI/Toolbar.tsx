@@ -18,9 +18,12 @@ import { VscDebugContinue, VscDebugStart, VscDebugStop } from "react-icons/vsc";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import { BsHourglass } from "react-icons/bs";
+import { FaFileUpload } from "react-icons/fa";
 import type { IconType } from "react-icons";
+import { MdErrorOutline } from "react-icons/md";
 import { MenuButton } from "./Components/MenuButton";
 import type { SourceFile } from "../common/Vic/SourceFile";
+import Tippy from "@tippyjs/react";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
 
@@ -139,18 +142,18 @@ export const Toolbar = React.memo(function Toolbar(
           onShowErrorsClick={onShowErrorsClick}
         />
       ) : null}
-      <ToolbarButton
+      <Button
         disabled={simulationActive(simulationState)}
         onClick={onFetchInstructionClick}
       >
-        Fetch Instruction
-      </ToolbarButton>
-      <ToolbarButton
+        <ButtonLabel>Fetch Instruction</ButtonLabel>
+      </Button>
+      <Button
         disabled={simulationActive(simulationState)}
         onClick={onExecuteInstructionClick}
       >
-        Execute Instruction
-      </ToolbarButton>
+        <ButtonLabel>Execute Instruction</ButtonLabel>
+      </Button>
       <AnimationSpeedSelector
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={onAnimationSpeedChange}
@@ -160,7 +163,9 @@ export const Toolbar = React.memo(function Toolbar(
         onClick={onSingleStepClick}
       >
         <ButtonLabel>Single Step</ButtonLabel>
-        <VscDebugContinue />
+        <ButtonLabel>
+          <VscDebugContinue />
+        </ButtonLabel>
       </Button>
       <RunButton simulationState={simulationState} onClick={handleRunClick} />
     </div>
@@ -179,15 +184,40 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
     props;
 
   if (sourceFile === null) {
-    return <ToolbarButton disabled={disabled}>NONE</ToolbarButton>;
+    return (
+      <Tippy content="Use the File Explorer to open a file" placement="bottom">
+        <Button disabled={true}>
+          <ButtonLabel>
+            <FaFileUpload />
+          </ButtonLabel>
+          <ButtonLabel>No File Available</ButtonLabel>
+        </Button>
+      </Tippy>
+    );
   }
 
   switch (sourceFile.info.kind) {
     case "InvalidSourceFile":
       return (
-        <ToolbarButton disabled={disabled}>
-          {sourceFile.filename} [INVALID] ({sourceFile.info.languageId})
-        </ToolbarButton>
+        <Tippy
+          content={
+            <>
+              <div>
+                {sourceFile.filename} file is of type:{" "}
+                {sourceFile.info.languageId}
+              </div>
+              <div>Change the Language mode of the file to "Vic"</div>
+            </>
+          }
+          placement="bottom"
+        >
+          <Button disabled={true}>
+            <ButtonLabel>
+              <FaFileUpload />
+            </ButtonLabel>
+            <ButtonLabel>Load {sourceFile.filename}</ButtonLabel>
+          </Button>
+        </Tippy>
       );
 
     case "ValidSourceFile": {
@@ -205,12 +235,45 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
         }
       };
 
-      return (
-        <ToolbarButton disabled={disabled} onClick={handleLoadClick}>
-          {sourceFile.filename}
-          {sourceFile.info.hasErrors ? "[ERRORS]" : null}
-        </ToolbarButton>
-      );
+      if (!sourceFile.info.hasErrors) {
+        return (
+          <Tippy
+            content={`Compile ${sourceFile.filename} and load it into the Simulator`}
+            placement="bottom"
+          >
+            <Button disabled={disabled} onClick={handleLoadClick}>
+              <ButtonLabel>
+                <FaFileUpload />
+              </ButtonLabel>
+              <ButtonLabel>Load {sourceFile.filename}</ButtonLabel>
+            </Button>
+          </Tippy>
+        );
+      } else {
+        return (
+          <Tippy
+            content={
+              <>
+                <div>
+                  {sourceFile.filename} contains errors that must be fixed.
+                </div>
+                <div>Click to view the errors.</div>
+              </>
+            }
+            placement="bottom"
+          >
+            <Button disabled={disabled} onClick={handleLoadClick}>
+              <ButtonLabel>
+                <FaFileUpload />
+              </ButtonLabel>
+              <ButtonLabel>Load {sourceFile.filename}</ButtonLabel>
+              <ButtonLabel className="Toolbar-error">
+                <MdErrorOutline size={22} />
+              </ButtonLabel>
+            </Button>
+          </Tippy>
+        );
+      }
     }
     default:
       return assertNever(sourceFile.info);
@@ -251,7 +314,7 @@ export function RunButton(props: RunButtonProps): JSX.Element {
     >
       <>
         <ButtonLabel>{label}</ButtonLabel>
-        {icon({})}
+        <ButtonLabel>{icon({})}</ButtonLabel>
       </>
     </Button>
   );
@@ -283,20 +346,5 @@ export function ThemeSwitcher(): JSX.Element {
     <Button onClick={handleClick}>
       <ButtonLabel>{theme} Mode</ButtonLabel>
     </Button>
-  );
-}
-
-interface ToolbarButtonProps {
-  children?: React.ReactNode;
-  disabled?: boolean;
-  onClick?: () => void;
-}
-
-export function ToolbarButton(props: ToolbarButtonProps): JSX.Element {
-  const { children, disabled, onClick } = props;
-  return (
-    <button disabled={disabled} className="Toolbar-Button" onClick={onClick}>
-      {children}
-    </button>
   );
 }

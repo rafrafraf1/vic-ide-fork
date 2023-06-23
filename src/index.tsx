@@ -1,5 +1,6 @@
 import "modern-css-reset"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "tippy.js/dist/tippy.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import App from "./App";
 import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";

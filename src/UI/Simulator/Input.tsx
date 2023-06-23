@@ -5,9 +5,9 @@ import {
   ValueCellInput,
   type ValueCellInputHandle,
 } from "../ValueCellInput";
+import { Button, ButtonLabel } from "../Components/Button";
 import { type InputState, atEndOfInput } from "../../Computer/Input";
 import { VscArrowCircleLeft, VscTrash } from "react-icons/vsc";
-import { Button } from "../Components/Button";
 import type { Value } from "../../Computer/Value";
 import { nonNull } from "../../Functional/Nullability";
 
@@ -153,7 +153,9 @@ const InputLineElem = React.memo(
       return (
         <>
           <Button>
-            <VscTrash size={18} />
+            <ButtonLabel>
+              <VscTrash size={18} />
+            </ButtonLabel>
           </Button>
           <ValueCellInput
             ref={valueCellInputRef}

@@ -1,6 +1,7 @@
 import "./PlaygroundMenu.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import { ThemeSwitcher, ToolbarButton } from "../UI/Toolbar";
+import { Button, ButtonLabel } from "../UI/Components/Button";
+import { ThemeSwitcher } from "../UI/Toolbar";
 import { ToolbarPlayground } from "./ToolbarPlayground";
 import { ValueCellInputPlayground } from "./ValueCellInputPlayground";
 import { assertNever } from "assert-never";
@@ -21,14 +22,14 @@ export function PlaygroundMenu(): JSX.Element {
       <div className="PlaygroundMenu-menu">
         <ThemeSwitcher />
         {allPlaygrounds.map((playground, index) => (
-          <ToolbarButton
+          <Button
             key={index}
             onClick={(): void => {
               setPlayground(playground);
             }}
           >
-            {playground}
-          </ToolbarButton>
+            <ButtonLabel>{playground}</ButtonLabel>
+          </Button>
         ))}
       </div>
       <div className="PlaygroundMenu-activity-root">

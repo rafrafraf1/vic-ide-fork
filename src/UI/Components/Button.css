@@ -4,18 +4,29 @@
   margin-right: 4px;
   display: flex;
   align-items: center;
+  border: 0;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .Button:hover {
   background-color: var(--vscode-button-hoverBackground);
 }
 
-.Button:disabled {
+.Button:active {
   background-color: var(--vscode-button-background);
-  color: var(--vscode-disabledForeground);
+}
+
+.Button.Button-disabled {
+  background-color: var(--vscode-button-background);
   opacity: 0.75;
 }
 
 .Button-Label {
-  margin: 0 8px;
+  display: flex;
+  margin: 0 4px;
+}
+
+.Button.Button-disabled .Button-Label {
+  opacity: 0.6;
 }

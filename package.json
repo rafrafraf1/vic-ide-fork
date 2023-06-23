@@ -69,6 +69,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@tippyjs/react": "4.2.6",
     "assert-never": "1.2.1",
     "classnames": "2.3.2",
     "modern-css-reset": "1.4.0",

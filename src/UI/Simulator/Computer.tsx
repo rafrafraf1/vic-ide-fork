@@ -190,7 +190,9 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               onClick={handleInputRewindClick}
             >
               <ButtonLabel>Rewind</ButtonLabel>
-              <RiRewindMiniFill size={24} />
+              <ButtonLabel>
+                <RiRewindMiniFill size={24} />
+              </ButtonLabel>
             </Button>
           </div>
           <Input
@@ -206,7 +208,9 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               onClick={onClearOutputClick}
             >
               <ButtonLabel>Clear</ButtonLabel>
-              <VscTrash size={24} />
+              <ButtonLabel>
+                <VscTrash size={24} />
+              </ButtonLabel>
             </Button>
           </div>
           <Output ref={outputRef} output={output} />
