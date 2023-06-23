@@ -9,7 +9,7 @@
 			}
 		},
 		{
-			"match": "(?i)^\\s*((add)|(sub)|(load)|(store))\\s+((zero)|(one))",
+			"match": "(?i)^\\s*((add)|(sub)|(load)|(store))\\s+((zero)|(one))\\s",
 			"captures": {
 				"1": { "name": "keyword.control.vic" },
 				"6": { "name": "string" }
@@ -23,7 +23,7 @@
 			}
 		},
 		{
-			"match": "(?i)^\\s*((read)|(write)|(stop)|(add)|(sub)|(load)|(store)|(goto(z|p?)))",
+			"match": "(?i)^\\s*((read)|(write)|(stop)|(add)|(sub)|(load)|(store)|(goto(z|p?)))\\s",
 			"captures": {
 				"1": { "name": "keyword.control.vic" }
 			}
