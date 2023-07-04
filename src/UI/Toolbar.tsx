@@ -146,13 +146,13 @@ export const Toolbar = React.memo(function Toolbar(
         disabled={simulationActive(simulationState)}
         onClick={onFetchInstructionClick}
       >
-        <ButtonLabel>Fetch Instruction</ButtonLabel>
+        <ButtonLabel>Fetch</ButtonLabel>
       </Button>
       <Button
         disabled={simulationActive(simulationState)}
         onClick={onExecuteInstructionClick}
       >
-        <ButtonLabel>Execute Instruction</ButtonLabel>
+        <ButtonLabel>Execute</ButtonLabel>
       </Button>
       <AnimationSpeedSelector
         animationSpeed={animationSpeed}
