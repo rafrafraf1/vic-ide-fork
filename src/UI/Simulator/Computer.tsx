@@ -150,11 +150,14 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       []
     );
 
-    const handleInputRewindClick = React.useCallback((): void => {
+    const handleInputResetClick = React.useCallback((): void => {
       if (onInputChange !== undefined) {
         onInputChange(rewindInput(input));
       }
-    }, [input, onInputChange]);
+      if (onProgramCounterChange !== undefined) {
+        onProgramCounterChange(0);
+      }
+    }, [input, onInputChange, onProgramCounterChange]);
 
     const handleAppendInput = React.useCallback(
       (value: Value): void => {
@@ -186,10 +189,13 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Input</span>
             <Button
-              disabled={animating || atBeginningOfInput(input)}
-              onClick={handleInputRewindClick}
+              disabled={
+                animating ||
+                (atBeginningOfInput(input) && computer.programCounter === 0)
+              }
+              onClick={handleInputResetClick}
             >
-              <ButtonLabel>Rewind</ButtonLabel>
+              <ButtonLabel>Reset</ButtonLabel>
               <ButtonLabel>
                 <RiRewindMiniFill size={24} />
               </ButtonLabel>
