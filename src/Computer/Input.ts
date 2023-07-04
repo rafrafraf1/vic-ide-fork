@@ -26,6 +26,13 @@ export function emptyInput(): InputState {
 }
 
 /**
+ * Checks whether the input is empty.
+ */
+export function isEmptyInput(input: InputState): boolean {
+  return input.values.length === 0;
+}
+
+/**
  * Checks whether we are at the beginning of the input.
  */
 export function atBeginningOfInput(input: InputState): boolean {

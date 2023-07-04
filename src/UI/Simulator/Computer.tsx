@@ -15,6 +15,8 @@ import { Input, type InputHandle } from "./Input";
 import {
   type InputState,
   atBeginningOfInput,
+  emptyInput,
+  isEmptyInput,
   rewindInput,
 } from "../../Computer/Input";
 import { Output, type OutputHandle } from "./Output";
@@ -159,6 +161,12 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       }
     }, [input, onInputChange, onProgramCounterChange]);
 
+    const handleInputClearClick = React.useCallback((): void => {
+      if (onInputChange !== undefined) {
+        onInputChange(emptyInput());
+      }
+    }, [onInputChange]);
+
     const handleAppendInput = React.useCallback(
       (value: Value): void => {
         if (onInputChange !== undefined) {
@@ -198,6 +206,14 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               <ButtonLabel>Reset</ButtonLabel>
               <ButtonLabel>
                 <RiRewindMiniFill size={24} />
+              </ButtonLabel>
+            </Button>
+            <Button
+              disabled={animating || isEmptyInput(input)}
+              onClick={handleInputClearClick}
+            >
+              <ButtonLabel>
+                <VscTrash size={24} />
               </ButtonLabel>
             </Button>
           </div>
