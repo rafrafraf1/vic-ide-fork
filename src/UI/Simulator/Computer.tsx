@@ -170,8 +170,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     const handleAppendInput = React.useCallback(
       (value: Value): void => {
         if (onInputChange !== undefined) {
-          const newValues = input.values.concat([value]);
-          onInputChange({ ...input, values: newValues });
+          onInputChange(appendInput(input, value));
         }
       },
       [input, onInputChange]
@@ -179,13 +178,17 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
 
     const handleInputChange = React.useCallback(
       (index: number, value: Value): void => {
-        if (index >= input.values.length) {
-          throw new Error(`Invalid array index for input values: ${index}`);
-        }
         if (onInputChange !== undefined) {
-          const newValues = input.values.slice();
-          newValues[index] = value;
-          onInputChange({ ...input, values: newValues });
+          onInputChange(inputChange(input, index, value));
+        }
+      },
+      [input, onInputChange]
+    );
+
+    const handleDeleteInput = React.useCallback(
+      (index: number): void => {
+        if (onInputChange !== undefined) {
+          onInputChange(deleteInput(input, index));
         }
       },
       [input, onInputChange]
@@ -222,6 +225,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
             input={input}
             onAppendInput={handleAppendInput}
             onInputChange={handleInputChange}
+            onDeleteInput={handleDeleteInput}
           />
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Output</span>
@@ -591,4 +595,40 @@ function CpuRegister(props: CpuRegisterProps): JSX.Element {
       {children}
     </div>
   );
+}
+
+function appendInput(input: InputState, value: Value): InputState {
+  const newValues = input.values.concat([value]);
+  return { ...input, values: newValues };
+}
+
+function inputChange(
+  input: InputState,
+  index: number,
+  value: Value
+): InputState {
+  if (index >= input.values.length) {
+    throw new Error(`Invalid array index for input values: ${index}`);
+  }
+  const newValues = input.values.slice();
+  newValues[index] = value;
+  return { ...input, values: newValues };
+}
+
+function deleteInput(input: InputState, index: number): InputState {
+  if (index >= input.values.length) {
+    throw new Error(`Invalid array index for input values: ${index}`);
+  }
+  let next = input.next;
+  if (index < next) {
+    next -= 1;
+  }
+
+  const newValues = input.values.slice();
+  newValues.splice(index, 1);
+
+  return {
+    values: newValues,
+    next: next,
+  };
 }

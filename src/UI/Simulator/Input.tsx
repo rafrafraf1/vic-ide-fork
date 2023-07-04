@@ -30,12 +30,13 @@ export interface InputProps {
   input: InputState;
   onAppendInput?: (value: Value) => void;
   onInputChange?: (index: number, value: Value) => void;
+  onDeleteInput?: (index: number) => void;
 }
 
 export const Input = React.memo(
   React.forwardRef(
     (props: InputProps, ref: React.ForwardedRef<InputHandle>) => {
-      const { input, onAppendInput, onInputChange } = props;
+      const { input, onAppendInput, onInputChange, onDeleteInput } = props;
 
       const nextInputLineElemRef = React.useRef<InputLineElemHandle>(null);
 
@@ -75,6 +76,15 @@ export const Input = React.memo(
         [onInputChange]
       );
 
+      const handleDelete = React.useCallback(
+        (index: number): void => {
+          if (onDeleteInput !== undefined) {
+            onDeleteInput(index);
+          }
+        },
+        [onDeleteInput]
+      );
+
       return (
         <div className="Input-Root">
           {input.values.map((value, index) => (
@@ -84,7 +94,9 @@ export const Input = React.memo(
                 value={value}
                 index={index}
                 next={index === input.next}
+                last={index === input.values.length - 1}
                 onValueChange={handleValueChange}
+                onDelete={handleDelete}
               />
             </React.Fragment>
           ))}
@@ -114,7 +126,9 @@ interface InputLineElemProps {
   value: Value;
   index: number;
   next: boolean;
+  last: boolean;
   onValueChange?: (index: number, value: Value) => void;
+  onDelete?: (index: number) => void;
 }
 
 const InputLineElem = React.memo(
@@ -123,7 +137,7 @@ const InputLineElem = React.memo(
       props: InputLineElemProps,
       ref: React.ForwardedRef<InputLineElemHandle>
     ) => {
-      const { value, index, next, onValueChange } = props;
+      const { value, index, next, last, onValueChange, onDelete } = props;
 
       const valueCellInputRef = React.useRef<ValueCellInputHandle>(null);
 
@@ -149,14 +163,38 @@ const InputLineElem = React.memo(
         [index, onValueChange]
       );
 
+      const handleLastValueChange = React.useCallback(
+        (value: Value | null): void => {
+          if (value === null) {
+            if (onDelete !== undefined) {
+              onDelete(index);
+            }
+          } else {
+            if (onValueChange !== undefined) {
+              onValueChange(index, value);
+            }
+          }
+        },
+        [index, onDelete, onValueChange]
+      );
+
       return (
         <>
-          <ValueCellInput
-            ref={valueCellInputRef}
-            value={value}
-            highlighted={next}
-            onValueChange={handleValueChange}
-          />
+          {last ? (
+            <BlankableValueCellInput
+              ref={valueCellInputRef}
+              value={value}
+              highlighted={next}
+              onValueChange={handleLastValueChange}
+            />
+          ) : (
+            <ValueCellInput
+              ref={valueCellInputRef}
+              value={value}
+              highlighted={next}
+              onValueChange={handleValueChange}
+            />
+          )}
           {next ? (
             <VscArrowCircleLeft size={24} className="Input-Arrow" />
           ) : (
