@@ -5,10 +5,9 @@ import {
   ValueCellInput,
   type ValueCellInputHandle,
 } from "../ValueCellInput";
-import { Button, ButtonLabel } from "../Components/Button";
 import { type InputState, atEndOfInput } from "../../Computer/Input";
-import { VscArrowCircleLeft, VscTrash } from "react-icons/vsc";
 import type { Value } from "../../Computer/Value";
+import { VscArrowCircleLeft } from "react-icons/vsc";
 import { nonNull } from "../../Functional/Nullability";
 
 export interface InputHandle {
@@ -89,10 +88,10 @@ export const Input = React.memo(
               />
             </React.Fragment>
           ))}
-          <div />
           <BlankableValueCellInput
             key={input.values.length}
             value={null}
+            highlighted={atEndOfInput(input)}
             onValueChange={handleNewInputCellChange}
           />
           {atEndOfInput(input) ? (
@@ -152,14 +151,10 @@ const InputLineElem = React.memo(
 
       return (
         <>
-          <Button>
-            <ButtonLabel>
-              <VscTrash size={18} />
-            </ButtonLabel>
-          </Button>
           <ValueCellInput
             ref={valueCellInputRef}
             value={value}
+            highlighted={next}
             onValueChange={handleValueChange}
           />
           {next ? (

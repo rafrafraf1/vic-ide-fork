@@ -1,4 +1,5 @@
 .Input-Root {
+  justify-self: center;
   margin: 8px;
   background: var(--vscode-notifications-background);
   border: 2px solid var(--vscode-notifications-border);
@@ -6,12 +7,11 @@
   overflow-y: scroll;
 
   display: grid;
-  grid-template-columns: 42px 1fr auto;
+  grid-template-columns: 1fr auto;
   grid-auto-rows: max-content;
-
-  align-items: center;
 }
 
 .Input-Arrow {
-  color: var(--vscode-focusBorder);
+  color: var(--vscode-editorWarning-foreground);
+  margin: 4px;
 }
