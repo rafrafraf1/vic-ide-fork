@@ -18,6 +18,7 @@ export function ValueCellInputPlayground(): JSX.Element {
 
 export function ValueCellInputTester(): JSX.Element {
   const [value, setValue] = React.useState<Value>(23);
+  const [highlighted, setHighlighted] = React.useState<boolean>(false);
 
   const handleValueChange = React.useCallback((value: number): void => {
     setValue(value);
@@ -40,10 +41,29 @@ export function ValueCellInputTester(): JSX.Element {
     []
   );
 
+  const handleHighlightedChange = React.useCallback(
+    (e: ChangeEvent<HTMLInputElement>): void => {
+      setHighlighted(e.target.checked);
+    },
+    []
+  );
+
   return (
     <>
-      <h1>ValueCellInputPlayground</h1>
-      <ValueCellInput value={value} onValueChange={handleValueChange} />
+      <h1>ValueCellInputTester</h1>
+      <label>
+        <input
+          type="checkbox"
+          checked={highlighted}
+          onChange={handleHighlightedChange}
+        />
+        Highlighted
+      </label>
+      <ValueCellInput
+        value={value}
+        highlighted={highlighted}
+        onValueChange={handleValueChange}
+      />
       <input value={value} onChange={handleChange} />
     </>
   );
@@ -51,6 +71,7 @@ export function ValueCellInputTester(): JSX.Element {
 
 export function BlankableValueCellInputTester(): JSX.Element {
   const [value, setValue] = React.useState<Value | null>(null);
+  const [highlighted, setHighlighted] = React.useState<boolean>(false);
 
   const handleValueChange = React.useCallback((value: number | null): void => {
     setValue(value);
@@ -73,11 +94,27 @@ export function BlankableValueCellInputTester(): JSX.Element {
     []
   );
 
+  const handleHighlightedChange = React.useCallback(
+    (e: ChangeEvent<HTMLInputElement>): void => {
+      setHighlighted(e.target.checked);
+    },
+    []
+  );
+
   return (
     <>
-      <h1>ValueCellInputPlayground</h1>
+      <h1>BlankableValueCellInputTester</h1>
+      <label>
+        <input
+          type="checkbox"
+          checked={highlighted}
+          onChange={handleHighlightedChange}
+        />
+        Highlighted
+      </label>
       <BlankableValueCellInput
         value={value}
+        highlighted={highlighted}
         onValueChange={handleValueChange}
       />
       <input value={value === null ? "" : value} onChange={handleChange} />

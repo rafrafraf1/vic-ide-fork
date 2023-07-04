@@ -350,6 +350,7 @@ export interface MemorySegmentProps {
 interface MemoryValueCellInputProps {
   address: Address;
   value: Value | null;
+  highlighted: boolean;
   onValueChange: (address: Address, value: Value | null) => void;
 }
 
@@ -359,7 +360,7 @@ const MemoryValueCellInput = React.memo(
       props: MemoryValueCellInputProps,
       ref: React.ForwardedRef<ValueCellInputHandle>
     ) => {
-      const { address, value, onValueChange } = props;
+      const { address, value, highlighted, onValueChange } = props;
 
       const handleValueChange = React.useCallback(
         (newValue: Value | null): void => {
@@ -371,6 +372,7 @@ const MemoryValueCellInput = React.memo(
         <BlankableValueCellInput
           ref={ref}
           value={value}
+          highlighted={highlighted}
           onValueChange={handleValueChange}
         />
       );
@@ -433,25 +435,30 @@ export const MemorySegment = React.forwardRef<
 
   return (
     <div className="Computer-MemorySegment">
-      {addressRange(segmentStart, segmentEnd).map((address, i) => (
-        <React.Fragment key={address}>
-          <span
-            className={classNames("Computer-MemoryAddress", {
-              "Computer-MemoryAddress-Active": address === programCounter,
-            })}
-          >
-            {address}
-          </span>
-          <MemoryValueCellInput
-            ref={(el): void => {
-              memoryCellRefs.current[i] = el;
-            }}
-            value={memoryRead(memory, address)}
-            address={address}
-            onValueChange={handleValueChange}
-          />
-        </React.Fragment>
-      ))}
+      {addressRange(segmentStart, segmentEnd).map((address, i) => {
+        const highlighted = address === programCounter;
+
+        return (
+          <React.Fragment key={address}>
+            <span
+              className={classNames("Computer-MemoryAddress", {
+                "Computer-MemoryAddress-Active": highlighted,
+              })}
+            >
+              {address}
+            </span>
+            <MemoryValueCellInput
+              ref={(el): void => {
+                memoryCellRefs.current[i] = el;
+              }}
+              address={address}
+              value={memoryRead(memory, address)}
+              highlighted={highlighted}
+              onValueChange={handleValueChange}
+            />
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 });

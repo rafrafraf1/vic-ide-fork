@@ -3,6 +3,7 @@ import * as React from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { type FocusableElement, tabbable } from "tabbable";
 import type { Value } from "../Computer/Value";
+import classNames from "classnames";
 import { nonNull } from "../Functional/Nullability";
 
 export interface ValueCellInputHandle {
@@ -20,6 +21,8 @@ export interface ValueCellInputHandle {
 
 export interface ValueCellInputProps {
   value: Value;
+
+  highlighted?: boolean;
 
   onValueChange?: (value: Value) => void;
 }
@@ -43,6 +46,8 @@ export const ValueCellInput: React.ForwardRefExoticComponent<
 
 export interface BlankableValueCellInputProps {
   value: Value | null;
+
+  highlighted?: boolean;
 
   onValueChange?: (value: Value | null) => void;
 }
@@ -70,6 +75,7 @@ export const BlankableValueCellInput: React.ForwardRefExoticComponent<
 
 interface ValueCellInputTemplateProps<T> {
   value: T;
+  highlighted?: boolean;
   onValueChange?: (value: T) => void;
 }
 
@@ -88,7 +94,7 @@ function ValueCellInputTemplate<T>(
       props: ValueCellInputTemplateProps<T>,
       ref: React.ForwardedRef<ValueCellInputHandle>
     ): JSX.Element => {
-      const { value, onValueChange } = props;
+      const { value, highlighted, onValueChange } = props;
 
       const [inputStr, setInputStr] = React.useState<string>(() =>
         params.renderValue(value)
@@ -215,7 +221,12 @@ function ValueCellInputTemplate<T>(
       );
 
       return (
-        <form className="ValueCellInput" onSubmit={handleSubmit}>
+        <form
+          className={classNames("ValueCellInput", {
+            "ValueCellInput-highlighted": highlighted,
+          })}
+          onSubmit={handleSubmit}
+        >
           <input
             ref={inputRef}
             value={inputStr}
