@@ -9,6 +9,7 @@ import { Button, ButtonLabel } from "../Components/Button";
 import {
   type ComputerState,
   type MemoryCell,
+  type StopResult,
   memoryRead,
 } from "../../Computer/Computer";
 import { Input, type InputHandle } from "./Input";
@@ -20,6 +21,8 @@ import {
 import { Output, type OutputHandle } from "./Output";
 import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
+import type { CpuState } from "../../Computer/CpuState";
+import { CpuStatus } from "./CpuStatus";
 import type { Value } from "../../Computer/Value";
 import { VscTrash } from "react-icons/vsc";
 import { assertNever } from "assert-never";
@@ -74,6 +77,8 @@ export interface ComputerProps {
   animating: boolean;
 
   computer: ComputerState;
+  cpuStopped: StopResult | null;
+  cpuState: CpuState;
   input: InputState;
   output: OutputState;
   onClearOutputClick?: () => void;
@@ -90,6 +95,8 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       className,
       animating,
       computer,
+      cpuStopped,
+      cpuState,
       input,
       output,
       onClearOutputClick,
@@ -222,6 +229,8 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           instructionRegister={computer.instructionRegister}
           dataRegister={computer.dataRegister}
           programCounter={computer.programCounter}
+          cpuStopped={cpuStopped}
+          cpuState={cpuState}
           onInstructionRegister={onInstructionRegister}
           onDataRegisterChange={onDataRegisterChange}
           onProgramCounterChange={onProgramCounterChange}
@@ -491,6 +500,8 @@ interface CpuProps {
   instructionRegister: Value;
   dataRegister: Value;
   programCounter: Value;
+  cpuStopped: StopResult | null;
+  cpuState: CpuState;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
@@ -502,6 +513,8 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
       instructionRegister,
       dataRegister,
       programCounter,
+      cpuStopped,
+      cpuState,
       onInstructionRegister,
       onDataRegisterChange,
       onProgramCounterChange,
@@ -551,6 +564,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
             onValueChange={onProgramCounterChange}
           />
         </CpuRegister>
+        <CpuStatus cpuStopped={cpuStopped} cpuState={cpuState} />
       </div>
     );
   }

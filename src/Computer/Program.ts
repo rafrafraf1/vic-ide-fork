@@ -24,6 +24,7 @@ export function loadProgram(
 ): HardwareState {
   return {
     computer: newComputerWithProgram(program),
+    cpuStopped: null,
     input: {
       values: hardwareState.input.values,
       next: 0,

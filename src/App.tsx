@@ -7,6 +7,7 @@ import {
 import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
 import {
   type ComputerState,
+  type StopResult,
   executeInstruction,
   fetchInstruction,
   setDataRegister,
@@ -43,6 +44,7 @@ import {
   lookupExampleProgram,
 } from "./Examples/ExampleProgram";
 import type { Address } from "./Computer/Instruction";
+import type { CpuState } from "./Computer/CpuState";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
 import type { ExtensionMessage } from "./common/Vic/Messages";
@@ -85,7 +87,7 @@ namespace StepComplete {
 
   export interface ExecuteComplete {
     kind: "ExecuteComplete";
-    stopped: boolean;
+    stopped: StopResult | null;
   }
 }
 
@@ -100,11 +102,15 @@ function App(props: AppProps): JSX.Element {
   const [computer, setComputer] = React.useState(
     initialState.hardwareState.computer
   );
+  const [cpuStopped, setCpuStopped] = React.useState(
+    initialState.hardwareState.cpuStopped
+  );
   const [input, setInput] = React.useState(initialState.hardwareState.input);
   const [output, setOutput] = React.useState(initialState.hardwareState.output);
   const [animationSpeed, setAnimationSpeed] = React.useState(
     initialState.animationSpeed
   );
+  const [cpuState, setCpuState] = React.useState<CpuState>("IDLE");
 
   const [simulationState, setSimulationState] =
     React.useState<SimulationState>("IDLE");
@@ -114,10 +120,11 @@ function App(props: AppProps): JSX.Element {
   const hardwareState = React.useMemo<HardwareState>(
     () => ({
       computer: computer,
+      cpuStopped: cpuStopped,
       input: input,
       output: output,
     }),
-    [computer, input, output]
+    [computer, cpuStopped, input, output]
   );
 
   const triggerStepComplete = useEvents<StepComplete>(
@@ -128,10 +135,17 @@ function App(props: AppProps): JSX.Element {
           break;
         case "FETCH_INSTRUCTION":
           // TODO assert that "step" is "FetchComplete" (?)
+          setCpuState("IDLE");
           setSimulationState("IDLE");
           break;
         case "EXECUTE_INSTRUCTION":
-          // TODO assert that "step" is "ExecuteComplete" (?)
+          if (step.kind !== "ExecuteComplete") {
+            throw new Error(
+              `Expected "step" to be of kind "ExecuteComplete", got: ${step.kind}`
+            );
+          }
+          setCpuStopped(step.stopped);
+          setCpuState("IDLE");
           setSimulationState("IDLE");
           break;
         case "SINGLE_STEP":
@@ -140,6 +154,8 @@ function App(props: AppProps): JSX.Element {
               doExecuteInstruction();
               break;
             case "ExecuteComplete":
+              setCpuStopped(step.stopped);
+              setCpuState("IDLE");
               setSimulationState("IDLE");
               break;
             default:
@@ -152,7 +168,9 @@ function App(props: AppProps): JSX.Element {
               doExecuteInstruction();
               break;
             case "ExecuteComplete":
-              if (step.stopped) {
+              if (step.stopped !== null) {
+                setCpuStopped(step.stopped);
+                setCpuState("IDLE");
                 setSimulationState("IDLE");
               } else {
                 doFetchInstruction();
@@ -163,6 +181,7 @@ function App(props: AppProps): JSX.Element {
           }
           break;
         case "STOPPING":
+          setCpuState("IDLE");
           setSimulationState("IDLE");
           break;
         default:
@@ -190,6 +209,7 @@ function App(props: AppProps): JSX.Element {
     if (exampleProgram !== null) {
       const hardware = loadExampleProgram(exampleProgram);
       setComputer(hardware.computer);
+      setCpuStopped(hardware.cpuStopped);
       setInput(hardware.input);
       setOutput(hardware.output);
     }
@@ -203,6 +223,9 @@ function App(props: AppProps): JSX.Element {
   );
 
   const doFetchInstruction = React.useCallback((): void => {
+    setCpuStopped(null);
+    setCpuState("FETCHING");
+
     nonNull(computerRef.current).scrollIntoView({
       kind: "MemoryCell",
       address: computer.programCounter,
@@ -239,6 +262,9 @@ function App(props: AppProps): JSX.Element {
   }, [animate, animationSpeed, computer, triggerStepComplete]);
 
   const doExecuteInstruction = React.useCallback((): void => {
+    setCpuStopped(null);
+    setCpuState("EXECUTING");
+
     const nextInput = readNextInput(input);
 
     function updateComputer(): void {
@@ -253,13 +279,10 @@ function App(props: AppProps): JSX.Element {
       if (executeResult.output !== null) {
         setOutput(appendOutput(executeResult.output));
       }
-      if (executeResult.stop !== null) {
-        // TODO ...
-      }
 
       triggerStepComplete({
         kind: "ExecuteComplete",
-        stopped: executeResult.stop !== null,
+        stopped: executeResult.stop,
       });
     }
 
@@ -313,8 +336,9 @@ function App(props: AppProps): JSX.Element {
   }, [doExecuteInstruction]);
 
   const handleResetClick = React.useCallback((): void => {
-    setInput((input) => rewindInput(input));
     setComputer(setProgramCounter(0));
+    setCpuStopped(null);
+    setInput((input) => rewindInput(input));
     setOutput(emptyOutput());
   }, []);
 
@@ -418,6 +442,7 @@ function App(props: AppProps): JSX.Element {
           const hardwareState = loadProgram(
             {
               computer: computer,
+              cpuStopped: cpuStopped,
               input: input,
               output: output,
             },
@@ -425,6 +450,7 @@ function App(props: AppProps): JSX.Element {
           );
 
           setComputer(hardwareState.computer);
+          setCpuStopped(hardwareState.cpuStopped);
           setInput(hardwareState.input);
           setOutput(hardwareState.output);
           break;
@@ -436,7 +462,7 @@ function App(props: AppProps): JSX.Element {
           assertNever(message);
       }
     },
-    [computer, handleDebugMessage, input, output]
+    [computer, cpuStopped, handleDebugMessage, input, output]
   );
 
   useWindowMessages(extensionBridge, handleMessage);
@@ -449,7 +475,7 @@ function App(props: AppProps): JSX.Element {
         showThemeSwitcher={IS_DEMO_ENVIRONMENT}
         showSourceLoader={!IS_DEMO_ENVIRONMENT}
         simulationState={simulationState}
-        resetEnabled={isResetEnabled(computer, input, output)}
+        resetEnabled={isResetEnabled(computer, cpuStopped, input, output)}
         examples={getExampleProgramNames()}
         onLoadExample={handleLoadExample}
         sourceFile={sourceFile}
@@ -469,6 +495,8 @@ function App(props: AppProps): JSX.Element {
         className="App-Computer-Cont"
         animating={simulationActive(simulationState)}
         computer={computer}
+        cpuStopped={cpuStopped}
+        cpuState={cpuState}
         input={input}
         output={output}
         onClearOutputClick={handleClearOutputClick}
@@ -484,13 +512,15 @@ function App(props: AppProps): JSX.Element {
 
 function isResetEnabled(
   computer: ComputerState,
+  cpuStopped: StopResult | null,
   input: InputState,
   output: OutputState
 ): boolean {
   return (
     computer.programCounter !== 0 ||
     !atBeginningOfInput(input) ||
-    !isOutputEmpty(output)
+    !isOutputEmpty(output) ||
+    cpuStopped !== null
   );
 }
 
