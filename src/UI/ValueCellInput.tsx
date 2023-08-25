@@ -23,6 +23,7 @@ export interface ValueCellInputProps {
   value: Value;
 
   highlighted?: boolean;
+  disabled?: boolean;
 
   onValueChange?: (value: Value) => void;
 }
@@ -48,6 +49,7 @@ export interface BlankableValueCellInputProps {
   value: Value | null;
 
   highlighted?: boolean;
+  disabled?: boolean;
 
   onValueChange?: (value: Value | null) => void;
 }
@@ -76,6 +78,7 @@ export const BlankableValueCellInput: React.ForwardRefExoticComponent<
 interface ValueCellInputTemplateProps<T> {
   value: T;
   highlighted?: boolean;
+  disabled?: boolean;
   onValueChange?: (value: T) => void;
 }
 
@@ -94,7 +97,7 @@ function ValueCellInputTemplate<T>(
       props: ValueCellInputTemplateProps<T>,
       ref: React.ForwardedRef<ValueCellInputHandle>
     ): JSX.Element => {
-      const { value, highlighted, onValueChange } = props;
+      const { value, highlighted, disabled, onValueChange } = props;
 
       const [inputStr, setInputStr] = React.useState<string>(() =>
         params.renderValue(value)
@@ -134,6 +137,9 @@ function ValueCellInputTemplate<T>(
       }, [inputRef, inputStr, value]);
 
       const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+        if (disabled === true) {
+          return;
+        }
         setInputStr(sanitizeValue(e.target.value));
       };
 

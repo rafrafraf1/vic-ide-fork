@@ -12,6 +12,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={true}
           showSourceLoader={true}
           simulationState={"IDLE"}
+          resetEnabled={true}
           examples={examples}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -27,6 +28,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={true}
           showSourceLoader={true}
           simulationState={"EXECUTE_INSTRUCTION"}
+          resetEnabled={true}
           examples={examples}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -39,6 +41,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={true}
           showSourceLoader={true}
           simulationState={"FETCH_INSTRUCTION"}
+          resetEnabled={true}
           examples={examples}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -51,6 +54,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={true}
           showSourceLoader={true}
           simulationState={"SINGLE_STEP"}
+          resetEnabled={true}
           examples={examples}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -63,6 +67,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={true}
           showSourceLoader={true}
           simulationState={"RUN"}
+          resetEnabled={true}
           examples={examples}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -75,6 +80,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={true}
           showSourceLoader={true}
           simulationState={"STOPPING"}
+          resetEnabled={true}
           examples={examples}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -90,6 +96,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={false}
           showSourceLoader={true}
           simulationState={"IDLE"}
+          resetEnabled={true}
           examples={[]}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
@@ -102,6 +109,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={false}
           showSourceLoader={true}
           simulationState={"IDLE"}
+          resetEnabled={true}
           examples={[]}
           sourceFile={{
             filename: "example.asm",
@@ -121,6 +129,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={false}
           showSourceLoader={true}
           simulationState={"IDLE"}
+          resetEnabled={true}
           examples={[]}
           sourceFile={{
             filename: "example.asm",
@@ -140,6 +149,7 @@ export function ToolbarPlayground(): JSX.Element {
           showExamples={false}
           showSourceLoader={true}
           simulationState={"IDLE"}
+          resetEnabled={true}
           examples={[]}
           sourceFile={{
             filename: "example.py",

@@ -7,7 +7,7 @@ import {
 } from "../ValueCellInput";
 import { type InputState, atEndOfInput } from "../../Computer/Input";
 import type { Value } from "../../Computer/Value";
-import { VscArrowCircleLeft } from "react-icons/vsc";
+import { VscArrowCircleRight } from "react-icons/vsc";
 import { nonNull } from "../../Functional/Nullability";
 
 export interface InputHandle {
@@ -107,7 +107,7 @@ export const Input = React.memo(
             onValueChange={handleNewInputCellChange}
           />
           {atEndOfInput(input) ? (
-            <VscArrowCircleLeft size={24} className="Input-Arrow" />
+            <VscArrowCircleRight size={24} className="Input-Arrow" />
           ) : (
             <div />
           )}
@@ -196,7 +196,7 @@ const InputLineElem = React.memo(
             />
           )}
           {next ? (
-            <VscArrowCircleLeft size={24} className="Input-Arrow" />
+            <VscArrowCircleRight size={24} className="Input-Arrow" />
           ) : (
             <div />
           )}

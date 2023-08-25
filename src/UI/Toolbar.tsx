@@ -22,6 +22,7 @@ import { FaFileUpload } from "react-icons/fa";
 import type { IconType } from "react-icons";
 import { MdErrorOutline } from "react-icons/md";
 import { MenuButton } from "./Components/MenuButton";
+import { RiRewindMiniFill } from "react-icons/ri";
 import type { SourceFile } from "../common/Vic/SourceFile";
 import Tippy from "@tippyjs/react";
 import { assertNever } from "assert-never";
@@ -54,6 +55,8 @@ interface ToolbarProps {
 
   simulationState: SimulationState;
 
+  resetEnabled: boolean;
+
   examples: string[];
   onLoadExample?: (example: string) => void;
 
@@ -66,6 +69,7 @@ interface ToolbarProps {
 
   onFetchInstructionClick?: () => void;
   onExecuteInstructionClick?: () => void;
+  onResetClick?: () => void;
   onSingleStepClick?: () => void;
   onRunClick?: () => void;
   onStopClick?: () => void;
@@ -80,6 +84,7 @@ export const Toolbar = React.memo(function Toolbar(
     showExamples,
     showSourceLoader,
     simulationState,
+    resetEnabled,
     examples,
     onLoadExample,
     sourceFile,
@@ -89,6 +94,7 @@ export const Toolbar = React.memo(function Toolbar(
     onAnimationSpeedChange,
     onFetchInstructionClick,
     onExecuteInstructionClick,
+    onResetClick,
     onSingleStepClick,
     onRunClick,
     onStopClick,
@@ -158,6 +164,15 @@ export const Toolbar = React.memo(function Toolbar(
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
+      <Button
+        disabled={simulationActive(simulationState) || !resetEnabled}
+        onClick={onResetClick}
+      >
+        <ButtonLabel>Reset</ButtonLabel>
+        <ButtonLabel>
+          <RiRewindMiniFill size={24} />
+        </ButtonLabel>
+      </Button>
       <Button
         disabled={simulationActive(simulationState)}
         onClick={onSingleStepClick}

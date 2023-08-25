@@ -19,6 +19,7 @@ export function ValueCellInputPlayground(): JSX.Element {
 export function ValueCellInputTester(): JSX.Element {
   const [value, setValue] = React.useState<Value>(23);
   const [highlighted, setHighlighted] = React.useState<boolean>(false);
+  const [disabled, setDisabled] = React.useState<boolean>(false);
 
   const handleValueChange = React.useCallback((value: number): void => {
     setValue(value);
@@ -48,6 +49,13 @@ export function ValueCellInputTester(): JSX.Element {
     []
   );
 
+  const handleDisabledChange = React.useCallback(
+    (e: ChangeEvent<HTMLInputElement>): void => {
+      setDisabled(e.target.checked);
+    },
+    []
+  );
+
   return (
     <>
       <h1>ValueCellInputTester</h1>
@@ -59,9 +67,18 @@ export function ValueCellInputTester(): JSX.Element {
         />
         Highlighted
       </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={disabled}
+          onChange={handleDisabledChange}
+        />
+        Disabled
+      </label>
       <ValueCellInput
         value={value}
         highlighted={highlighted}
+        disabled={disabled}
         onValueChange={handleValueChange}
       />
       <input value={value} onChange={handleChange} />
@@ -72,6 +89,7 @@ export function ValueCellInputTester(): JSX.Element {
 export function BlankableValueCellInputTester(): JSX.Element {
   const [value, setValue] = React.useState<Value | null>(null);
   const [highlighted, setHighlighted] = React.useState<boolean>(false);
+  const [disabled, setDisabled] = React.useState<boolean>(false);
 
   const handleValueChange = React.useCallback((value: number | null): void => {
     setValue(value);
@@ -101,6 +119,13 @@ export function BlankableValueCellInputTester(): JSX.Element {
     []
   );
 
+  const handleDisabledChange = React.useCallback(
+    (e: ChangeEvent<HTMLInputElement>): void => {
+      setDisabled(e.target.checked);
+    },
+    []
+  );
+
   return (
     <>
       <h1>BlankableValueCellInputTester</h1>
@@ -112,9 +137,18 @@ export function BlankableValueCellInputTester(): JSX.Element {
         />
         Highlighted
       </label>
+      <label>
+        <input
+          type="checkbox"
+          checked={disabled}
+          onChange={handleDisabledChange}
+        />
+        Disabled
+      </label>
       <BlankableValueCellInput
         value={value}
         highlighted={highlighted}
+        disabled={disabled}
         onValueChange={handleValueChange}
       />
       <input value={value === null ? "" : value} onChange={handleChange} />

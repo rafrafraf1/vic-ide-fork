@@ -14,15 +14,12 @@ import {
 import { Input, type InputHandle } from "./Input";
 import {
   type InputState,
-  atBeginningOfInput,
   emptyInput,
   isEmptyInput,
-  rewindInput,
 } from "../../Computer/Input";
 import { Output, type OutputHandle } from "./Output";
 import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
-import { RiRewindMiniFill } from "react-icons/ri";
 import type { Value } from "../../Computer/Value";
 import { VscTrash } from "react-icons/vsc";
 import { assertNever } from "assert-never";
@@ -152,15 +149,6 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       []
     );
 
-    const handleInputResetClick = React.useCallback((): void => {
-      if (onInputChange !== undefined) {
-        onInputChange(rewindInput(input));
-      }
-      if (onProgramCounterChange !== undefined) {
-        onProgramCounterChange(0);
-      }
-    }, [input, onInputChange, onProgramCounterChange]);
-
     const handleInputClearClick = React.useCallback((): void => {
       if (onInputChange !== undefined) {
         onInputChange(emptyInput());
@@ -200,18 +188,6 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           <div className="Computer-IoTitleRow">
             <span className="Computer-IoTitleRowHeading">Input</span>
             <Button
-              disabled={
-                animating ||
-                (atBeginningOfInput(input) && computer.programCounter === 0)
-              }
-              onClick={handleInputResetClick}
-            >
-              <ButtonLabel>Reset</ButtonLabel>
-              <ButtonLabel>
-                <RiRewindMiniFill size={24} />
-              </ButtonLabel>
-            </Button>
-            <Button
               disabled={animating || isEmptyInput(input)}
               onClick={handleInputClearClick}
             >
@@ -233,7 +209,6 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
               disabled={animating || isOutputEmpty(output)}
               onClick={onClearOutputClick}
             >
-              <ButtonLabel>Clear</ButtonLabel>
               <ButtonLabel>
                 <VscTrash size={24} />
               </ButtonLabel>

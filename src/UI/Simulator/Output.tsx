@@ -1,9 +1,8 @@
 import "./Output.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
-import type { OutputLine, OutputState } from "../../Computer/Output";
+import { BlankableValueCellInput, ValueCellInput } from "../ValueCellInput";
+import type { OutputState } from "../../Computer/Output";
 import { VscArrowCircleLeft } from "react-icons/vsc";
-import { assertNever } from "assert-never";
-import classNames from "classnames";
 import { nonNull } from "../../Functional/Nullability";
 import { usePrevious } from "../ReactHooks/UsePrevious";
 
@@ -28,7 +27,7 @@ export const Output = React.memo(
     (props: OutputProps, ref: React.ForwardedRef<OutputHandle>) => {
       const { output } = props;
 
-      const prevLinesLength = usePrevious(output.lines.length);
+      const prevLinesLength = usePrevious(output.values.length);
 
       const root = React.useRef<HTMLDivElement>(null);
       const nextLine = React.useRef<HTMLDivElement>(null);
@@ -51,23 +50,28 @@ export const Output = React.memo(
       React.useEffect(() => {
         if (
           prevLinesLength === undefined ||
-          output.lines.length > prevLinesLength
+          output.values.length > prevLinesLength
         ) {
           if (root.current !== null) {
             root.current.scrollTop = root.current.scrollHeight;
           }
         }
-      }, [output.lines.length, prevLinesLength]);
+      }, [output.values.length, prevLinesLength]);
 
       return (
         <div className="Output-Root" ref={root}>
-          {output.lines.map((outputLine, index) => (
+          {output.values.map((value, index) => (
             <React.Fragment key={index}>
-              <OutputLineElem outputLine={outputLine} />
+              <ValueCellInput value={value} disabled={true} />
               <span />
             </React.Fragment>
           ))}
-          <div ref={nextLine} />
+          <BlankableValueCellInput
+            ref={nextLine}
+            value={null}
+            highlighted={true}
+            disabled={true}
+          />
           <span>
             <VscArrowCircleLeft size={24} className="Output-Arrow" />
           </span>
@@ -76,28 +80,3 @@ export const Output = React.memo(
     }
   )
 );
-
-interface OutputLineElemProps {
-  outputLine: OutputLine;
-}
-
-const OutputLineElem = React.memo((props: OutputLineElemProps) => {
-  const { outputLine } = props;
-
-  switch (outputLine.kind) {
-    case "PrintedValue":
-      return <span>{outputLine.value}</span>;
-    case "Message":
-      return (
-        <span
-          className={classNames({
-            "Output-Error": outputLine.error,
-          })}
-        >
-          {outputLine.text}
-        </span>
-      );
-    default:
-      return assertNever(outputLine);
-  }
-});

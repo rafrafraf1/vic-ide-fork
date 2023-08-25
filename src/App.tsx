@@ -19,13 +19,24 @@ import {
   type SimulatorState,
   newSimulatorState,
 } from "./Computer/SimulatorState";
-import { type InputState, consumeInput, readNextInput } from "./Computer/Input";
+import {
+  type InputState,
+  atBeginningOfInput,
+  consumeInput,
+  readNextInput,
+  rewindInput,
+} from "./Computer/Input";
+import {
+  type OutputState,
+  appendOutput,
+  emptyOutput,
+  isOutputEmpty,
+} from "./Computer/Output";
 import {
   type SimulationState,
   simulationActive,
 } from "./UI/Simulator/SimulationState";
 import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
-import { emptyOutput, processExecuteResult } from "./Computer/Output";
 import {
   getExampleProgramNames,
   loadExampleProgram,
@@ -239,7 +250,12 @@ function App(props: AppProps): JSX.Element {
       if (executeResult.consumedInput) {
         setInput(consumeInput(input));
       }
-      setOutput(processExecuteResult(executeResult));
+      if (executeResult.output !== null) {
+        setOutput(appendOutput(executeResult.output));
+      }
+      if (executeResult.stop !== null) {
+        // TODO ...
+      }
 
       triggerStepComplete({
         kind: "ExecuteComplete",
@@ -295,6 +311,12 @@ function App(props: AppProps): JSX.Element {
     setSimulationState("EXECUTE_INSTRUCTION");
     doExecuteInstruction();
   }, [doExecuteInstruction]);
+
+  const handleResetClick = React.useCallback((): void => {
+    setInput((input) => rewindInput(input));
+    setComputer(setProgramCounter(0));
+    setOutput(emptyOutput());
+  }, []);
 
   const handleSingleStepClick = React.useCallback((): void => {
     setSimulationState("SINGLE_STEP");
@@ -427,6 +449,7 @@ function App(props: AppProps): JSX.Element {
         showThemeSwitcher={IS_DEMO_ENVIRONMENT}
         showSourceLoader={!IS_DEMO_ENVIRONMENT}
         simulationState={simulationState}
+        resetEnabled={isResetEnabled(computer, input, output)}
         examples={getExampleProgramNames()}
         onLoadExample={handleLoadExample}
         sourceFile={sourceFile}
@@ -436,6 +459,7 @@ function App(props: AppProps): JSX.Element {
         onAnimationSpeedChange={handleAnimationSpeedChange}
         onFetchInstructionClick={handleFetchInstructionClick}
         onExecuteInstructionClick={handleExecuteInstructionClick}
+        onResetClick={handleResetClick}
         onSingleStepClick={handleSingleStepClick}
         onRunClick={handleRunClick}
         onStopClick={handleStopClick}
@@ -455,6 +479,18 @@ function App(props: AppProps): JSX.Element {
         onInputChange={handleInputChange}
       />
     </div>
+  );
+}
+
+function isResetEnabled(
+  computer: ComputerState,
+  input: InputState,
+  output: OutputState
+): boolean {
+  return (
+    computer.programCounter !== 0 ||
+    !atBeginningOfInput(input) ||
+    !isOutputEmpty(output)
   );
 }
 

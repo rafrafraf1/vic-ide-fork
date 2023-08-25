@@ -1,10 +1,9 @@
 .Output-Root {
+  justify-self: center;
   margin: 8px;
   background: var(--vscode-notifications-background);
   border: 2px solid var(--vscode-notifications-border);
   color: var(--vscode-foreground);
-  font-size: 140%;
-  font-family: monospace;
   overflow-y: scroll;
 
   display: grid;
@@ -13,9 +12,6 @@
 }
 
 .Output-Arrow {
-  color: var(--vscode-focusBorder);
-}
-
-.Output-Error {
-  color: var(--vscode-editorError-foreground);
+  color: var(--vscode-editorWarning-foreground);
+  margin: 4px;
 }
