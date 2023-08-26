@@ -1,13 +1,21 @@
 import { Toolbar } from "../UI/Toolbar";
+import type { UIStrings } from "../UI/UIStrings";
 
 const examples: string[] = ["Example1", "Example2"];
 
-export function ToolbarPlayground(): JSX.Element {
+export interface ToolbarPlaygroundProps {
+  uiString: UIStrings;
+}
+
+export function ToolbarPlayground(props: ToolbarPlaygroundProps): JSX.Element {
+  const { uiString } = props;
+
   return (
     <>
       <div>Standard Toolbar:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={true}
           showExamples={true}
           showSourceLoader={true}
@@ -24,6 +32,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>EXECUTE_INSTRUCTION:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={true}
           showExamples={true}
           showSourceLoader={true}
@@ -37,6 +46,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>FETCH_INSTRUCTION:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={true}
           showExamples={true}
           showSourceLoader={true}
@@ -50,6 +60,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>SINGLE_STEP:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={true}
           showExamples={true}
           showSourceLoader={true}
@@ -63,6 +74,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>RUN:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={true}
           showExamples={true}
           showSourceLoader={true}
@@ -76,6 +88,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>STOPPING:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={true}
           showExamples={true}
           showSourceLoader={true}
@@ -92,6 +105,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>No Source File:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={false}
           showExamples={false}
           showSourceLoader={true}
@@ -105,6 +119,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>Source File:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={false}
           showExamples={false}
           showSourceLoader={true}
@@ -125,6 +140,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>Source File with errors:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={false}
           showExamples={false}
           showSourceLoader={true}
@@ -145,6 +161,7 @@ export function ToolbarPlayground(): JSX.Element {
       <div>Invalid Source File:</div>
       <div>
         <Toolbar
+          uiString={uiString}
           showThemeSwitcher={false}
           showExamples={false}
           showSourceLoader={true}

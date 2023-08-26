@@ -25,11 +25,14 @@ import { MenuButton } from "./Components/MenuButton";
 import { RiRewindMiniFill } from "react-icons/ri";
 import type { SourceFile } from "../common/Vic/SourceFile";
 import Tippy from "@tippyjs/react";
+import type { UIStrings } from "./UIStrings";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
 
 interface ToolbarProps {
   className?: string;
+
+  uiString: UIStrings;
 
   /**
    * Show the button that allows changing themes. This should not be shown
@@ -80,6 +83,7 @@ export const Toolbar = React.memo(function Toolbar(
 ): JSX.Element {
   const {
     className,
+    uiString,
     showThemeSwitcher,
     showExamples,
     showSourceLoader,
@@ -131,17 +135,18 @@ export const Toolbar = React.memo(function Toolbar(
 
   return (
     <div className={classNames(className, "Toolbar-root")}>
-      {showThemeSwitcher ? <ThemeSwitcher /> : null}
+      {showThemeSwitcher ? <ThemeSwitcher uiString={uiString} /> : null}
       {showExamples ? (
         <MenuButton
           disabled={simulationActive(simulationState)}
-          label="Load Example"
+          label={uiString("LOAD_EXAMPLE")}
           values={examples}
           onValueClick={onLoadExample}
         />
       ) : null}
       {showSourceLoader ? (
         <SourceFileLoader
+          uiString={uiString}
           disabled={simulationActive(simulationState)}
           sourceFile={sourceFile}
           onLoadSourceFileClick={onLoadSourceFileClick}
@@ -152,15 +157,16 @@ export const Toolbar = React.memo(function Toolbar(
         disabled={simulationActive(simulationState)}
         onClick={onFetchInstructionClick}
       >
-        <ButtonLabel>Fetch</ButtonLabel>
+        <ButtonLabel>{uiString("FETCH")}</ButtonLabel>
       </Button>
       <Button
         disabled={simulationActive(simulationState)}
         onClick={onExecuteInstructionClick}
       >
-        <ButtonLabel>Execute</ButtonLabel>
+        <ButtonLabel>{uiString("EXECUTE")}</ButtonLabel>
       </Button>
       <AnimationSpeedSelector
+        uiString={uiString}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
@@ -168,7 +174,7 @@ export const Toolbar = React.memo(function Toolbar(
         disabled={simulationActive(simulationState) || !resetEnabled}
         onClick={onResetClick}
       >
-        <ButtonLabel>Reset</ButtonLabel>
+        <ButtonLabel>{uiString("RESET")}</ButtonLabel>
         <ButtonLabel>
           <RiRewindMiniFill size={24} />
         </ButtonLabel>
@@ -177,17 +183,22 @@ export const Toolbar = React.memo(function Toolbar(
         disabled={simulationActive(simulationState)}
         onClick={onSingleStepClick}
       >
-        <ButtonLabel>Single Step</ButtonLabel>
+        <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
         <ButtonLabel>
           <VscDebugContinue />
         </ButtonLabel>
       </Button>
-      <RunButton simulationState={simulationState} onClick={handleRunClick} />
+      <RunButton
+        uiString={uiString}
+        simulationState={simulationState}
+        onClick={handleRunClick}
+      />
     </div>
   );
 });
 
 interface SourceFileLoaderProps {
+  uiString: UIStrings;
   disabled?: boolean;
   sourceFile: SourceFile | null;
   onLoadSourceFileClick?: () => void;
@@ -195,17 +206,25 @@ interface SourceFileLoaderProps {
 }
 
 function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
-  const { disabled, sourceFile, onLoadSourceFileClick, onShowErrorsClick } =
-    props;
+  const {
+    uiString,
+    disabled,
+    sourceFile,
+    onLoadSourceFileClick,
+    onShowErrorsClick,
+  } = props;
 
   if (sourceFile === null) {
     return (
-      <Tippy content="Use the File Explorer to open a file" placement="bottom">
+      <Tippy
+        content={uiString("USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE")}
+        placement="bottom"
+      >
         <Button disabled={true}>
           <ButtonLabel>
             <FaFileUpload />
           </ButtonLabel>
-          <ButtonLabel>No File Available</ButtonLabel>
+          <ButtonLabel>{uiString("NO_FILE_AVAILABLE")}</ButtonLabel>
         </Button>
       </Tippy>
     );
@@ -218,10 +237,12 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
           content={
             <>
               <div>
-                {sourceFile.filename} file is of type:{" "}
+                {sourceFile.filename} {uiString("FILE_IS_OF_TYPE")}:{" "}
                 {sourceFile.info.languageId}
               </div>
-              <div>Change the Language mode of the file to "Vic"</div>
+              <div>
+                {uiString("CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO")} "Vic"
+              </div>
             </>
           }
           placement="bottom"
@@ -230,7 +251,9 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
             <ButtonLabel>
               <FaFileUpload />
             </ButtonLabel>
-            <ButtonLabel>Load {sourceFile.filename}</ButtonLabel>
+            <ButtonLabel>
+              {uiString("LOAD")} {sourceFile.filename}
+            </ButtonLabel>
           </Button>
         </Tippy>
       );
@@ -253,14 +276,18 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
       if (!sourceFile.info.hasErrors) {
         return (
           <Tippy
-            content={`Compile ${sourceFile.filename} and load it into the Simulator`}
+            content={`${uiString("COMPILE")} ${sourceFile.filename} ${uiString(
+              "AND_LOAD_IT_INTO_THE_SIMULATOR"
+            )}`}
             placement="bottom"
           >
             <Button disabled={disabled} onClick={handleLoadClick}>
               <ButtonLabel>
                 <FaFileUpload />
               </ButtonLabel>
-              <ButtonLabel>Load {sourceFile.filename}</ButtonLabel>
+              <ButtonLabel>
+                {uiString("LOAD")} {sourceFile.filename}
+              </ButtonLabel>
             </Button>
           </Tippy>
         );
@@ -270,9 +297,10 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
             content={
               <>
                 <div>
-                  {sourceFile.filename} contains errors that must be fixed.
+                  {sourceFile.filename}{" "}
+                  {uiString("CONTAINS_ERRORS_THAT_MUST_BE_FIXED")}.
                 </div>
-                <div>Click to view the errors.</div>
+                <div>{uiString("CLICK_TO_VIEW_THE_ERRORS")}.</div>
               </>
             }
             placement="bottom"
@@ -281,7 +309,9 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
               <ButtonLabel>
                 <FaFileUpload />
               </ButtonLabel>
-              <ButtonLabel>Load {sourceFile.filename}</ButtonLabel>
+              <ButtonLabel>
+                {uiString("LOAD")} {sourceFile.filename}
+              </ButtonLabel>
               <ButtonLabel className="Toolbar-error">
                 <MdErrorOutline size={22} />
               </ButtonLabel>
@@ -296,27 +326,28 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
 }
 
 interface RunButtonProps {
+  uiString: UIStrings;
   simulationState: SimulationState;
   onClick: () => void;
 }
 
 export function RunButton(props: RunButtonProps): JSX.Element {
-  const { simulationState, onClick } = props;
+  const { uiString, simulationState, onClick } = props;
 
   const [label, icon] = ((): [string, IconType] => {
     switch (simulationState) {
       case "IDLE":
-        return ["Run", VscDebugStart];
+        return [uiString("RUN"), VscDebugStart];
       case "FETCH_INSTRUCTION":
-        return ["Run", VscDebugStart];
+        return [uiString("RUN"), VscDebugStart];
       case "EXECUTE_INSTRUCTION":
-        return ["Run", VscDebugStart];
+        return [uiString("RUN"), VscDebugStart];
       case "SINGLE_STEP":
-        return ["Run", VscDebugStart];
+        return [uiString("RUN"), VscDebugStart];
       case "RUN":
-        return ["Stop", VscDebugStop];
+        return [uiString("STOP"), VscDebugStop];
       case "STOPPING":
-        return ["Stopping", BsHourglass];
+        return [uiString("STOPPING"), BsHourglass];
       default:
         return assertNever(simulationState);
     }
@@ -335,7 +366,13 @@ export function RunButton(props: RunButtonProps): JSX.Element {
   );
 }
 
-export function ThemeSwitcher(): JSX.Element {
+interface ThemeSwitcherProps {
+  uiString: UIStrings;
+}
+
+export function ThemeSwitcher(props: ThemeSwitcherProps): JSX.Element {
+  const { uiString } = props;
+
   const [theme, setTheme] = React.useState<DemoTheme>(() => getCurrentTheme());
 
   React.useEffect(() => {
@@ -359,7 +396,18 @@ export function ThemeSwitcher(): JSX.Element {
 
   return (
     <Button onClick={handleClick}>
-      <ButtonLabel>{theme} Mode</ButtonLabel>
+      <ButtonLabel>{themeLabel(uiString, theme)}</ButtonLabel>
     </Button>
   );
+}
+
+function themeLabel(uiString: UIStrings, theme: DemoTheme): string {
+  switch (theme) {
+    case "Dark":
+      return uiString("DARK_MODE");
+    case "Light":
+      return uiString("LIGHT_MODE");
+    default:
+      return assertNever(theme);
+  }
 }

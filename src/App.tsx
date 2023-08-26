@@ -45,6 +45,7 @@ import {
 } from "./Examples/ExampleProgram";
 import type { Address } from "./Computer/Instruction";
 import type { CpuState } from "./Computer/CpuState";
+import { EnglishStrings } from "./UI/UIStrings";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
 import type { ExtensionMessage } from "./common/Vic/Messages";
@@ -93,6 +94,8 @@ namespace StepComplete {
 
 function App(props: AppProps): JSX.Element {
   const { extensionBridge } = props;
+
+  const uiString = EnglishStrings;
 
   const initialState = React.useMemo(
     () => initSimulatorState(extensionBridge),
@@ -471,6 +474,7 @@ function App(props: AppProps): JSX.Element {
     <div className="App-Root">
       <Toolbar
         className="App-Toolbar-Cont"
+        uiString={uiString}
         showExamples={IS_DEMO_ENVIRONMENT}
         showThemeSwitcher={IS_DEMO_ENVIRONMENT}
         showSourceLoader={!IS_DEMO_ENVIRONMENT}

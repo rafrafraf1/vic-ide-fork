@@ -1,12 +1,15 @@
 import "./PlaygroundMenu.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
 import { Button, ButtonLabel } from "../UI/Components/Button";
+import { EnglishStrings } from "../UI/UIStrings";
 import { ThemeSwitcher } from "../UI/Toolbar";
 import { ToolbarPlayground } from "./ToolbarPlayground";
 import { ValueCellInputPlayground } from "./ValueCellInputPlayground";
 import { assertNever } from "assert-never";
 
 type Playground = "None" | "ValueCellInputPlayground" | "ToolbarPlayground";
+
+const uiStrings = EnglishStrings;
 
 const allPlaygrounds: Playground[] = [
   "None",
@@ -20,7 +23,7 @@ export function PlaygroundMenu(): JSX.Element {
   return (
     <>
       <div className="PlaygroundMenu-menu">
-        <ThemeSwitcher />
+        <ThemeSwitcher uiString={uiStrings} />
         {allPlaygrounds.map((playground, index) => (
           <Button
             key={index}
@@ -52,7 +55,7 @@ function PlaygroundActivity(props: PlaygroundActivityProps): JSX.Element {
     case "ValueCellInputPlayground":
       return <ValueCellInputPlayground />;
     case "ToolbarPlayground":
-      return <ToolbarPlayground />;
+      return <ToolbarPlayground uiString={uiStrings} />;
     default:
       return assertNever(playground);
   }
