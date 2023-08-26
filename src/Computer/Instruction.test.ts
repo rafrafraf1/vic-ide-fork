@@ -174,6 +174,11 @@ describe("Instruction parsing", () => {
     for (let i = 0; i <= 999; i++) {
       test(`Roundtrip Instruction ${i}`, () => {
         const instr = parseInstruction(i);
+
+        if (instr === null) {
+          return;
+        }
+
         const code = assembleInstruction(instr);
         expect(parseInstruction(code)).toEqual<Instruction>(instr);
       });

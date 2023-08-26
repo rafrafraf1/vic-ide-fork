@@ -134,11 +134,17 @@ export function assembleInstruction(instruction: Instruction): number {
 }
 
 /**
- * Parse an instruction from its numerical code
+ * Parse an instruction from its numerical code.
  *
  * @param value Must be within the range [0..999]
+ *
+ * @returns null if the value is an invalid instruction.
  */
-export function parseInstruction(value: number): Instruction {
+export function parseInstruction(value: number): Instruction | null {
+  if (value < 0) {
+    return null;
+  }
+
   const remainder = value % 100;
   switch (value - remainder) {
     case 100:
@@ -185,8 +191,12 @@ export function parseInstruction(value: number): Instruction {
         kind: "WRITE",
       };
     default:
-      return {
-        kind: "STOP",
-      };
+      if (value === 0) {
+        return {
+          kind: "STOP",
+        };
+      } else {
+        return null;
+      }
   }
 }

@@ -16,6 +16,10 @@ export function nextInstructionAnimation(
 ): ComputerAnimation | null {
   const instruction = parseInstruction(computer.instructionRegister);
 
+  if (instruction === null) {
+    return null;
+  }
+
   switch (instruction.kind) {
     case "ADD":
       return {

@@ -154,7 +154,7 @@ export function newBlankMemory(): MemoryCell[] {
   return memory;
 }
 
-export type StopResult = "STOP" | "NO_INPUT";
+export type StopResult = "STOP" | "NO_INPUT" | "INVALID_INSTRUCTION";
 
 export interface ExecuteResult {
   consumedInput: boolean;
@@ -190,6 +190,17 @@ export function executeInstruction(
   nextInput: Value | null
 ): [ComputerState, ExecuteResult] {
   const instruction = parseInstruction(computer.instructionRegister);
+
+  if (instruction === null) {
+    return [
+      computer,
+      {
+        consumedInput: false,
+        output: null,
+        stop: "INVALID_INSTRUCTION",
+      },
+    ];
+  }
 
   switch (instruction.kind) {
     case "ADD": {
