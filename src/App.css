@@ -10,10 +10,21 @@
   height: 64px;
 }
 
-.App-Computer-Cont {
+.App-Main {
   flex: 1 1 auto;
   min-height: 0;
   align-self: stretch;
+  display: flex;
+}
+
+.App-Computer-Cont {
+  flex: 1 1 auto;
+}
+
+.App-HelpSidebar-Cont {
+  flex: 1 2 auto;
+  margin-left: 56px;
+  display: flex;
 }
 
 /* This is styles to match the input element from ValueCellInput.css */

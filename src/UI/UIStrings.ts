@@ -19,6 +19,7 @@ export type UIStringKey =
   | "RUN"
   | "STOP"
   | "STOPPING"
+  | "HELP"
   | "NO_FILE_AVAILABLE"
   | "USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE"
   | "LOAD"
@@ -84,6 +85,8 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Stop";
     case "STOPPING":
       return "Stopping";
+    case "HELP":
+      return "Help";
     case "NO_FILE_AVAILABLE":
       return "No File Available";
     case "USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE":

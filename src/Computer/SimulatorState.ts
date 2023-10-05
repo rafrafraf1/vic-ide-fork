@@ -14,9 +14,12 @@ export interface HardwareState {
   output: OutputState;
 }
 
+export type HelpScreenState = "CLOSED" | "OPEN" | "PINNED";
+
 export interface SimulatorState {
   hardwareState: HardwareState;
   animationSpeed: AnimationSpeed;
+  helpScreenState: HelpScreenState;
 }
 
 export function newHardwareState(): HardwareState {
@@ -32,5 +35,6 @@ export function newSimulatorState(): SimulatorState {
   return {
     hardwareState: newHardwareState(),
     animationSpeed: "MEDIUM",
+    helpScreenState: "CLOSED",
   };
 }

@@ -17,9 +17,11 @@ import {
 } from "./Computer/Computer";
 import {
   type HardwareState,
+  type HelpScreenState,
   type SimulatorState,
   newSimulatorState,
 } from "./Computer/SimulatorState";
+import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
 import {
   type InputState,
   atBeginningOfInput,
@@ -113,6 +115,9 @@ function App(props: AppProps): JSX.Element {
   const [animationSpeed, setAnimationSpeed] = React.useState(
     initialState.animationSpeed
   );
+  const [helpScreenState, setHelpScreenState] = React.useState(
+    initialState.helpScreenState
+  );
   const [cpuState, setCpuState] = React.useState<CpuState>("IDLE");
 
   const [simulationState, setSimulationState] =
@@ -202,8 +207,9 @@ function App(props: AppProps): JSX.Element {
     extensionBridge.setState({
       hardwareState: hardwareState,
       animationSpeed: animationSpeed,
+      helpScreenState: helpScreenState,
     });
-  }, [animationSpeed, extensionBridge, hardwareState]);
+  }, [animationSpeed, extensionBridge, hardwareState, helpScreenState]);
 
   const animate = useAnimate();
 
@@ -359,6 +365,22 @@ function App(props: AppProps): JSX.Element {
     setSimulationState("STOPPING");
   }, []);
 
+  const handleHelpClick = React.useCallback((): void => {
+    setHelpScreenState(toggleHelpScreenState);
+  }, []);
+
+  const handleHelpScreenCloseClick = React.useCallback((): void => {
+    setHelpScreenState("CLOSED");
+  }, []);
+
+  const handleHelpScreenPinClick = React.useCallback((): void => {
+    setHelpScreenState("PINNED");
+  }, []);
+
+  const handleHelpScreenUnpinClick = React.useCallback((): void => {
+    setHelpScreenState("OPEN");
+  }, []);
+
   const handleClearOutputClick = React.useCallback((): void => {
     setOutput(emptyOutput());
   }, []);
@@ -397,6 +419,7 @@ function App(props: AppProps): JSX.Element {
               state: {
                 hardwareState: hardwareState,
                 animationSpeed: animationSpeed,
+                helpScreenState: helpScreenState,
               },
             },
           });
@@ -431,6 +454,7 @@ function App(props: AppProps): JSX.Element {
       handleLoadSourceFileClick,
       handleShowErrorsClick,
       hardwareState,
+      helpScreenState,
       sourceFile,
     ]
   );
@@ -493,24 +517,41 @@ function App(props: AppProps): JSX.Element {
         onSingleStepClick={handleSingleStepClick}
         onRunClick={handleRunClick}
         onStopClick={handleStopClick}
+        onHelpClick={handleHelpClick}
       />
-      <Computer
-        ref={computerRef}
-        className="App-Computer-Cont"
-        uiString={uiString}
-        animating={simulationActive(simulationState)}
-        computer={computer}
-        cpuStopped={cpuStopped}
-        cpuState={cpuState}
-        input={input}
-        output={output}
-        onClearOutputClick={handleClearOutputClick}
-        onMemoryCellChange={handleMemoryCellChange}
-        onInstructionRegister={handleInstructionRegister}
-        onDataRegisterChange={handleDataRegisterChange}
-        onProgramCounterChange={handleProgramCounterChange}
-        onInputChange={handleInputChange}
-      />
+      <div className="App-Main">
+        <Computer
+          ref={computerRef}
+          className="App-Computer-Cont"
+          uiString={uiString}
+          animating={simulationActive(simulationState)}
+          computer={computer}
+          cpuStopped={cpuStopped}
+          cpuState={cpuState}
+          input={input}
+          output={output}
+          onClearOutputClick={handleClearOutputClick}
+          onMemoryCellChange={handleMemoryCellChange}
+          onInstructionRegister={handleInstructionRegister}
+          onDataRegisterChange={handleDataRegisterChange}
+          onProgramCounterChange={handleProgramCounterChange}
+          onInputChange={handleInputChange}
+        />
+        {helpScreenState === "PINNED" ? (
+          <div className="App-HelpSidebar-Cont">
+            <HelpSidebar
+              onCloseClick={handleHelpScreenCloseClick}
+              onUnpinClick={handleHelpScreenUnpinClick}
+            />
+          </div>
+        ) : null}
+      </div>
+      {helpScreenState === "OPEN" ? (
+        <HelpScreen
+          onCloseClick={handleHelpScreenCloseClick}
+          onPinClick={handleHelpScreenPinClick}
+        />
+      ) : null}
     </div>
   );
 }
@@ -545,6 +586,21 @@ function processDebugSetCpuRegisters(
       ? { programCounter: message.programCounter }
       : {}),
   };
+}
+
+function toggleHelpScreenState(
+  helpScreenState: HelpScreenState
+): HelpScreenState {
+  switch (helpScreenState) {
+    case "CLOSED":
+      return "OPEN";
+    case "OPEN":
+      return "CLOSED";
+    case "PINNED":
+      return "CLOSED";
+    default:
+      return assertNever(helpScreenState);
+  }
 }
 
 function getSourceFileId(sourceFile: SourceFile | null): SourceFileId {

@@ -3,6 +3,7 @@ import * as React from "react";
 import classNames from "classnames";
 
 export interface ButtonProps {
+  className?: string;
   children?: React.ReactNode;
   disabled?: boolean;
   onClick?: () => void;
@@ -12,7 +13,7 @@ export const Button = React.forwardRef(function Button(
   props: ButtonProps,
   ref: React.ForwardedRef<HTMLButtonElement>
 ): JSX.Element {
-  const { children, disabled, onClick } = props;
+  const { className, children, disabled, onClick } = props;
 
   const handleClick = React.useCallback(() => {
     if (props.disabled !== true) {
@@ -25,7 +26,7 @@ export const Button = React.forwardRef(function Button(
   return (
     <button
       ref={ref}
-      className={classNames("Button", {
+      className={classNames(className, "Button", {
         "Button-disabled": disabled,
       })}
       onClick={handleClick}

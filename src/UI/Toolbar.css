@@ -6,3 +6,7 @@
 .Toolbar-error {
   color: var(--vscode-editorError-foreground);
 }
+
+.Toolbar-Separator {
+  width: 18px;
+}

@@ -1,0 +1,85 @@
+.HelpScreen-Root {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.HelpScreen-Background {
+  background: #000;
+  opacity: 0.5;
+  z-index: 1000;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.HelpScreen-Window-Cont {
+  position: absolute;
+  z-index: 1000;
+  top: 96px;
+  left: 32px;
+  width: calc(100vw - 64px);
+  height: calc(100vh - 96px - 32px);
+  display: flex;
+  align-items: stretch;
+}
+
+.HelpScreen-Window {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid green;
+
+  color: var(--vscode-quickInput-foreground);
+  background: var(--vscode-quickInput-background);
+
+  border: 2px solid var(--vscode-quickInput-foreground);
+}
+
+.HelpScreen-Window-Titlebar {
+  display: flex;
+  flex: 0 0 auto;
+  height: 42px;
+  border-bottom: 2px solid var(--vscode-quickInput-foreground);
+  background: var(--vscode-inputOption-hoverBackground);
+}
+
+.HelpScreen-Window-Titlebar-Heading {
+  flex: 1 0 auto;
+  text-align: center;
+  font-size: 144%;
+  font-weight: bold;
+  align-self: center;
+}
+
+.HelpScreen-Window-Titlebar-Button {
+  border-left: 2px solid var(--vscode-quickInput-foreground);
+  margin: 0;
+}
+
+.HelpScreen-Window-Contents {
+  padding: 18px;
+  overflow: auto;
+}
+
+.HelpScreen-Instructions-Table {
+  border-collapse: collapse;
+}
+
+.HelpScreen-Instructions-Table-Mono {
+  font-family: monospace;
+}
+
+.HelpScreen-Instructions-Table th {
+  text-align: left;
+  border: 2px solid var(--vscode-notifications-border);
+  padding: 8px;
+  font-weight: bold;
+}
+
+.HelpScreen-Instructions-Table td {
+  border: 2px solid var(--vscode-notifications-border);
+  padding: 4px;
+}

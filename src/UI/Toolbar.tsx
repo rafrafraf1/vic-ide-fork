@@ -1,5 +1,6 @@
 import "./Toolbar.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
 import * as React from "react";
+import { BsCpu, BsHourglass } from "react-icons/bs";
 import { Button, ButtonLabel } from "./Components/Button";
 import {
   type DemoTheme,
@@ -14,10 +15,14 @@ import {
   type SimulationState,
   simulationActive,
 } from "./Simulator/SimulationState";
-import { VscDebugContinue, VscDebugStart, VscDebugStop } from "react-icons/vsc";
+import {
+  VscDebugContinue,
+  VscDebugStart,
+  VscDebugStop,
+  VscQuestion,
+} from "react-icons/vsc";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
-import { BsHourglass } from "react-icons/bs";
 import { FaFileUpload } from "react-icons/fa";
 import type { IconType } from "react-icons";
 import { MdErrorOutline } from "react-icons/md";
@@ -76,6 +81,7 @@ interface ToolbarProps {
   onSingleStepClick?: () => void;
   onRunClick?: () => void;
   onStopClick?: () => void;
+  onHelpClick?: () => void;
 }
 
 export const Toolbar = React.memo(function Toolbar(
@@ -102,6 +108,7 @@ export const Toolbar = React.memo(function Toolbar(
     onSingleStepClick,
     onRunClick,
     onStopClick,
+    onHelpClick,
   } = props;
 
   const handleRunClick = React.useCallback((): void => {
@@ -153,23 +160,32 @@ export const Toolbar = React.memo(function Toolbar(
           onShowErrorsClick={onShowErrorsClick}
         />
       ) : null}
+      <Separator />
       <Button
         disabled={simulationActive(simulationState)}
         onClick={onFetchInstructionClick}
       >
         <ButtonLabel>{uiString("FETCH")}</ButtonLabel>
+        <ButtonLabel>
+          <BsCpu size={22} />
+        </ButtonLabel>
       </Button>
       <Button
         disabled={simulationActive(simulationState)}
         onClick={onExecuteInstructionClick}
       >
+        <ButtonLabel>
+          <BsCpu size={22} />
+        </ButtonLabel>
         <ButtonLabel>{uiString("EXECUTE")}</ButtonLabel>
       </Button>
+      <Separator />
       <AnimationSpeedSelector
         uiString={uiString}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
+      <Separator />
       <Button
         disabled={simulationActive(simulationState) || !resetEnabled}
         onClick={onResetClick}
@@ -193,9 +209,20 @@ export const Toolbar = React.memo(function Toolbar(
         simulationState={simulationState}
         onClick={handleRunClick}
       />
+      <Separator />
+      <Button onClick={onHelpClick}>
+        <ButtonLabel>{uiString("HELP")}</ButtonLabel>
+        <ButtonLabel>
+          <VscQuestion size={24} />
+        </ButtonLabel>
+      </Button>
     </div>
   );
 });
+
+function Separator(): JSX.Element {
+  return <div className="Toolbar-Separator" />;
+}
 
 interface SourceFileLoaderProps {
   uiString: UIStrings;
