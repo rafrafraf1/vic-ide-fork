@@ -183,13 +183,21 @@ export function parseInstruction(value: number): Instruction | null {
         address: remainder,
       };
     case 800:
-      return {
-        kind: "READ",
-      };
+      if (value === 800) {
+        return {
+          kind: "READ",
+        };
+      } else {
+        return null;
+      }
     case 900:
-      return {
-        kind: "WRITE",
-      };
+      if (value === 900) {
+        return {
+          kind: "WRITE",
+        };
+      } else {
+        return null;
+      }
     default:
       if (value === 0) {
         return {
