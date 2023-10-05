@@ -11,3 +11,29 @@
 
   width: 256px;
 }
+
+.CpuStatus-Message {
+  background-color: var(--vscode-notificationCenterHeader-background);
+  padding: 2px 0;
+  margin-top: 4px;
+}
+
+.CpuStatus-Fetching {
+  color: var(--vscode-testing-iconQueued);
+}
+
+.CpuStatus-Executing {
+  color: var(--vscode-testing-iconPassed);
+}
+
+.CpuStatus-Stop {
+  color: var(--vscode-notificationLink-foreground);
+}
+
+.CpuStatus-NoInput {
+  color: var(--vscode-testing-iconErrored);
+}
+
+.CpuStatus-InvalidInstruction {
+  color: var(--vscode-testing-iconErrored);
+}

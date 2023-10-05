@@ -2,36 +2,74 @@ import "./CpuStatus.css"; // eslint-disable-line @typescript-eslint/no-import-ty
 import * as React from "react";
 import type { CpuState } from "../../Computer/CpuState";
 import type { StopResult } from "../../Computer/Computer";
+import type { UIStrings } from "../UIStrings";
+import { assertNever } from "assert-never";
 
 export interface CpuStatusProps {
+  uiString: UIStrings;
+
   cpuStopped: StopResult | null;
   cpuState: CpuState;
 }
 
 export const CpuStatus = React.memo((props: CpuStatusProps): JSX.Element => {
-  const { cpuStopped, cpuState } = props;
+  const { uiString, cpuStopped, cpuState } = props;
 
   return (
     <div className="CpuStatus-Root">
-      <div>CPU Status</div>
-      <CpuStatusMessage cpuStopped={cpuStopped} cpuState={cpuState} />
+      <div>{uiString("CPU_STATUS")}</div>
+      <div className="CpuStatus-Message">
+        <CpuStatusMessage
+          uiString={uiString}
+          cpuStopped={cpuStopped}
+          cpuState={cpuState}
+        />
+      </div>
     </div>
   );
 });
 
 interface CpuStatusMessageProps {
+  uiString: UIStrings;
+
   cpuStopped: StopResult | null;
   cpuState: CpuState;
 }
 
 function CpuStatusMessage(props: CpuStatusMessageProps): JSX.Element {
-  const { cpuStopped, cpuState } = props;
+  const { uiString, cpuStopped, cpuState } = props;
 
   if (cpuStopped !== null) {
-    // TODO Message color and text
-    return <div>{cpuStopped}</div>;
+    switch (cpuStopped) {
+      case "STOP":
+        return <span className="CpuStatus-Stop">{uiString("CPU_STOP")}</span>;
+      case "NO_INPUT":
+        return (
+          <span className="CpuStatus-NoInput">{uiString("CPU_NO_INPUT")}</span>
+        );
+      case "INVALID_INSTRUCTION":
+        return (
+          <span className="CpuStatus-InvalidInstruction">
+            {uiString("CPU_INVALID_INSTRUCTION")}
+          </span>
+        );
+      default:
+        return assertNever(cpuStopped);
+    }
   }
 
-  // TODO Message color and text
-  return <div>{cpuState}</div>;
+  switch (cpuState) {
+    case "IDLE":
+      return <span>{uiString("CPU_IDLE")}</span>;
+    case "FETCHING":
+      return (
+        <span className="CpuStatus-Fetching">{uiString("CPU_FETCHING")}</span>
+      );
+    case "EXECUTING":
+      return (
+        <span className="CpuStatus-Executing">{uiString("CPU_EXECUTING")}</span>
+      );
+    default:
+      return assertNever(cpuState);
+  }
 }

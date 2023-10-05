@@ -35,7 +35,14 @@ export type UIStringKey =
   | "OUTPUT"
   | "INSTRUCTION_REGISTER"
   | "DATA_REGISTER"
-  | "PROGRAM_COUNTER";
+  | "PROGRAM_COUNTER"
+  | "CPU_STATUS"
+  | "CPU_IDLE"
+  | "CPU_FETCHING"
+  | "CPU_EXECUTING"
+  | "CPU_STOP"
+  | "CPU_NO_INPUT"
+  | "CPU_INVALID_INSTRUCTION";
 
 /**
  * A collection of UI strings for a given human (spoken) language.
@@ -111,6 +118,20 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Data Register";
     case "PROGRAM_COUNTER":
       return "Program Counter";
+    case "CPU_STATUS":
+      return "CPU Status";
+    case "CPU_IDLE":
+      return "Idle";
+    case "CPU_FETCHING":
+      return "Fetching...";
+    case "CPU_EXECUTING":
+      return "Executing...";
+    case "CPU_STOP":
+      return "STOP";
+    case "CPU_NO_INPUT":
+      return "No Input";
+    case "CPU_INVALID_INSTRUCTION":
+      return "Invalid Instruction";
     default:
       return assertNever(key);
   }

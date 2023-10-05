@@ -581,7 +581,11 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
             onValueChange={onProgramCounterChange}
           />
         </CpuRegister>
-        <CpuStatus cpuStopped={cpuStopped} cpuState={cpuState} />
+        <CpuStatus
+          uiString={uiString}
+          cpuStopped={cpuStopped}
+          cpuState={cpuState}
+        />
       </div>
     );
   }
