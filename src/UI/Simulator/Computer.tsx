@@ -23,6 +23,7 @@ import { type OutputState, isOutputEmpty } from "../../Computer/Output";
 import type { Address } from "../../Computer/Instruction";
 import type { CpuState } from "../../Computer/CpuState";
 import { CpuStatus } from "./CpuStatus";
+import type { UIStrings } from "../UIStrings";
 import type { Value } from "../../Computer/Value";
 import { VscTrash } from "react-icons/vsc";
 import { assertNever } from "assert-never";
@@ -71,6 +72,8 @@ export interface ComputerHandle {
 export interface ComputerProps {
   className?: string;
 
+  uiString: UIStrings;
+
   /**
    * Whether an animation is currently running or not.
    */
@@ -93,6 +96,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
   (props: ComputerProps, ref: React.ForwardedRef<ComputerHandle>) => {
     const {
       className,
+      uiString,
       animating,
       computer,
       cpuStopped,
@@ -193,7 +197,9 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       <div className={classNames(className, "Computer-Root")}>
         <div className="Computer-Io">
           <div className="Computer-IoTitleRow">
-            <span className="Computer-IoTitleRowHeading">Input</span>
+            <span className="Computer-IoTitleRowHeading">
+              {uiString("INPUT")}
+            </span>
             <Button
               disabled={animating || isEmptyInput(input)}
               onClick={handleInputClearClick}
@@ -211,7 +217,9 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
             onDeleteInput={handleDeleteInput}
           />
           <div className="Computer-IoTitleRow">
-            <span className="Computer-IoTitleRowHeading">Output</span>
+            <span className="Computer-IoTitleRowHeading">
+              {uiString("OUTPUT")}
+            </span>
             <Button
               disabled={animating || isOutputEmpty(output)}
               onClick={onClearOutputClick}
@@ -226,6 +234,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         <div className="Computer-Divider Computer-Divider1"></div>
         <Cpu
           ref={cpuRef}
+          uiString={uiString}
           instructionRegister={computer.instructionRegister}
           dataRegister={computer.dataRegister}
           programCounter={computer.programCounter}
@@ -243,9 +252,15 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           programCounter={computer.programCounter}
           onMemoryCellChange={onMemoryCellChange}
         />
-        <div className="Computer-Io-Label Computer-Label">I/O Units</div>
-        <div className="Computer-Cpu-Label Computer-Label">CPU</div>
-        <div className="Computer-Memory-Label Computer-Label">Memory</div>
+        <div className="Computer-Io-Label Computer-Label">
+          {uiString("I_O_UNITS")}
+        </div>
+        <div className="Computer-Cpu-Label Computer-Label">
+          {uiString("CPU")}
+        </div>
+        <div className="Computer-Memory-Label Computer-Label">
+          {uiString("MEMORY")}
+        </div>
       </div>
     );
   }
@@ -497,6 +512,7 @@ export interface CpuHandle {
 }
 
 interface CpuProps {
+  uiString: UIStrings;
   instructionRegister: Value;
   dataRegister: Value;
   programCounter: Value;
@@ -510,6 +526,7 @@ interface CpuProps {
 export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
   (props: CpuProps, ref: React.ForwardedRef<CpuHandle>) => {
     const {
+      uiString,
       instructionRegister,
       dataRegister,
       programCounter,
@@ -544,21 +561,21 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
 
     return (
       <div className="Computer-Cpu">
-        <CpuRegister label="Instruction Register">
+        <CpuRegister label={uiString("INSTRUCTION_REGISTER")}>
           <ValueCellInput
             ref={instructionRegisterRef}
             value={instructionRegister}
             onValueChange={onInstructionRegister}
           />
         </CpuRegister>
-        <CpuRegister label="Data Register">
+        <CpuRegister label={uiString("DATA_REGISTER")}>
           <ValueCellInput
             ref={dataRegisterRef}
             value={dataRegister}
             onValueChange={onDataRegisterChange}
           />
         </CpuRegister>
-        <CpuRegister label="Program Counter">
+        <CpuRegister label={uiString("PROGRAM_COUNTER")}>
           <ValueCellInput
             value={programCounter}
             onValueChange={onProgramCounterChange}

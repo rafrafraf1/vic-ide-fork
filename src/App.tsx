@@ -497,6 +497,7 @@ function App(props: AppProps): JSX.Element {
       <Computer
         ref={computerRef}
         className="App-Computer-Cont"
+        uiString={uiString}
         animating={simulationActive(simulationState)}
         computer={computer}
         cpuStopped={cpuStopped}

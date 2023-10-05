@@ -27,7 +27,15 @@ export type UIStringKey =
   | "CONTAINS_ERRORS_THAT_MUST_BE_FIXED"
   | "CLICK_TO_VIEW_THE_ERRORS"
   | "FILE_IS_OF_TYPE"
-  | "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO";
+  | "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO"
+  | "I_O_UNITS"
+  | "CPU"
+  | "MEMORY"
+  | "INPUT"
+  | "OUTPUT"
+  | "INSTRUCTION_REGISTER"
+  | "DATA_REGISTER"
+  | "PROGRAM_COUNTER";
 
 /**
  * A collection of UI strings for a given human (spoken) language.
@@ -87,6 +95,22 @@ export function EnglishStrings(key: UIStringKey): string {
       return "file is of type";
     case "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO":
       return "Change the Language mode of the file to";
+    case "I_O_UNITS":
+      return "I/O Units";
+    case "CPU":
+      return "CPU";
+    case "MEMORY":
+      return "Memory";
+    case "INPUT":
+      return "Input";
+    case "OUTPUT":
+      return "Output";
+    case "INSTRUCTION_REGISTER":
+      return "Instruction Register";
+    case "DATA_REGISTER":
+      return "Data Register";
+    case "PROGRAM_COUNTER":
+      return "Program Counter";
     default:
       return assertNever(key);
   }
