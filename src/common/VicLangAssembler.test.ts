@@ -2,7 +2,7 @@ import { firstVariableSlot, nextVariableSlot } from "./VicLangAssembler";
 
 describe("firstVariableSlot", () => {
   test("firstVariableSlot", () => {
-    expect(firstVariableSlot()).toEqual(90);
+    expect(firstVariableSlot()).toEqual<number>(90);
   });
 });
 
@@ -34,7 +34,7 @@ describe("nextVariableSlot", () => {
   for (const testCase of testCases) {
     const [input, expected] = testCase;
     test(`nextVariableSlot ${input}`, () => {
-      expect(nextVariableSlot(input)).toEqual(expected);
+      expect(nextVariableSlot(input)).toEqual<number>(expected);
     });
   }
 });
