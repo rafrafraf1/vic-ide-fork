@@ -15,6 +15,7 @@ import {
   type SimulationState,
   simulationActive,
 } from "./Simulator/SimulationState";
+import Tippy, { type TippyProps, useSingleton } from "@tippyjs/react";
 import {
   VscDebugContinue,
   VscDebugStart,
@@ -29,7 +30,6 @@ import { MdErrorOutline } from "react-icons/md";
 import { MenuButton } from "./Components/MenuButton";
 import { RiRewindMiniFill } from "react-icons/ri";
 import type { SourceFile } from "../common/Vic/SourceFile";
-import Tippy from "@tippyjs/react";
 import type { UIStrings } from "./UIStrings";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
@@ -140,8 +140,12 @@ export const Toolbar = React.memo(function Toolbar(
     }
   }, [onRunClick, onStopClick, simulationState]);
 
+  // Reference: <https://github.com/atomiks/tippyjs-react#-usesingleton>
+  const [tippySource, tippyTarget] = useSingleton();
+
   return (
     <div className={classNames(className, "Toolbar-root")}>
+      <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
       {showThemeSwitcher ? <ThemeSwitcher uiString={uiString} /> : null}
       {showExamples ? (
         <MenuButton
@@ -161,24 +165,37 @@ export const Toolbar = React.memo(function Toolbar(
         />
       ) : null}
       <Separator />
-      <Button
-        disabled={simulationActive(simulationState)}
-        onClick={onFetchInstructionClick}
+      <Tippy
+        singleton={tippyTarget}
+        content={uiString(
+          "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER"
+        )}
       >
-        <ButtonLabel>{uiString("FETCH")}</ButtonLabel>
-        <ButtonLabel>
-          <BsCpu size={22} />
-        </ButtonLabel>
-      </Button>
-      <Button
-        disabled={simulationActive(simulationState)}
-        onClick={onExecuteInstructionClick}
+        <Button
+          disabled={simulationActive(simulationState)}
+          onClick={onFetchInstructionClick}
+        >
+          <ButtonLabel>{uiString("FETCH")}</ButtonLabel>
+          <ButtonLabel>
+            <BsCpu size={22} />
+          </ButtonLabel>
+        </Button>
+      </Tippy>
+      <Tippy
+        singleton={tippyTarget}
+        content={uiString("EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER")}
       >
-        <ButtonLabel>
-          <BsCpu size={22} />
-        </ButtonLabel>
-        <ButtonLabel>{uiString("EXECUTE")}</ButtonLabel>
-      </Button>
+        <Button
+          disabled={simulationActive(simulationState)}
+          onClick={onExecuteInstructionClick}
+        >
+          <ButtonLabel>
+            <BsCpu size={22} />
+          </ButtonLabel>
+          <ButtonLabel>{uiString("EXECUTE")}</ButtonLabel>
+        </Button>
+      </Tippy>
+
       <Separator />
       <AnimationSpeedSelector
         uiString={uiString}
@@ -186,26 +203,39 @@ export const Toolbar = React.memo(function Toolbar(
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
       <Separator />
-      <Button
-        disabled={simulationActive(simulationState) || !resetEnabled}
-        onClick={onResetClick}
+      <Tippy
+        singleton={tippyTarget}
+        content={uiString(
+          "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
+        )}
       >
-        <ButtonLabel>{uiString("RESET")}</ButtonLabel>
-        <ButtonLabel>
-          <RiRewindMiniFill size={24} />
-        </ButtonLabel>
-      </Button>
-      <Button
-        disabled={simulationActive(simulationState)}
-        onClick={onSingleStepClick}
+        <Button
+          disabled={simulationActive(simulationState) || !resetEnabled}
+          onClick={onResetClick}
+        >
+          <ButtonLabel>{uiString("RESET")}</ButtonLabel>
+          <ButtonLabel>
+            <RiRewindMiniFill size={24} />
+          </ButtonLabel>
+        </Button>
+      </Tippy>
+      <Tippy
+        singleton={tippyTarget}
+        content={uiString("FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT")}
       >
-        <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
-        <ButtonLabel>
-          <VscDebugContinue />
-        </ButtonLabel>
-      </Button>
+        <Button
+          disabled={simulationActive(simulationState)}
+          onClick={onSingleStepClick}
+        >
+          <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
+          <ButtonLabel>
+            <VscDebugContinue />
+          </ButtonLabel>
+        </Button>
+      </Tippy>
       <RunButton
         uiString={uiString}
+        tippyTarget={tippyTarget}
         simulationState={simulationState}
         onClick={handleRunClick}
       />
@@ -354,12 +384,13 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
 
 interface RunButtonProps {
   uiString: UIStrings;
+  tippyTarget: TippyProps["singleton"];
   simulationState: SimulationState;
   onClick: () => void;
 }
 
 export function RunButton(props: RunButtonProps): JSX.Element {
-  const { uiString, simulationState, onClick } = props;
+  const { uiString, tippyTarget, simulationState, onClick } = props;
 
   const [label, icon] = ((): [string, IconType] => {
     switch (simulationState) {
@@ -381,15 +412,20 @@ export function RunButton(props: RunButtonProps): JSX.Element {
   })();
 
   return (
-    <Button
-      disabled={!(simulationState === "IDLE" || simulationState === "RUN")}
-      onClick={onClick}
+    <Tippy
+      singleton={tippyTarget}
+      content={uiString("RUN_PROGRAM_UNTIL_IT_TERMINATES")}
     >
-      <>
-        <ButtonLabel>{label}</ButtonLabel>
-        <ButtonLabel>{icon({})}</ButtonLabel>
-      </>
-    </Button>
+      <Button
+        disabled={!(simulationState === "IDLE" || simulationState === "RUN")}
+        onClick={onClick}
+      >
+        <>
+          <ButtonLabel>{label}</ButtonLabel>
+          <ButtonLabel>{icon({})}</ButtonLabel>
+        </>
+      </Button>
+    </Tippy>
   );
 }
 

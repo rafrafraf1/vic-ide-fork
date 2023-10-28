@@ -29,6 +29,11 @@ export type UIStringKey =
   | "CLICK_TO_VIEW_THE_ERRORS"
   | "FILE_IS_OF_TYPE"
   | "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO"
+  | "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER"
+  | "EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER"
+  | "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
+  | "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT"
+  | "RUN_PROGRAM_UNTIL_IT_TERMINATES"
   | "I_O_UNITS"
   | "CPU"
   | "MEMORY"
@@ -107,6 +112,16 @@ export function EnglishStrings(key: UIStringKey): string {
       return "file is of type";
     case "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO":
       return "Change the Language mode of the file to";
+    case "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER":
+      return "Load instruction from memory to the Instruction Register";
+    case "EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER":
+      return "Execute the instruction in the Instruction Register";
+    case "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT":
+      return "Reset the Input, set the Program Counter to 0, and clear the Output";
+    case "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT":
+      return "Fetch the next instruction and Execute it";
+    case "RUN_PROGRAM_UNTIL_IT_TERMINATES":
+      return "Run the program until it terminates";
     case "I_O_UNITS":
       return "I/O Units";
     case "CPU":
