@@ -23,6 +23,7 @@ import {
 } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
+import type { Result } from "../../src/common/Functional/Result";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
 import { parseVicBin } from "../../src/common/VicBinParser";
@@ -490,24 +491,63 @@ function handleLoadSourceFile(
     return;
   }
 
+  const compileResult = compileTextDocument(textDocument);
+  switch (compileResult.kind) {
+    case "Ok":
+      webviewPostMessage(simulatorManager, {
+        kind: "LoadProgram",
+        program: compileResult.value,
+      });
+      break;
+    case "Error":
+      switch (compileResult.error) {
+        case "COMPILE_ERROR":
+          // See [Note about message passing race conditions]
+          void vscode.window.showErrorMessage(
+            `Error loading ${getUriBasename(textDocument.uri)}`
+          );
+          break;
+        case "INVALID_FILE_MODE":
+          // See [Note about message passing race conditions]
+          void vscode.window.showErrorMessage(
+            `Invalid file mode: ${textDocument.languageId}`
+          );
+          break;
+        /* istanbul ignore next */
+        default:
+          return assertNever(compileResult.error);
+      }
+      throw new Error("TODO");
+    /* istanbul ignore next */
+    default:
+      assertNever(compileResult);
+  }
+}
+
+/**
+ * Compile the text document to an array of Vic Computer instructions.
+ *
+ * @textDocument Must have a `languageId` equal to `vicAsmLanguageId` or
+ * `vicBinLanguageId`.
+ */
+export function compileTextDocument(
+  textDocument: vscode.TextDocument
+): Result<"COMPILE_ERROR" | "INVALID_FILE_MODE", number[]> {
   const source = textDocument.getText();
 
   if (textDocument.languageId === vicAsmLanguageId) {
     const result = compileVicProgram(source);
     switch (result.program.kind) {
       case "Ok":
-        webviewPostMessage(simulatorManager, {
-          kind: "LoadProgram",
-          program: result.program.value,
-        });
-        break;
-      /* istanbul ignore next */
+        return {
+          kind: "Ok",
+          value: result.program.value,
+        };
       case "Error": {
-        // See [Note about message passing race conditions]
-        void vscode.window.showErrorMessage(
-          `Error loading ${getUriBasename(textDocument.uri)}`
-        );
-        break;
+        return {
+          kind: "Error",
+          error: "COMPILE_ERROR",
+        };
       }
       /* istanbul ignore next */
       default:
@@ -517,28 +557,25 @@ function handleLoadSourceFile(
     const result = parseVicBin(source);
     switch (result.kind) {
       case "Ok":
-        webviewPostMessage(simulatorManager, {
-          kind: "LoadProgram",
-          program: result.value,
-        });
-        break;
-      /* istanbul ignore next */
+        return {
+          kind: "Ok",
+          value: result.value,
+        };
       case "Error": {
-        // See [Note about message passing race conditions]
-        void vscode.window.showErrorMessage(
-          `Error loading ${getUriBasename(textDocument.uri)}`
-        );
-        break;
+        return {
+          kind: "Error",
+          error: "COMPILE_ERROR",
+        };
       }
       /* istanbul ignore next */
       default:
         assertNever(result);
     }
   } else {
-    // See [Note about message passing race conditions]
-    void vscode.window.showErrorMessage(
-      `Invalid file mode: ${textDocument.languageId}`
-    );
+    return {
+      kind: "Error",
+      error: "INVALID_FILE_MODE",
+    };
   }
 }
 

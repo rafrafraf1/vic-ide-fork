@@ -466,6 +466,13 @@ function App(props: AppProps): JSX.Element {
           setSourceFile(message.sourceFile);
           break;
         case "LoadProgram": {
+          // TODO Fix the limitation that we can't load a program while the
+          // simulation is active. In order for it to work, we need to stop
+          // the current animation.
+          if (simulationActive(simulationState)) {
+            return;
+          }
+
           const hardwareState = loadProgram(
             {
               computer: computer,
@@ -489,7 +496,7 @@ function App(props: AppProps): JSX.Element {
           assertNever(message);
       }
     },
-    [computer, cpuStopped, handleDebugMessage, input, output]
+    [computer, cpuStopped, handleDebugMessage, input, output, simulationState]
   );
 
   useWindowMessages(extensionBridge, handleMessage);

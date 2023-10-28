@@ -19,7 +19,8 @@
     "onCommand:vic-ide.openSimulator",
     "onWebviewPanel:vic-ide",
     "onLanguage:vic-bin",
-    "onLanguage:vic-asm"
+    "onLanguage:vic-asm",
+    "onDebug"
   ],
   "main": "./build-ext/src-ext/extension.js",
   "contributes": {
@@ -64,6 +65,13 @@
         "language": "vic-asm",
         "scopeName": "source.vic-asm",
         "path": "./syntaxes/vic-asm.tmLanguage.json"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "vic",
+        "label": "Vic IDE",
+        "languages": ["vic-bin", "vic-asm"]
       }
     ]
   },

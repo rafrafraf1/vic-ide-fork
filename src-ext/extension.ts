@@ -11,6 +11,7 @@ import {
   createDiagnosticsService,
 } from "./VicLanguageFeatures/VicDiagnostics";
 import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
+import { activateVicDebugAdapter } from "./VicLanguageFeatures/VicDebugAdapter";
 import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
 import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
 
@@ -31,6 +32,9 @@ export function activate(context: vscode.ExtensionContext): void {
   // Vic Simulator:
   const simulatorManager = createSimulatorManager(diagnosticsService);
   activateVicSimulator(context, simulatorManager);
+
+  // Vic Debug event hook:
+  activateVicDebugAdapter(context, simulatorManager);
 
   globalSimulatorManager = simulatorManager;
 }
