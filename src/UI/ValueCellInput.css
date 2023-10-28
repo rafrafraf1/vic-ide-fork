@@ -22,3 +22,13 @@
   border-color: var(--vscode-editorWarning-foreground);
   color: var(--vscode-inputValidation-warningBackground);
 }
+
+/*
+ * Hide the popper when the reference is hidden.
+ *
+ * See: <https://popper.js.org/docs/v2/modifiers/hide/>
+ */
+.ValueCellInput-tippy[data-reference-hidden] {
+  visibility: hidden;
+  pointer-events: none;
+}

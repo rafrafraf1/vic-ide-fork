@@ -92,7 +92,6 @@ export function memoryWrite(
   value: Value | null
 ): (memory: MemoryCell[]) => MemoryCell[] {
   return (memory: MemoryCell[]): MemoryCell[] => {
-    // TODO Ignore if the memory address is read-only
     const newMemory = memory.slice();
     newMemory[address] = value;
     return newMemory;
@@ -162,7 +161,11 @@ export function newBlankMemory(): MemoryCell[] {
   return memory;
 }
 
-export type StopResult = "STOP" | "NO_INPUT" | "INVALID_INSTRUCTION";
+export type StopResult =
+  | "STOP"
+  | "NO_INPUT"
+  | "INVALID_INSTRUCTION"
+  | "INVALID_WRITE";
 
 export interface ExecuteResult {
   consumedInput: boolean;
@@ -240,6 +243,17 @@ export function executeInstruction(
       return [newComputer, nullExecuteResult];
     }
     case "STORE": {
+      if (instruction.address >= MEMORY_READONLY_REGION) {
+        return [
+          computer,
+          {
+            consumedInput: false,
+            output: null,
+            stop: "INVALID_WRITE",
+          },
+        ];
+      }
+
       const newComputer = compose(
         writeMemory(instruction.address, computer.dataRegister),
         incProgramCounter

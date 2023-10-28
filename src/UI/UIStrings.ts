@@ -43,7 +43,9 @@ export type UIStringKey =
   | "CPU_EXECUTING"
   | "CPU_STOP"
   | "CPU_NO_INPUT"
-  | "CPU_INVALID_INSTRUCTION";
+  | "CPU_INVALID_INSTRUCTION"
+  | "CPU_INVALID_WRITE"
+  | "READONLY_MEMORY_ADDRESS";
 
 /**
  * A collection of UI strings for a given human (spoken) language.
@@ -134,7 +136,11 @@ export function EnglishStrings(key: UIStringKey): string {
     case "CPU_NO_INPUT":
       return "No Input";
     case "CPU_INVALID_INSTRUCTION":
-      return "Invalid Instruction";
+      return "Invalid instruction";
+    case "CPU_INVALID_WRITE":
+      return "Invalid write to read-only memory address";
+    case "READONLY_MEMORY_ADDRESS":
+      return "Read-only memory address";
     default:
       return assertNever(key);
   }

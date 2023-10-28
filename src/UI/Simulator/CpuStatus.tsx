@@ -53,6 +53,12 @@ function CpuStatusMessage(props: CpuStatusMessageProps): JSX.Element {
             {uiString("CPU_INVALID_INSTRUCTION")}
           </span>
         );
+      case "INVALID_WRITE":
+        return (
+          <span className="CpuStatus-InvalidInstruction">
+            {uiString("CPU_INVALID_WRITE")}
+          </span>
+        );
       default:
         return assertNever(cpuStopped);
     }

@@ -8,6 +8,7 @@ import {
 import { Button, ButtonLabel } from "../Components/Button";
 import {
   type ComputerState,
+  MEMORY_READONLY_REGION,
   type MemoryCell,
   type StopResult,
   memoryRead,
@@ -247,6 +248,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         <div className="Computer-Divider Computer-Divider2"></div>
         <MainMemory
           ref={mainMemoryRef}
+          uiString={uiString}
           className="Computer-Memory"
           memory={computer.memory}
           programCounter={computer.programCounter}
@@ -281,6 +283,7 @@ export interface MainMemoryHandle {
 }
 
 export interface MainMemoryProps {
+  uiString: UIStrings;
   className?: string;
   memory: MemoryCell[];
   programCounter: Value;
@@ -289,7 +292,8 @@ export interface MainMemoryProps {
 
 export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
   (props: MainMemoryProps, ref: React.ForwardedRef<MainMemoryHandle>) => {
-    const { className, memory, programCounter, onMemoryCellChange } = props;
+    const { uiString, className, memory, programCounter, onMemoryCellChange } =
+      props;
 
     const memorySegment1 = React.useRef<MemorySegmentHandle>(null);
     const memorySegment2 = React.useRef<MemorySegmentHandle>(null);
@@ -325,6 +329,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
       <div className={classNames(className, "Computer-MainMemory")}>
         <MemorySegment
           ref={memorySegment1}
+          uiString={uiString}
           memory={memory}
           programCounter={programCounter}
           segmentStart={0}
@@ -333,6 +338,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
         />
         <MemorySegment
           ref={memorySegment2}
+          uiString={uiString}
           memory={memory}
           programCounter={programCounter}
           segmentStart={50}
@@ -359,6 +365,7 @@ export interface MemorySegmentHandle {
 }
 
 export interface MemorySegmentProps {
+  uiString: UIStrings;
   memory: MemoryCell[];
   programCounter: Value;
   segmentStart: Address;
@@ -367,6 +374,7 @@ export interface MemorySegmentProps {
 }
 
 interface MemoryValueCellInputProps {
+  uiString: UIStrings;
   address: Address;
   value: Value | null;
   highlighted: boolean;
@@ -379,7 +387,7 @@ const MemoryValueCellInput = React.memo(
       props: MemoryValueCellInputProps,
       ref: React.ForwardedRef<ValueCellInputHandle>
     ) => {
-      const { address, value, highlighted, onValueChange } = props;
+      const { uiString, address, value, highlighted, onValueChange } = props;
 
       const handleValueChange = React.useCallback(
         (newValue: Value | null): void => {
@@ -387,11 +395,16 @@ const MemoryValueCellInput = React.memo(
         },
         [address, onValueChange]
       );
+
+      const disabled = address >= MEMORY_READONLY_REGION;
+
       return (
         <BlankableValueCellInput
           ref={ref}
           value={value}
           highlighted={highlighted}
+          disabled={disabled}
+          tooltip={disabled ? uiString("READONLY_MEMORY_ADDRESS") : undefined}
           onValueChange={handleValueChange}
         />
       );
@@ -404,6 +417,7 @@ export const MemorySegment = React.forwardRef<
   MemorySegmentProps
 >((props: MemorySegmentProps, ref: React.ForwardedRef<MemorySegmentHandle>) => {
   const {
+    uiString,
     memory,
     programCounter,
     segmentStart,
@@ -470,6 +484,7 @@ export const MemorySegment = React.forwardRef<
               ref={(el): void => {
                 memoryCellRefs.current[i] = el;
               }}
+              uiString={uiString}
               address={address}
               value={memoryRead(memory, address)}
               highlighted={highlighted}

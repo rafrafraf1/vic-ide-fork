@@ -85,6 +85,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@popperjs/core": "2.11.8",
     "@tippyjs/react": "4.2.6",
     "assert-never": "1.2.1",
     "classnames": "2.3.2",

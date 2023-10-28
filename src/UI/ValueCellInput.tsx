@@ -2,8 +2,10 @@ import "./ValueCellInput.css"; // eslint-disable-line @typescript-eslint/no-impo
 import * as React from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { type FocusableElement, tabbable } from "tabbable";
+import Tippy from "@tippyjs/react";
 import type { Value } from "../Computer/Value";
 import classNames from "classnames";
+import { hide } from "@popperjs/core";
 import { nonNull } from "../Functional/Nullability";
 
 export interface ValueCellInputHandle {
@@ -19,12 +21,14 @@ export interface ValueCellInputHandle {
   scrollIntoView: () => void;
 }
 
-export interface ValueCellInputProps {
-  value: Value;
-
+interface ValueCellInputPropsMixin {
   highlighted?: boolean;
   disabled?: boolean;
+  tooltip?: string;
+}
 
+export interface ValueCellInputProps extends ValueCellInputPropsMixin {
+  value: Value;
   onValueChange?: (value: Value) => void;
 }
 
@@ -45,12 +49,8 @@ export const ValueCellInput: React.ForwardRefExoticComponent<
   })
 );
 
-export interface BlankableValueCellInputProps {
+export interface BlankableValueCellInputProps extends ValueCellInputPropsMixin {
   value: Value | null;
-
-  highlighted?: boolean;
-  disabled?: boolean;
-
   onValueChange?: (value: Value | null) => void;
 }
 
@@ -75,10 +75,8 @@ export const BlankableValueCellInput: React.ForwardRefExoticComponent<
   })
 );
 
-interface ValueCellInputTemplateProps<T> {
+interface ValueCellInputTemplateProps<T> extends ValueCellInputPropsMixin {
   value: T;
-  highlighted?: boolean;
-  disabled?: boolean;
   onValueChange?: (value: T) => void;
 }
 
@@ -97,11 +95,13 @@ function ValueCellInputTemplate<T>(
       props: ValueCellInputTemplateProps<T>,
       ref: React.ForwardedRef<ValueCellInputHandle>
     ): JSX.Element => {
-      const { value, highlighted, disabled, onValueChange } = props;
+      const { value, highlighted, disabled, tooltip, onValueChange } = props;
 
       const [inputStr, setInputStr] = React.useState<string>(() =>
         params.renderValue(value)
       );
+
+      const [focused, setFocused] = React.useState<boolean>(false);
 
       const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -144,24 +144,28 @@ function ValueCellInputTemplate<T>(
       };
 
       const handleFocus = (): void => {
-        // When the user focuses the input element, we want to to select the input
-        // text, so that it is ready to be replaced.
         if (inputRef.current !== null) {
+          setFocused(true);
+
+          // When the user focuses the input element, we want to to select the
+          // input text, so that it is ready to be replaced.
           inputRef.current.select();
         }
       };
 
-      // Key that we use in the input element's dataset that indicates if the user
-      // has just pressed the "Escape" key.
+      // Key that we use in the input element's dataset that indicates if the
+      // user has just pressed the "Escape" key.
       const HANDLING_ESCAPE_KEY = "HANDLING_ESCAPE";
 
       // This happens when the user tabs out of the input element, or clicks
       // outside of it.
       const handleBlur = React.useCallback((): void => {
         if (inputRef.current !== null) {
-          // If the user has just pressed the escape key then we need to ignore
-          // this event, because the previous handler has already handled
-          // everything.
+          setFocused(false);
+
+          // If the user has just pressed the escape key then we need to
+          // ignore this event, because the previous handler has already
+          // handled everything.
           if (inputRef.current.dataset[HANDLING_ESCAPE_KEY] === "true") {
             inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "false";
             return;
@@ -190,13 +194,14 @@ function ValueCellInputTemplate<T>(
               // value:
               inputRef.current.value = params.renderValue(value);
 
-              // We are about to blur the input element. But when we do that, the
-              // "handleBlur" callback will be called, causing trouble (Even
-              // though we just called "setInputStr" it will see the previous
-              // value, due to the way react works).
+              // We are about to blur the input element. But when we do that,
+              // the "handleBlur" callback will be called, causing trouble
+              // (Even though we just called "setInputStr" it will see the
+              // previous value, due to the way react works).
               //
-              // We store a value on the input's dataset as a way to signal to the
-              // "handleBlur" callback that this specific event should be ignored.
+              // We store a value on the input's dataset as a way to signal to
+              // the "handleBlur" callback that this specific event should be
+              // ignored.
               inputRef.current.dataset[HANDLING_ESCAPE_KEY] = "true";
 
               // Deselect the input:
@@ -226,7 +231,7 @@ function ValueCellInputTemplate<T>(
         [inputRef]
       );
 
-      return (
+      const elem = (
         <form
           className={classNames("ValueCellInput", {
             "ValueCellInput-highlighted": highlighted,
@@ -243,6 +248,26 @@ function ValueCellInputTemplate<T>(
           />
         </form>
       );
+
+      if (tooltip === undefined) {
+        return elem;
+      } else {
+        return (
+          <Tippy
+            className="ValueCellInput-tippy"
+            content={tooltip}
+            placement="right"
+            visible={focused}
+            offset={[0, 28]}
+            popperOptions={{
+              strategy: "fixed",
+              modifiers: [hide],
+            }}
+          >
+            {elem}
+          </Tippy>
+        );
+      }
     }
   );
 }

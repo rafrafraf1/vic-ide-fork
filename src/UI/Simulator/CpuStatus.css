@@ -16,6 +16,10 @@
   background-color: var(--vscode-notificationCenterHeader-background);
   padding: 2px 0;
   margin-top: 4px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .CpuStatus-Fetching {
