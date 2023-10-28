@@ -6,7 +6,7 @@ import {
   simulatorGetSourceFile,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
-import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
+import { vicAsmLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
 import { testCase } from "../infra/TestCase";
@@ -21,7 +21,7 @@ export const run = testCase(async (): Promise<void> => {
 
   await step("Open Text Document 1", async () => {
     const textDocument = await vscode.workspace.openTextDocument({
-      language: vicLanguageId,
+      language: vicAsmLanguageId,
       content: "// Test file",
     });
     await vscode.window.showTextDocument(textDocument, vscode.ViewColumn.Two);
@@ -29,7 +29,7 @@ export const run = testCase(async (): Promise<void> => {
 
   await step("Open Text Document 2", async () => {
     const textDocument = await vscode.workspace.openTextDocument({
-      language: vicLanguageId,
+      language: vicAsmLanguageId,
       content: "// Test file",
     });
     await vscode.window.showTextDocument(textDocument, vscode.ViewColumn.Two);

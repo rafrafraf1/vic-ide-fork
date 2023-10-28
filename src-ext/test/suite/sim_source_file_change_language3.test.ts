@@ -6,7 +6,7 @@ import {
   simulatorGetSourceFile,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
-import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
+import { vicAsmLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
 import { testCase } from "../infra/TestCase";
@@ -15,7 +15,7 @@ export const run = testCase(async (): Promise<void> => {
   const textDocument = await step("Open Text Document", async () => {
     const textDocument = await vscode.workspace.openTextDocument({
       content: "// Test file",
-      language: vicLanguageId,
+      language: vicAsmLanguageId,
     });
     await vscode.window.showTextDocument(textDocument);
     return textDocument;

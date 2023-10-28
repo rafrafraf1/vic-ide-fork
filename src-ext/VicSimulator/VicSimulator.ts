@@ -15,7 +15,8 @@ import type {
 import type { SourceFile, SourceFileId } from "../../src/common/Vic/SourceFile";
 import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
 import {
-  vicLanguageId,
+  vicAsmLanguageId,
+  vicBinLanguageId,
   vicOpenSimulatorCommand,
   vicWebviewPanelType,
   webviewBuildDir,
@@ -24,6 +25,7 @@ import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+import { parseVicBin } from "../../src/common/VicBinParser";
 
 export interface Panel {
   webviewPanel: vscode.WebviewPanel;
@@ -192,7 +194,23 @@ function buildSourceFile(
   textDocument: vscode.TextDocument
 ): SourceFile {
   const filename = getUriBasename(textDocument.uri);
-  if (textDocument.languageId !== vicLanguageId) {
+
+  if (
+    textDocument.languageId === vicAsmLanguageId ||
+    textDocument.languageId === vicBinLanguageId
+  ) {
+    return {
+      filename: filename,
+      info: {
+        kind: "ValidSourceFile",
+        id: uriToSourceFileId(textDocument.uri),
+        hasErrors: getTextDocumentHasErrors(
+          diagnosticsService,
+          textDocument.uri
+        ),
+      },
+    };
+  } else {
     return {
       filename: filename,
       info: {
@@ -201,15 +219,6 @@ function buildSourceFile(
       },
     };
   }
-
-  return {
-    filename: filename,
-    info: {
-      kind: "ValidSourceFile",
-      id: uriToSourceFileId(textDocument.uri),
-      hasErrors: getTextDocumentHasErrors(diagnosticsService, textDocument.uri),
-    },
-  };
 }
 
 /**
@@ -482,25 +491,54 @@ function handleLoadSourceFile(
   }
 
   const source = textDocument.getText();
-  const result = compileVicProgram(source);
-  switch (result.program.kind) {
-    case "Ok":
-      webviewPostMessage(simulatorManager, {
-        kind: "LoadProgram",
-        program: result.program.value,
-      });
-      break;
-    /* istanbul ignore next */
-    case "Error": {
-      // See [Note about message passing race conditions]
-      void vscode.window.showErrorMessage(
-        `Error loading ${getUriBasename(textDocument.uri)}`
-      );
-      break;
+
+  if (textDocument.languageId === vicAsmLanguageId) {
+    const result = compileVicProgram(source);
+    switch (result.program.kind) {
+      case "Ok":
+        webviewPostMessage(simulatorManager, {
+          kind: "LoadProgram",
+          program: result.program.value,
+        });
+        break;
+      /* istanbul ignore next */
+      case "Error": {
+        // See [Note about message passing race conditions]
+        void vscode.window.showErrorMessage(
+          `Error loading ${getUriBasename(textDocument.uri)}`
+        );
+        break;
+      }
+      /* istanbul ignore next */
+      default:
+        assertNever(result.program);
     }
-    /* istanbul ignore next */
-    default:
-      assertNever(result.program);
+  } else if (textDocument.languageId === vicBinLanguageId) {
+    const result = parseVicBin(source);
+    switch (result.kind) {
+      case "Ok":
+        webviewPostMessage(simulatorManager, {
+          kind: "LoadProgram",
+          program: result.value,
+        });
+        break;
+      /* istanbul ignore next */
+      case "Error": {
+        // See [Note about message passing race conditions]
+        void vscode.window.showErrorMessage(
+          `Error loading ${getUriBasename(textDocument.uri)}`
+        );
+        break;
+      }
+      /* istanbul ignore next */
+      default:
+        assertNever(result);
+    }
+  } else {
+    // See [Note about message passing race conditions]
+    void vscode.window.showErrorMessage(
+      `Invalid file mode: ${textDocument.languageId}`
+    );
   }
 }
 

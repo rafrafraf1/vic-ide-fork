@@ -18,7 +18,8 @@
   "activationEvents": [
     "onCommand:vic-ide.openSimulator",
     "onWebviewPanel:vic-ide",
-    "onLanguage:vic"
+    "onLanguage:vic-bin",
+    "onLanguage:vic-asm"
   ],
   "main": "./build-ext/src-ext/extension.js",
   "contributes": {
@@ -31,23 +32,38 @@
     ],
     "languages": [
       {
-        "id": "vic",
+        "id": "vic-bin",
         "aliases": [
-          "Vic Assembly",
-          "vic"
+          "Vic Binary",
+          "vic-bin"
         ],
         "extensions": [
-          ".asm",
           ".vic"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "./language-configuration-vic-bin.json"
+      },
+      {
+        "id": "vic-asm",
+        "aliases": [
+          "Vic Assembly",
+          "vic-asm"
+        ],
+        "extensions": [
+          ".asm"
+        ],
+        "configuration": "./language-configuration-vic-asm.json"
       }
     ],
     "grammars": [
       {
-        "language": "vic",
-        "scopeName": "source.vic",
-        "path": "./syntaxes/vic.tmLanguage.json"
+        "language": "vic-bin",
+        "scopeName": "source.vic-bin",
+        "path": "./syntaxes/vic-bin.tmLanguage.json"
+      },
+      {
+        "language": "vic-asm",
+        "scopeName": "source.vic-asm",
+        "path": "./syntaxes/vic-asm.tmLanguage.json"
       }
     ]
   },

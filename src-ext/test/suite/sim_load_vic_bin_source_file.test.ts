@@ -3,10 +3,12 @@ import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-i
 import * as assert from "assert";
 import * as vscode from "vscode";
 import {
+  simulatorDoLoadSourceFileClick,
   simulatorGetSourceFile,
+  simulatorGetState,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
-import { vicAsmLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
+import { vicBinLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
 import { testCase } from "../infra/TestCase";
@@ -14,8 +16,8 @@ import { testCase } from "../infra/TestCase";
 export const run = testCase(async (): Promise<void> => {
   await step("Open Text Document", async () => {
     const textDocument = await vscode.workspace.openTextDocument({
-      language: vicAsmLanguageId,
-      content: "// Test file",
+      language: vicBinLanguageId,
+      content: ["800", "900", "0"].join("\n"),
     });
     await vscode.window.showTextDocument(textDocument);
   });
@@ -27,11 +29,11 @@ export const run = testCase(async (): Promise<void> => {
     return simulatorManager;
   });
 
-  const sourceFile1 = await step("Get Source File 1", async () => {
+  const sourceFile = await step("Get Source File", async () => {
     return await simulatorGetSourceFile(simulatorManager);
   });
 
-  assert.deepStrictEqual<typeof sourceFile1>(sourceFile1, {
+  assert.deepStrictEqual<typeof sourceFile>(sourceFile, {
     filename: "Untitled-1",
     info: {
       kind: "ValidSourceFile",
@@ -40,18 +42,16 @@ export const run = testCase(async (): Promise<void> => {
     },
   });
 
-  await step("Switch back to Text Document", async () => {
-    await vscode.commands.executeCommand("workbench.action.previousEditor");
-    await waitForSimulatorReady(simulatorManager);
+  await step("Load Source File", async () => {
+    await simulatorDoLoadSourceFileClick(simulatorManager);
   });
 
-  await step("Close current editor", async () => {
-    await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+  const state = await step("Get State", async () => {
+    return await simulatorGetState(simulatorManager);
   });
 
-  const sourceFile2 = await step("Get Source File 2", async () => {
-    return await simulatorGetSourceFile(simulatorManager);
-  });
-
-  assert.deepStrictEqual<typeof sourceFile2>(sourceFile2, null);
+  assert.deepStrictEqual(
+    state.hardwareState.computer.memory.slice(0, 3),
+    [800, 900, 0]
+  );
 });

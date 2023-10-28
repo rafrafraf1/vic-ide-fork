@@ -6,7 +6,7 @@ import {
   simulatorGetSourceFile,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
-import { vicLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
+import { vicAsmLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
 import { getSimulatorManager } from "../../extension";
 import { step } from "../infra/TestSteps";
 import { testCase } from "../infra/TestCase";
@@ -33,7 +33,10 @@ export const run = testCase(async (): Promise<void> => {
   });
 
   await step("Switch Text Document language to Vic", async () => {
-    await vscode.languages.setTextDocumentLanguage(textDocument, vicLanguageId);
+    await vscode.languages.setTextDocumentLanguage(
+      textDocument,
+      vicAsmLanguageId
+    );
   });
 
   const sourceFile = await step("Get Source File", async () => {

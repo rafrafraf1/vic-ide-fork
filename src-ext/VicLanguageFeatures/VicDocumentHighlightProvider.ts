@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
 import { getHighlights } from "../../src/common/VicLangSrcAnalysis";
 import { parseVicProgram } from "../../src/common/VicLangParser";
-import { vicLanguageId } from "../ExtManifest";
+import { vicAsmLanguageId } from "../ExtManifest";
 
 export function activateVicDocumentHighlightProvider(
   context: vscode.ExtensionContext
 ): void {
   context.subscriptions.push(
     vscode.languages.registerDocumentHighlightProvider(
-      vicLanguageId,
+      vicAsmLanguageId,
       new VicDocumentHighlightProvider()
     )
   );

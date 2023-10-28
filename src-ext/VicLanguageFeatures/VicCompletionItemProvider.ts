@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
-import { vicLanguageId } from "../ExtManifest";
+import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
 
 export function activateVicCompletionItemProvider(
   context: vscode.ExtensionContext
 ): void {
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
-      vicLanguageId,
+      [vicAsmLanguageId, vicBinLanguageId],
       new VicCompletionItemProvider(),
       ...[]
     )

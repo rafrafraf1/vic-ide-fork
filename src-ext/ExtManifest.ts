@@ -2,9 +2,14 @@
 // package.json
 
 /**
- * The language id that the extension registers.
+ * The language id that the extension registers for "Vic Binary".
  */
-export const vicLanguageId = "vic";
+export const vicBinLanguageId = "vic-bin";
+
+/**
+ * The language id that the extension registers for "Vic Assembly".
+ */
+export const vicAsmLanguageId = "vic-asm";
 
 /**
  * Identifies the type of the webview panel.

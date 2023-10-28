@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
+import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
 import type { SrcError } from "../../src/common/SrcError";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
-import { vicLanguageId } from "../ExtManifest";
+import { parseVicBin } from "../../src/common/VicBinParser";
+
+const vicDiagnosticsName = "vic";
 
 export interface DiagnosticsService {
   readonly diagnosticCollection: vscode.DiagnosticCollection;
@@ -15,7 +18,7 @@ export interface DiagnosticsObserver {
 
 export function createDiagnosticsService(): DiagnosticsService {
   const diagnosticCollection =
-    vscode.languages.createDiagnosticCollection(vicLanguageId);
+    vscode.languages.createDiagnosticCollection(vicDiagnosticsName);
 
   return {
     diagnosticCollection: diagnosticCollection,
@@ -54,31 +57,49 @@ function updateDiagnostics(
   service: DiagnosticsService,
   textDocument: vscode.TextDocument
 ): void {
-  if (textDocument.languageId !== vicLanguageId) {
-    return;
+  const errors = getTextDocumentErrors(textDocument);
+
+  if (errors.length === 0) {
+    service.diagnosticCollection.set(textDocument.uri, undefined);
+  } else {
+    const diagnostics = errors.map(convertSrcErrorToDiagnostic);
+    service.diagnosticCollection.set(textDocument.uri, diagnostics);
   }
 
-  const source = textDocument.getText();
-  const result = compileVicProgram(source);
-
-  switch (result.program.kind) {
-    case "Ok":
-      service.diagnosticCollection.set(textDocument.uri, undefined);
-      break;
-    case "Error": {
-      const errors: SrcError[] = result.program.error;
-      const diagnostics = errors.map(convertSrcErrorToDiagnostic);
-      service.diagnosticCollection.set(textDocument.uri, diagnostics);
-      break;
-    }
-    /* istanbul ignore next */
-    default:
-      assertNever(result.program);
-  }
+  const hasErrors = errors.length > 0;
 
   if (service.observer !== undefined) {
-    const hasErrors = result.program.kind === "Error";
     service.observer.onTextDocumentHasErrors(textDocument.uri, hasErrors);
+  }
+}
+
+function getTextDocumentErrors(textDocument: vscode.TextDocument): SrcError[] {
+  if (textDocument.languageId === vicAsmLanguageId) {
+    const source = textDocument.getText();
+    const result = compileVicProgram(source);
+    switch (result.program.kind) {
+      case "Ok":
+        return [];
+      case "Error":
+        return result.program.error;
+      /* istanbul ignore next */
+      default:
+        assertNever(result.program);
+    }
+  } else if (textDocument.languageId === vicBinLanguageId) {
+    const source = textDocument.getText();
+    const result = parseVicBin(source);
+    switch (result.kind) {
+      case "Ok":
+        return [];
+      case "Error":
+        return result.error;
+      /* istanbul ignore next */
+      default:
+        assertNever(result);
+    }
+  } else {
+    return [];
   }
 }
 
@@ -95,7 +116,7 @@ function convertSrcErrorToDiagnostic(error: SrcError): vscode.Diagnostic {
     error.message,
     vscode.DiagnosticSeverity.Error
   );
-  diagnostic.source = vicLanguageId;
+  diagnostic.source = vicDiagnosticsName;
 
   return diagnostic;
 }
