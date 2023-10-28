@@ -36,7 +36,7 @@ export function useWindowMessages<T, U>(
   // React "setState" function, then the handler of the next message will see
   // the updated state.
   //
-  // The achieve this, we use a message queue, and a "counter" state variable
+  // To achieve this, we use a message queue, and a "counter" state variable
   // used to trigger re-renders.
 
   const messageQueueRef = React.useRef<T[]>([]);
