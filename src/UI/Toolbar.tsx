@@ -411,6 +411,13 @@ export function RunButton(props: RunButtonProps): JSX.Element {
     }
   })();
 
+  // The button is always rendered with all of the possible label values
+  // inside it, that are hidden and act as spacers.
+  //
+  // This is done so that the size of the button fits the longest label (so
+  // that the button doesn't resize when the label changes).
+  const spacer = "Toolbar-RunLabel Toolbar-RunLabelSpacer";
+
   return (
     <Tippy
       singleton={tippyTarget}
@@ -421,7 +428,12 @@ export function RunButton(props: RunButtonProps): JSX.Element {
         onClick={onClick}
       >
         <>
-          <ButtonLabel>{label}</ButtonLabel>
+          <div className="Toolbar-RunLabels">
+            <ButtonLabel className={spacer}>{uiString("RUN")}</ButtonLabel>
+            <ButtonLabel className={spacer}>{uiString("STOP")}</ButtonLabel>
+            <ButtonLabel className={spacer}>{uiString("STOPPING")}</ButtonLabel>
+            <ButtonLabel className="Toolbar-RunLabel">{label}</ButtonLabel>
+          </div>
           <ButtonLabel>{icon({})}</ButtonLabel>
         </>
       </Button>
