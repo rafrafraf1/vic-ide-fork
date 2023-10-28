@@ -118,13 +118,21 @@ export function readMemory(computer: ComputerState, address: Address): Value {
 }
 
 export function add(a: Value, b: Value): Value {
-  // TODO Handle overflow/clamp behaviour, depending on what the requirements dictate.
-  return a + b;
+  const result = a + b;
+  if (result <= 999) {
+    return result;
+  } else {
+    return result - 1000;
+  }
 }
 
 export function sub(a: Value, b: Value): Value {
-  // TODO Handle underflow/clamp behaviour, depending on what the requirements dictate.
-  return a - b;
+  const result = a - b;
+  if (result >= -999) {
+    return result;
+  } else {
+    return result + 1000;
+  }
 }
 
 /**
