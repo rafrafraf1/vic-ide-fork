@@ -9,6 +9,7 @@ import { type InputState, atEndOfInput } from "../../Computer/Input";
 import type { Value } from "../../Computer/Value";
 import { VscArrowCircleRight } from "react-icons/vsc";
 import { nonNull } from "../../Functional/Nullability";
+import { usePrevious } from "../ReactHooks/UsePrevious";
 
 export interface InputHandle {
   /**
@@ -38,7 +39,13 @@ export const Input = React.memo(
     (props: InputProps, ref: React.ForwardedRef<InputHandle>) => {
       const { input, onAppendInput, onInputChange, onDeleteInput } = props;
 
-      const nextInputLineElemRef = React.useRef<InputLineElemHandle>(null);
+      const nextInputLineElemRef = React.useRef<InputLineElemHandle | null>(
+        null
+      );
+      const lastInputRef = React.useRef<InputLineElemHandle | null>(null);
+      const blankInputRef = React.useRef<ValueCellInputHandle>(null);
+
+      const prevNumInputValues = usePrevious(input.values.length);
 
       React.useImperativeHandle(
         ref,
@@ -54,6 +61,26 @@ export const Input = React.memo(
         }),
         []
       );
+
+      React.useEffect(() => {
+        if (prevNumInputValues === undefined) {
+          return;
+        }
+        if (input.values.length < prevNumInputValues) {
+          // If the last input was deleted, then set the focus to the new last
+          // input.
+          if (input.values.length > 0) {
+            if (lastInputRef.current !== null) {
+              lastInputRef.current.focus();
+            }
+          }
+        } else if (input.values.length > prevNumInputValues) {
+          // If a new input was added, then set the focus to the new input.
+          if (blankInputRef.current !== null) {
+            blankInputRef.current.focus();
+          }
+        }
+      }, [input.values.length, prevNumInputValues]);
 
       const handleNewInputCellChange = React.useCallback(
         (value: Value | null): void => {
@@ -90,7 +117,14 @@ export const Input = React.memo(
           {input.values.map((value, index) => (
             <React.Fragment key={index}>
               <InputLineElem
-                ref={index === input.next ? nextInputLineElemRef : undefined}
+                ref={(ref: InputLineElemHandle): void => {
+                  if (index === input.next) {
+                    nextInputLineElemRef.current = ref;
+                  }
+                  if (index === input.values.length - 1) {
+                    lastInputRef.current = ref;
+                  }
+                }}
                 value={value}
                 index={index}
                 next={index === input.next}
@@ -101,6 +135,7 @@ export const Input = React.memo(
             </React.Fragment>
           ))}
           <BlankableValueCellInput
+            ref={blankInputRef}
             key={input.values.length}
             value={null}
             highlighted={atEndOfInput(input)}
@@ -118,6 +153,7 @@ export const Input = React.memo(
 );
 
 interface InputLineElemHandle {
+  focus: () => void;
   getInputBoundingClientRect: () => DOMRect;
   scrollIntoView: () => void;
 }
@@ -144,6 +180,10 @@ const InputLineElem = React.memo(
       React.useImperativeHandle(
         ref,
         (): InputLineElemHandle => ({
+          focus: (): void => {
+            nonNull(valueCellInputRef.current).focus();
+          },
+
           getInputBoundingClientRect: (): DOMRect => {
             return nonNull(valueCellInputRef.current).getBoundingClientRect();
           },

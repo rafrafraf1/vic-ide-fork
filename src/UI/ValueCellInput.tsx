@@ -10,6 +10,11 @@ import { nonNull } from "../Functional/Nullability";
 
 export interface ValueCellInputHandle {
   /**
+   * Focus the input element.
+   */
+  focus: () => void;
+
+  /**
    * @returns the position and size of the input element.
    */
   getBoundingClientRect: () => DOMRect;
@@ -108,6 +113,10 @@ function ValueCellInputTemplate<T>(
       React.useImperativeHandle(
         ref,
         (): ValueCellInputHandle => ({
+          focus: (): void => {
+            nonNull(inputRef.current).focus();
+          },
+
           getBoundingClientRect: (): DOMRect => {
             return nonNull(inputRef.current).getBoundingClientRect();
           },
