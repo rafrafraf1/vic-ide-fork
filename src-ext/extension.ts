@@ -13,6 +13,7 @@ import {
 import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
 import { activateVicDebugAdapter } from "./VicLanguageFeatures/VicDebugAdapter";
 import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
+import { activateVicFormatter } from "./VicLanguageFeatures/VicFormatter";
 import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
 
 // This method is called when your extension is activated
@@ -28,6 +29,7 @@ export function activate(context: vscode.ExtensionContext): void {
   activateVicHoverProvider(context);
   activateVicCompletionItemProvider(context);
   activateVicDocumentHighlightProvider(context);
+  activateVicFormatter(context);
 
   // Vic Simulator:
   const simulatorManager = createSimulatorManager(diagnosticsService);
