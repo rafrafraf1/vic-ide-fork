@@ -9,6 +9,10 @@ Vic website: <https://shimonschocken.wixsite.com/visualcomputer>
 A demo is available that can be run directly in your web browser:
 <https://vic-ide.github.io/vic-ide/>
 
+## Getting Started
+
+Please see the [Getting Started Guide](docs/getting-started.md)
+
 ## Development
 
 ### UI
