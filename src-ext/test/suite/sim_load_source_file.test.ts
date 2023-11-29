@@ -52,6 +52,6 @@ export const run = testCase(async (): Promise<void> => {
 
   assert.deepStrictEqual(
     state.hardwareState.computer.memory.slice(0, 3),
-    [800, 900, 0]
+    [800, 900, 0],
   );
 });

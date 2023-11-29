@@ -21,8 +21,8 @@ describe("compileVicProgram success", () => {
       compileVicProgram(
         [
           "read", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -48,8 +48,8 @@ describe("compileVicProgram success", () => {
       compileVicProgram(
         [
           "write", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -75,8 +75,8 @@ describe("compileVicProgram success", () => {
       compileVicProgram(
         [
           "stop", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -103,8 +103,8 @@ describe("compileVicProgram success", () => {
         [
           "store x", // 0
           "add x", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -157,8 +157,8 @@ describe("compileVicProgram success", () => {
         [
           "store x", // 0
           "sub x", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -211,8 +211,8 @@ describe("compileVicProgram success", () => {
         [
           "store x", // 0
           "load x", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -264,8 +264,8 @@ describe("compileVicProgram success", () => {
       compileVicProgram(
         [
           "store x", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -300,8 +300,8 @@ describe("compileVicProgram success", () => {
         [
           "foo:", // 0
           "goto foo", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -345,8 +345,8 @@ describe("compileVicProgram success", () => {
         [
           "foo:", // 0
           "gotoz foo", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -390,8 +390,8 @@ describe("compileVicProgram success", () => {
         [
           "foo:", // 0
           "gotop foo", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -444,8 +444,8 @@ describe("compileVicProgram success", () => {
           "load x", // 8
           "load y", // 9
           "stop", // 10
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -629,8 +629,8 @@ describe("compileVicProgram success", () => {
           "goto end", // 2
           "write", // 3
           "end:", // 4
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -705,8 +705,8 @@ describe("compileVicProgram success", () => {
           "store y", // 2
           "store x", // 3
           "store z", // 4
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -803,8 +803,8 @@ describe("compileVicProgram success", () => {
           "load bar", // 7
           "goto foo", // 8
           "goto bar", // 9
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -968,8 +968,8 @@ describe("compileVicProgram success", () => {
           "read", // 0
           "start:", // 1
           "goto sTart", // 2
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -1023,8 +1023,8 @@ describe("compileVicProgram success", () => {
         [
           "store blah", // 0
           "load bLah", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Ok",
@@ -1099,8 +1099,8 @@ describe("compileVicProgram errors", () => {
           "read", // 0
           "blah", // 1
           "write", // 2
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Error",
@@ -1150,8 +1150,8 @@ describe("compileVicProgram errors", () => {
           "write", // 3
           "foo:", // 4
           "stop", // 5
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Error",
@@ -1234,8 +1234,8 @@ describe("compileVicProgram errors", () => {
         [
           "foo:", // 0
           "goto bar", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Error",
@@ -1289,8 +1289,8 @@ describe("compileVicProgram errors", () => {
           "add x", // 0
           "add y", // 1
           "store x", // 2
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Error",
@@ -1369,8 +1369,8 @@ describe("compileVicProgram errors", () => {
       compileVicProgram(
         [
           "add", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Error",
@@ -1406,8 +1406,8 @@ describe("compileVicProgram errors", () => {
       compileVicProgram(
         [
           "goto", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicCompileResult>({
       program: {
         kind: "Error",
@@ -1498,8 +1498,8 @@ describe("compileVicProgram max variables", () => {
           "write", //
           "write", //
           "write", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -1571,8 +1571,8 @@ describe("compileVicProgram max variables", () => {
           "store v46", //
           "write", //
           "write", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -1644,8 +1644,8 @@ describe("compileVicProgram max variables", () => {
           "store v45", //
           "store v46", //
           "write", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [
@@ -1754,8 +1754,8 @@ describe("compileVicProgram max instructions", () => {
           "load zero", //
           "load zero", //
           "load zero", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -1866,8 +1866,8 @@ describe("compileVicProgram max instructions", () => {
           "read", //
           "read", //
           "read", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -1978,8 +1978,8 @@ describe("compileVicProgram max instructions", () => {
           "load zero", //
           "load zero", //
           "load", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -2097,8 +2097,8 @@ describe("compileVicProgram max instructions", () => {
           "load zero", //
           "load zero", //
           "load zero", //
-        ].join("\n")
-      ).program
+        ].join("\n"),
+      ).program,
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [

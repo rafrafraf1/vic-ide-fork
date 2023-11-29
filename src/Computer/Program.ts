@@ -20,7 +20,7 @@ import { emptyOutput } from "./Output";
  */
 export function loadProgram(
   hardwareState: HardwareState,
-  program: number[]
+  program: number[],
 ): HardwareState {
   return {
     computer: newComputerWithProgram(program),

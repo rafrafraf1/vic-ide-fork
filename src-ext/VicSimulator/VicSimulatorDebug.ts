@@ -32,7 +32,7 @@ export function initDebugState(): DebugState {
  * Should be used only in tests.
  */
 export async function waitForSimulatorReady(
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): Promise<void> {
   if (simulatorManager.panel !== null && simulatorManager.panel.ready) {
     return;
@@ -48,14 +48,14 @@ export async function waitForSimulatorReady(
  */
 export async function simulatorSetCpuRegisters(
   simulatorManager: SimulatorManager,
-  setCpuRegisters: ExtensionDebugMessage.SetCpuRegisters
+  setCpuRegisters: ExtensionDebugMessage.SetCpuRegisters,
 ): Promise<void> {
   await sendDebugMessage(
     simulatorManager,
     (resolve) => {
       simulatorManager.debugState.stateUpdateListener = resolve;
     },
-    setCpuRegisters
+    setCpuRegisters,
   );
 
   // This delay is needed so that VS Code WebviewPanels will have enough time
@@ -76,14 +76,14 @@ export async function simulatorSetCpuRegisters(
  * Should be used only in tests.
  */
 export async function simulatorDoLoadSourceFileClick(
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): Promise<void> {
   await sendDebugMessage(
     simulatorManager,
     (resolve) => {
       simulatorManager.debugState.stateUpdateListener = resolve;
     },
-    { kind: "DoLoadSourceFileClick" }
+    { kind: "DoLoadSourceFileClick" },
   );
 }
 
@@ -91,21 +91,21 @@ export async function simulatorDoLoadSourceFileClick(
  * Should be used only in tests.
  */
 export async function simulatorDoShowErrorsClick(
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): Promise<void> {
   await sendDebugMessage(
     simulatorManager,
     (resolve) => {
       simulatorManager.debugState.debugResponseShowErrorsListener = resolve;
     },
-    { kind: "DoShowErrorsClick" }
+    { kind: "DoShowErrorsClick" },
   );
 }
 
 async function sendDebugMessage(
   simulatorManager: SimulatorManager,
   assignResolve: (value: () => void) => void,
-  message: ExtensionDebugMessage
+  message: ExtensionDebugMessage,
 ): Promise<void> {
   /* istanbul ignore next */
   if (simulatorManager.panel === null) {
@@ -126,7 +126,7 @@ async function sendDebugMessage(
  * Should be used only in tests.
  */
 export async function simulatorGetState(
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): Promise<AppState> {
   /* istanbul ignore next */
   if (simulatorManager.panel === null) {
@@ -150,7 +150,7 @@ export async function simulatorGetState(
  * Should be used only in tests.
  */
 export async function simulatorGetSourceFile(
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): Promise<SourceFile | null> {
   /* istanbul ignore next */
   if (simulatorManager.panel === null) {
@@ -173,7 +173,7 @@ export async function simulatorGetSourceFile(
 function callbackWithTimeout<T>(
   label: string,
   resolve: (value: T) => void,
-  reject: (error: Error) => void
+  reject: (error: Error) => void,
 ): (value: T) => void {
   let rejected = false;
 
@@ -183,7 +183,7 @@ function callbackWithTimeout<T>(
       rejected = true;
       reject(new Error(`${label} timeout`));
     },
-    5000
+    5000,
   );
 
   return (sourceFile: T): void => {
@@ -197,7 +197,7 @@ function callbackWithTimeout<T>(
 
 export function handleDebugMessage(
   simulatorManager: SimulatorManager,
-  message: SimulatorDebugMessage<SimulatorState>
+  message: SimulatorDebugMessage<SimulatorState>,
 ): void {
   switch (message.kind) {
     case "RequestStateResponse":
@@ -216,7 +216,7 @@ export function handleDebugMessage(
         throw new Error("Expected debugResponseSourceFileListener to be set");
       }
       simulatorManager.debugState.debugResponseSourceFileListener(
-        message.sourceFile
+        message.sourceFile,
       );
       simulatorManager.debugState.debugResponseSourceFileListener = null;
       break;

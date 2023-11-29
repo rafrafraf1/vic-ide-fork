@@ -45,7 +45,7 @@ describe("Vic IDE Extension Test Suite", () => {
           "--------------------------------------------------------------",
           `--- ${testFile}`,
           "--------------------------------------------------------------",
-        ].join("\n")
+        ].join("\n"),
       );
 
       // The folder containing the Extension Manifest package.json
@@ -75,10 +75,10 @@ describe("Vic IDE Extension Test Suite", () => {
             });
           } catch {
             throw new Error(
-              `Test "${testFile}" failed. See above for the test output, which should contain the error.`
+              `Test "${testFile}" failed. See above for the test output, which should contain the error.`,
             );
           }
-        }
+        },
       );
     });
   }

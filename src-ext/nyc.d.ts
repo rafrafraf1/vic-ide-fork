@@ -17,7 +17,7 @@ declare module "nyc" {
       createTempDirectory: () => Promise<void>;
       writeCoverageFile: () => Promise<void>;
       getCoverageMapFromAllCoverageFiles: (
-        baseDirectory: string
+        baseDirectory: string,
       ) => Promise<object>;
       report: () => Promise<void>;
     }

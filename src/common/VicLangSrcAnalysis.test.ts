@@ -7,7 +7,7 @@ import { parseVicProgram } from "./VicLangParser";
  */
 function getProgramHighlights(
   source: string,
-  lineCol: [number, number]
+  lineCol: [number, number],
 ): SrcLoc[] {
   const parsedProgram = parseVicProgram(source);
   const [line, column] = lineCol;
@@ -31,8 +31,8 @@ describe("getHighlights no results", () => {
           "    read", // 1
           "    store x", // 2
         ].join("\n"),
-        [1, 0]
-      )
+        [1, 0],
+      ),
     ).toEqual<SrcLoc[]>([]);
   });
 
@@ -46,8 +46,8 @@ describe("getHighlights no results", () => {
           "sub add", // 3
           "stop", // 4
         ].join("\n"),
-        [2, 0]
-      )
+        [2, 0],
+      ),
     ).toEqual<SrcLoc[]>([]);
   });
 });
@@ -71,8 +71,8 @@ describe("getHighlights success", () => {
           "bar:", // 1
           " foo:", // 2
         ].join("\n"),
-        [0, 0]
-      )
+        [0, 0],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -99,8 +99,8 @@ describe("getHighlights success", () => {
           "stop", // 5
           "gotoz foo", //6
         ].join("\n"),
-        [2, 0]
-      )
+        [2, 0],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 2,
@@ -132,8 +132,8 @@ describe("getHighlights success", () => {
           "stop", // 5
           "gotoz foo", //6
         ].join("\n"),
-        [4, 5]
-      )
+        [4, 5],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 2,
@@ -164,8 +164,8 @@ describe("getHighlights success", () => {
           "sub x", // 4
           "stop", // 5
         ].join("\n"),
-        [1, 4]
-      )
+        [1, 4],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 1,
@@ -192,8 +192,8 @@ describe("getHighlights success", () => {
           "add var", // 0
           "add var", // 1
         ].join("\n"),
-        [1, 4]
-      )
+        [1, 4],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -215,8 +215,8 @@ describe("getHighlights success", () => {
           "add x", // 0
           "sub x y", // 1
         ].join("\n"),
-        [1, 4]
-      )
+        [1, 4],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -238,8 +238,8 @@ describe("getHighlights success", () => {
           "store count", // 0
           "load cOunt", // 1
         ].join("\n"),
-        [0, 6]
-      )
+        [0, 6],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -263,8 +263,8 @@ describe("getHighlights success", () => {
           "sTart:", // 2
           "gotoz start", // 3
         ].join("\n"),
-        [0, 0]
-      )
+        [0, 0],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -298,8 +298,8 @@ describe("getHighlights success", () => {
           "sTart:", // 2
           "gotoz start", // 3
         ].join("\n"),
-        [1, 5]
-      )
+        [1, 5],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -334,8 +334,8 @@ describe("getHighlights success", () => {
           "sub add", // 3
           "stop", // 4
         ].join("\n"),
-        [2, 5]
-      )
+        [2, 5],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 1,
@@ -367,8 +367,8 @@ describe("getHighlights success", () => {
           "goto bar", // 5
           "store bar", // 6
         ].join("\n"),
-        [0, 6]
-      )
+        [0, 6],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 0,
@@ -395,8 +395,8 @@ describe("getHighlights success", () => {
           "goto bar", // 5
           "store bar", // 6
         ].join("\n"),
-        [1, 0]
-      )
+        [1, 0],
+      ),
     ).toEqual<SrcLoc[]>([
       {
         line: 1,

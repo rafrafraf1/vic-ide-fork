@@ -51,11 +51,11 @@ export function parseLine(lineNum: number, source: string): ParseLineResult {
 function parseLabelStatement(
   lineNum: number,
   firstToken: LineToken,
-  rest: LineToken[]
+  rest: LineToken[],
 ): ParseLineResult {
   const label = firstToken.contents.substring(
     0,
-    firstToken.contents.length - 1
+    firstToken.contents.length - 1,
   );
 
   if (label === "") {
@@ -128,7 +128,7 @@ namespace MatchedInstruction {
 }
 
 function matchInstructionName(
-  instructionStr: string
+  instructionStr: string,
 ): MatchedInstruction | null {
   switch (instructionStr.toLowerCase()) {
     case "read":
@@ -189,7 +189,7 @@ function matchInstructionName(
 function parseInstructionStatement(
   lineNum: number,
   firstToken: LineToken,
-  rest: LineToken[]
+  rest: LineToken[],
 ): ParseLineResult {
   const matched = matchInstructionName(firstToken.contents);
   if (matched === null) {
@@ -235,7 +235,7 @@ function parseInstructionStatement(
       let arg: Arg | null = null;
 
       const argKind = instructionArgKind(
-        matched.instruction
+        matched.instruction,
       ).toLocaleLowerCase();
 
       const argToken = rest[0];
@@ -284,7 +284,7 @@ function parseInstructionStatement(
               endCol: t.endCol,
             },
             message: `Unexpected additional argument to ${matched.instruction} instruction`,
-          }))
+          })),
         );
       }
 

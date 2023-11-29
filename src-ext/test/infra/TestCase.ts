@@ -14,7 +14,7 @@ export function testCase(code: () => Promise<void>): () => Promise<void> {
         console.error(`Test timeout after ${TESTS_TIMEOUT}ms, Exiting.`);
         process.exit(1);
       },
-      TESTS_TIMEOUT
+      TESTS_TIMEOUT,
     );
     await code();
     clearTimeout(timer);

@@ -4,7 +4,7 @@ import type { SrcError } from "./SrcError";
 import { assertNever } from "assert-never";
 
 export function assembleVicProgram(
-  statements: Statement[]
+  statements: Statement[],
 ): Result<SrcError[], number[]> {
   const result: number[] = [];
   let errors: SrcError[] = [];
@@ -265,7 +265,7 @@ export function nextVariableSlot(slot: number): number {
 
 function processVariables(
   statements: Statement[],
-  maxNumVariables: number
+  maxNumVariables: number,
 ): VariablesResult {
   const variables = new Map<string, number>();
 

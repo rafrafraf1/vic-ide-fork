@@ -24,7 +24,7 @@ export function renderPageHtml(
   cspSource: string,
   asWebviewUri: (localResource: vscode.Uri) => vscode.Uri,
   assetManifest: AssetManifest,
-  appState: AppState | null
+  appState: AppState | null,
 ): string {
   const entrypointsHtml = assetManifest
     .getEntryPoints()
@@ -95,12 +95,12 @@ export function generateSecureNonce(): string {
 function entrypointUri(
   extensionUri: vscode.Uri,
   asWebviewUri: (localResource: vscode.Uri) => vscode.Uri,
-  entrypoint: string
+  entrypoint: string,
 ): vscode.Uri {
   const pathOnDisk = vscode.Uri.joinPath(
     extensionUri,
     webviewBuildDir,
-    entrypoint
+    entrypoint,
   );
   return asWebviewUri(pathOnDisk);
 }

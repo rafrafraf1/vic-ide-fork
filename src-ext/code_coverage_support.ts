@@ -9,7 +9,7 @@ export const NYC_TEMP_DIRECTORY = path.resolve(
   __dirname,
   "..",
   "..",
-  ".nyc_output"
+  ".nyc_output",
 );
 
 export const ENABLE_COVERAGE_ENV_VAR = "VIC_IDE_TEST_ENABLE_COVERAGE";

@@ -23,7 +23,7 @@ export function MenuButton(props: MenuButtonProps): JSX.Element {
         onValueClick(e.target.value);
       }
     },
-    [onValueClick]
+    [onValueClick],
   );
 
   return (

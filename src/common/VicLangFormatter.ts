@@ -15,7 +15,7 @@ export interface FormattingOptions {
  */
 export function formatVicLine(
   line: string,
-  options: FormattingOptions
+  options: FormattingOptions,
 ): string {
   const parts = parseLine(line);
   return formatLineParts(parts, options);

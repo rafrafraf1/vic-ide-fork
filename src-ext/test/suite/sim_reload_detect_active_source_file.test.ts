@@ -38,7 +38,7 @@ export const run = testCaseWithWindowReloads(
         const simulatorManager = getSimulatorManager();
         await waitForSimulatorReady(simulatorManager);
         return simulatorManager;
-      }
+      },
     );
 
     const sourceFile = await step("Get Source File", async () => {
@@ -53,5 +53,5 @@ export const run = testCaseWithWindowReloads(
         hasErrors: false,
       },
     });
-  }
+  },
 );

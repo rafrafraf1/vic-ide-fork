@@ -44,6 +44,6 @@ export const run = testCase(async (): Promise<void> => {
       state.hardwareState.computer.dataRegister,
       state.hardwareState.computer.programCounter,
     ],
-    [0, 0, 0]
+    [0, 0, 0],
   );
 });

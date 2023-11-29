@@ -34,7 +34,7 @@ export interface ComputerState {
 }
 
 export function setInstructionRegister(
-  value: Register
+  value: Register,
 ): (computer: ComputerState) => ComputerState {
   return (computer: ComputerState): ComputerState => ({
     instructionRegister: value,
@@ -45,7 +45,7 @@ export function setInstructionRegister(
 }
 
 export function setDataRegister(
-  value: Register
+  value: Register,
 ): (computer: ComputerState) => ComputerState {
   return (computer: ComputerState): ComputerState => ({
     instructionRegister: computer.instructionRegister,
@@ -56,7 +56,7 @@ export function setDataRegister(
 }
 
 export function setProgramCounter(
-  value: Register
+  value: Register,
 ): (computer: ComputerState) => ComputerState {
   return (computer: ComputerState): ComputerState => ({
     instructionRegister: computer.instructionRegister,
@@ -77,7 +77,7 @@ export function incProgramCounter(computer: ComputerState): ComputerState {
 
 export function writeMemory(
   address: Address,
-  value: Value | null
+  value: Value | null,
 ): (computer: ComputerState) => ComputerState {
   return (computer: ComputerState): ComputerState => ({
     instructionRegister: computer.instructionRegister,
@@ -89,7 +89,7 @@ export function writeMemory(
 
 export function memoryWrite(
   address: Address,
-  value: Value | null
+  value: Value | null,
 ): (memory: MemoryCell[]) => MemoryCell[] {
   return (memory: MemoryCell[]): MemoryCell[] => {
     const newMemory = memory.slice();
@@ -102,7 +102,7 @@ export function memoryRead(memory: MemoryCell[], address: Address): MemoryCell {
   const value = memory[address];
   if (value === undefined) {
     throw new Error(
-      `Address out of range: ${address} (Array length: ${memory.length})`
+      `Address out of range: ${address} (Array length: ${memory.length})`,
     );
   }
   return value;
@@ -198,7 +198,7 @@ export function fetchInstruction(computer: ComputerState): ComputerState {
 
 export function executeInstruction(
   computer: ComputerState,
-  nextInput: Value | null
+  nextInput: Value | null,
 ): [ComputerState, ExecuteResult] {
   const instruction = parseInstruction(computer.instructionRegister);
 
@@ -220,7 +220,7 @@ export function executeInstruction(
       const value = add(op1, op2);
       const newComputer = compose(
         setDataRegister(value),
-        incProgramCounter
+        incProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -230,7 +230,7 @@ export function executeInstruction(
       const value = sub(op1, op2);
       const newComputer = compose(
         setDataRegister(value),
-        incProgramCounter
+        incProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -238,7 +238,7 @@ export function executeInstruction(
       const value = readMemory(computer, instruction.address);
       const newComputer = compose(
         setDataRegister(value),
-        incProgramCounter
+        incProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -256,7 +256,7 @@ export function executeInstruction(
 
       const newComputer = compose(
         writeMemory(instruction.address, computer.dataRegister),
-        incProgramCounter
+        incProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -295,7 +295,7 @@ export function executeInstruction(
       }
       const newComputer = compose(
         setDataRegister(nextInput),
-        incProgramCounter
+        incProgramCounter,
       )(computer);
       return [
         newComputer,

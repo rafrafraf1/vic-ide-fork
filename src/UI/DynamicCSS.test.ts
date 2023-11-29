@@ -9,18 +9,14 @@ describe("DynamicCSS css tag", () => {
     expect(css`hello`).toEqual<CSS>({ tag: "CSS", contents: "hello" });
   });
   test("css simple splice", () => {
-    expect(
-      css`
-        border: ${3}px;
-      `
-    ).toEqual<CSS>({ tag: "CSS", contents: "border: 3px;" });
+    expect(css`
+      border: ${3}px;
+    `).toEqual<CSS>({ tag: "CSS", contents: "border: 3px;" });
   });
   test("css multiple splice", () => {
-    expect(
-      css`
-        margin: ${3}px ${5}px;
-      `
-    ).toEqual<CSS>({ tag: "CSS", contents: "margin: 3px 5px;" });
+    expect(css`
+      margin: ${3}px ${5}px;
+    `).toEqual<CSS>({ tag: "CSS", contents: "margin: 3px 5px;" });
   });
 });
 
@@ -159,7 +155,7 @@ function polyfillGetRandomValues(): void {
   if ((global.crypto as unknown) === undefined) {
     (global.crypto as unknown) = {};
     global.crypto.getRandomValues = <T extends ArrayBufferView | null>(
-      array: T
+      array: T,
     ): T => {
       if (array !== null) {
         crypto.randomFillSync(array as unknown as NodeJS.ArrayBufferView);

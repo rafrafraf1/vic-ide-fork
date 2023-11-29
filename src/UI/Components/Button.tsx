@@ -11,7 +11,7 @@ export interface ButtonProps {
 
 export const Button = React.forwardRef(function Button(
   props: ButtonProps,
-  ref: React.ForwardedRef<HTMLButtonElement>
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ): JSX.Element {
   const { className, children, disabled, onClick } = props;
 

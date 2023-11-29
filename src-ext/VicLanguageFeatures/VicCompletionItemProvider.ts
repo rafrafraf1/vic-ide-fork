@@ -2,14 +2,14 @@ import * as vscode from "vscode";
 import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
 
 export function activateVicCompletionItemProvider(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
 ): void {
   context.subscriptions.push(
     vscode.languages.registerCompletionItemProvider(
       [vicAsmLanguageId, vicBinLanguageId],
       new VicCompletionItemProvider(),
-      ...[]
-    )
+      ...[],
+    ),
   );
 }
 
@@ -18,7 +18,7 @@ class VicCompletionItemProvider implements vscode.CompletionItemProvider {
     document: vscode.TextDocument,
     position: vscode.Position,
     token: vscode.CancellationToken,
-    context: vscode.CompletionContext
+    context: vscode.CompletionContext,
   ): vscode.ProviderResult<vscode.CompletionItem[] | vscode.CompletionList> {
     // This code is a hack to (try to) disable completions completely.
     //
@@ -56,7 +56,7 @@ class VicCompletionItemProvider implements vscode.CompletionItemProvider {
     const notMatching = !text.startsWith("x") ? "x" : "y";
     return new vscode.CompletionList(
       [new vscode.CompletionItem(notMatching)],
-      false
+      false,
     );
   }
 }

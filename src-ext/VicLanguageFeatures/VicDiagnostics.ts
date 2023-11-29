@@ -28,7 +28,7 @@ export function createDiagnosticsService(): DiagnosticsService {
 
 export function activateDiagnosticsService(
   context: vscode.ExtensionContext,
-  service: DiagnosticsService
+  service: DiagnosticsService,
 ): void {
   context.subscriptions.push(service.diagnosticCollection);
 
@@ -40,22 +40,22 @@ export function activateDiagnosticsService(
     vscode.workspace.onDidOpenTextDocument(
       (textDocument: vscode.TextDocument) => {
         updateDiagnostics(service, textDocument);
-      }
-    )
+      },
+    ),
   );
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument(
       (e: vscode.TextDocumentChangeEvent) => {
         updateDiagnostics(service, e.document);
-      }
-    )
+      },
+    ),
   );
 }
 
 function updateDiagnostics(
   service: DiagnosticsService,
-  textDocument: vscode.TextDocument
+  textDocument: vscode.TextDocument,
 ): void {
   const errors = getTextDocumentErrors(textDocument);
 
@@ -108,13 +108,13 @@ function convertSrcErrorToDiagnostic(error: SrcError): vscode.Diagnostic {
     error.srcLoc.line,
     error.srcLoc.startCol,
     error.srcLoc.line,
-    error.srcLoc.endCol
+    error.srcLoc.endCol,
   );
 
   const diagnostic = new vscode.Diagnostic(
     range,
     error.message,
-    vscode.DiagnosticSeverity.Error
+    vscode.DiagnosticSeverity.Error,
   );
   diagnostic.source = vicDiagnosticsName;
 
@@ -127,7 +127,7 @@ function convertSrcErrorToDiagnostic(error: SrcError): vscode.Diagnostic {
  */
 export function getTextDocumentHasErrors(
   diagnosticsService: DiagnosticsService,
-  uri: vscode.Uri
+  uri: vscode.Uri,
 ): boolean {
   const diags = diagnosticsService.diagnosticCollection.get(uri);
   if (diags === undefined) {

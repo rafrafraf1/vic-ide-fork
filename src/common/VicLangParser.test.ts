@@ -31,8 +31,8 @@ describe("parseVicProgram success", () => {
         [
           "foo:", // 0
           "bar:", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicParsedProgram>({
       statements: [
         {
@@ -66,8 +66,8 @@ describe("parseVicProgram success", () => {
           "", // 1
           "// comment", // 2
           "bar:", // 3
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicParsedProgram>({
       statements: [
         {
@@ -99,8 +99,8 @@ describe("parseVicProgram success", () => {
         [
           "", // 0
           "foo:", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicParsedProgram>({
       statements: [
         {
@@ -142,8 +142,8 @@ describe("parseVicProgram errors", () => {
           "read", // 0
           "blah", // 1
           "write", // 2
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<VicParsedProgram>({
       statements: [
         {

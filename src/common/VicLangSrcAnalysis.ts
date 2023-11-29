@@ -44,7 +44,7 @@ namespace SymbolResult {
 
 function lookupSymbol(
   statements: Statement[],
-  pos: SrcPos
+  pos: SrcPos,
 ): SymbolResult | null {
   for (const statement of statements) {
     switch (statement.kind) {
@@ -134,7 +134,7 @@ function getLabelHighlights(statements: Statement[], name: string): SrcLoc[] {
 
 function getVariableHighlights(
   statements: Statement[],
-  name: string
+  name: string,
 ): SrcLoc[] {
   const variableLower = name.toLowerCase();
 

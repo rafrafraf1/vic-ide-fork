@@ -40,7 +40,7 @@ export const Input = React.memo(
       const { input, onAppendInput, onInputChange, onDeleteInput } = props;
 
       const nextInputLineElemRef = React.useRef<InputLineElemHandle | null>(
-        null
+        null,
       );
       const lastInputRef = React.useRef<InputLineElemHandle | null>(null);
       const blankInputRef = React.useRef<ValueCellInputHandle>(null);
@@ -52,14 +52,14 @@ export const Input = React.memo(
         (): InputHandle => ({
           getInputBoundingClientRect: (): DOMRect => {
             return nonNull(
-              nextInputLineElemRef.current
+              nextInputLineElemRef.current,
             ).getInputBoundingClientRect();
           },
           scrollToNext: (): void => {
             nonNull(nextInputLineElemRef.current).scrollIntoView();
           },
         }),
-        []
+        [],
       );
 
       React.useEffect(() => {
@@ -91,7 +91,7 @@ export const Input = React.memo(
             onAppendInput(value);
           }
         },
-        [onAppendInput]
+        [onAppendInput],
       );
 
       const handleValueChange = React.useCallback(
@@ -100,7 +100,7 @@ export const Input = React.memo(
             onInputChange(index, value);
           }
         },
-        [onInputChange]
+        [onInputChange],
       );
 
       const handleDelete = React.useCallback(
@@ -109,7 +109,7 @@ export const Input = React.memo(
             onDeleteInput(index);
           }
         },
-        [onDeleteInput]
+        [onDeleteInput],
       );
 
       return (
@@ -148,8 +148,8 @@ export const Input = React.memo(
           )}
         </div>
       );
-    }
-  )
+    },
+  ),
 );
 
 interface InputLineElemHandle {
@@ -171,7 +171,7 @@ const InputLineElem = React.memo(
   React.forwardRef(
     (
       props: InputLineElemProps,
-      ref: React.ForwardedRef<InputLineElemHandle>
+      ref: React.ForwardedRef<InputLineElemHandle>,
     ) => {
       const { value, index, next, last, onValueChange, onDelete } = props;
 
@@ -191,7 +191,7 @@ const InputLineElem = React.memo(
             nonNull(valueCellInputRef.current).scrollIntoView();
           },
         }),
-        []
+        [],
       );
 
       const handleValueChange = React.useCallback(
@@ -200,7 +200,7 @@ const InputLineElem = React.memo(
             onValueChange(index, value);
           }
         },
-        [index, onValueChange]
+        [index, onValueChange],
       );
 
       const handleLastValueChange = React.useCallback(
@@ -215,7 +215,7 @@ const InputLineElem = React.memo(
             }
           }
         },
-        [index, onDelete, onValueChange]
+        [index, onDelete, onValueChange],
       );
 
       return (
@@ -242,6 +242,6 @@ const InputLineElem = React.memo(
           )}
         </>
       );
-    }
-  )
+    },
+  ),
 );

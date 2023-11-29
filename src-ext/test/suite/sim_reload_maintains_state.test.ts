@@ -46,7 +46,7 @@ export const run = testCaseWithWindowReloads(
         state.hardwareState.computer.dataRegister,
         state.hardwareState.computer.programCounter,
       ],
-      [1, 1, 1]
+      [1, 1, 1],
     );
-  }
+  },
 );

@@ -24,7 +24,7 @@ type IncomingMessage<T> = T & { source?: "vic-ide-ext" };
  */
 export function useWindowMessages<T, U>(
   extensionBridge: ExtensionBridge<U>,
-  onMessage: (e: T) => void
+  onMessage: (e: T) => void,
 ): void {
   const onMessageRef = React.useRef<(e: T) => void>(onMessage);
   onMessageRef.current = onMessage;

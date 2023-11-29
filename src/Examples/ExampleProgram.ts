@@ -39,7 +39,7 @@ export function lookupExampleProgram(name: string): ExampleProgram | null {
  * Loads the given ExampleProgram into a new HardwareState.
  */
 export function loadExampleProgram(
-  exampleProgram: ExampleProgram
+  exampleProgram: ExampleProgram,
 ): HardwareState {
   const hardware = newHardwareState();
 

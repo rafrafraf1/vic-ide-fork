@@ -22,7 +22,7 @@ describe("parseVicBinLine success", () => {
       {
         kind: "Ok",
         value: -100,
-      }
+      },
     );
   });
 
@@ -31,7 +31,7 @@ describe("parseVicBinLine success", () => {
       {
         kind: "Ok",
         value: 100,
-      }
+      },
     );
   });
 
@@ -40,7 +40,7 @@ describe("parseVicBinLine success", () => {
       {
         kind: "Ok",
         value: 100,
-      }
+      },
     );
   });
 
@@ -63,7 +63,7 @@ describe("parseVicBinLine success", () => {
       {
         kind: "Ok",
         value: -999,
-      }
+      },
     );
   });
 });
@@ -137,7 +137,7 @@ describe("parseVicBinLine errors", () => {
             endCol: 2,
           },
         },
-      }
+      },
     );
   });
 
@@ -185,7 +185,7 @@ describe("parseVicBinLine errors", () => {
             endCol: 4,
           },
         },
-      }
+      },
     );
   });
 
@@ -219,8 +219,8 @@ describe("parseVicBin success", () => {
       parseVicBin(
         [
           "800", // 0
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [800],
@@ -248,8 +248,8 @@ describe("parseVicBin success", () => {
           "800", // 0
           "", // 1
           "900", // 2
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [800, 900],
@@ -262,8 +262,8 @@ describe("parseVicBin success", () => {
         [
           "", // 0
           "800", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [800],
@@ -276,8 +276,8 @@ describe("parseVicBin success", () => {
         [
           "301", // 0
           "-5", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [301, -5],
@@ -308,8 +308,8 @@ describe("parseVicBin errors", () => {
         [
           "301", // 0
           "1000", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -331,8 +331,8 @@ describe("parseVicBin errors", () => {
         [
           "301", // 0
           "-1000", // 1
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -453,8 +453,8 @@ describe("parseVicBin max length", () => {
           "100", //
           "100", //
           "100", //
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Error",
       error: [
@@ -572,8 +572,8 @@ describe("parseVicBin max length", () => {
           "100", //
           "100", //
           "100", //
-        ].join("\n")
-      )
+        ].join("\n"),
+      ),
     ).toEqual<Result<SrcError[], number[]>>({
       kind: "Ok",
       value: [

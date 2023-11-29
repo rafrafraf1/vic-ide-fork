@@ -35,7 +35,7 @@ function boot(): void {
       ) : (
         <App extensionBridge={extensionBridge} />
       )}
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }
 

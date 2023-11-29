@@ -71,7 +71,7 @@ export interface AppProps {
  * ExtensionBridge, or if there is no saved state, creating a new empty state.
  */
 function initSimulatorState(
-  extensionBridge: ExtensionBridge<SimulatorState>
+  extensionBridge: ExtensionBridge<SimulatorState>,
 ): SimulatorState {
   const savedState = extensionBridge.getState();
   if (savedState !== null) {
@@ -101,22 +101,22 @@ function App(props: AppProps): JSX.Element {
 
   const initialState = React.useMemo(
     () => initSimulatorState(extensionBridge),
-    [extensionBridge]
+    [extensionBridge],
   );
 
   const [computer, setComputer] = React.useState(
-    initialState.hardwareState.computer
+    initialState.hardwareState.computer,
   );
   const [cpuStopped, setCpuStopped] = React.useState(
-    initialState.hardwareState.cpuStopped
+    initialState.hardwareState.cpuStopped,
   );
   const [input, setInput] = React.useState(initialState.hardwareState.input);
   const [output, setOutput] = React.useState(initialState.hardwareState.output);
   const [animationSpeed, setAnimationSpeed] = React.useState(
-    initialState.animationSpeed
+    initialState.animationSpeed,
   );
   const [helpScreenState, setHelpScreenState] = React.useState(
-    initialState.helpScreenState
+    initialState.helpScreenState,
   );
   const [cpuState, setCpuState] = React.useState<CpuState>("IDLE");
 
@@ -132,7 +132,7 @@ function App(props: AppProps): JSX.Element {
       input: input,
       output: output,
     }),
-    [computer, cpuStopped, input, output]
+    [computer, cpuStopped, input, output],
   );
 
   const triggerStepComplete = useEvents<StepComplete>(
@@ -149,7 +149,7 @@ function App(props: AppProps): JSX.Element {
         case "EXECUTE_INSTRUCTION":
           if (step.kind !== "ExecuteComplete") {
             throw new Error(
-              `Expected "step" to be of kind "ExecuteComplete", got: ${step.kind}`
+              `Expected "step" to be of kind "ExecuteComplete", got: ${step.kind}`,
             );
           }
           setCpuStopped(step.stopped);
@@ -195,7 +195,7 @@ function App(props: AppProps): JSX.Element {
         default:
           assertNever(simulationState);
       }
-    }
+    },
   );
 
   const computerRef = React.useRef<ComputerHandle>(null);
@@ -228,7 +228,7 @@ function App(props: AppProps): JSX.Element {
     (value: AnimationSpeed): void => {
       setAnimationSpeed(value);
     },
-    []
+    [],
   );
 
   const doFetchInstruction = React.useCallback((): void => {
@@ -266,7 +266,7 @@ function App(props: AppProps): JSX.Element {
         triggerStepComplete({
           kind: "FetchComplete",
         });
-      }
+      },
     );
   }, [animate, animationSpeed, computer, triggerStepComplete]);
 
@@ -279,7 +279,7 @@ function App(props: AppProps): JSX.Element {
     function updateComputer(): void {
       const [newComputer, executeResult] = executeInstruction(
         computer,
-        nextInput
+        nextInput,
       );
       setComputer(newComputer);
       if (executeResult.consumedInput) {
@@ -307,7 +307,7 @@ function App(props: AppProps): JSX.Element {
     animate(
       {
         start: nonNull(computerRef.current).getBoundingClientRect(
-          animation.start
+          animation.start,
         ),
         end: nonNull(computerRef.current).getBoundingClientRect(animation.end),
         duration: animationSpeedDuration(animationSpeed),
@@ -316,7 +316,7 @@ function App(props: AppProps): JSX.Element {
       },
       () => {
         updateComputer();
-      }
+      },
     );
   }, [animate, animationSpeed, computer, input, triggerStepComplete]);
 
@@ -389,7 +389,7 @@ function App(props: AppProps): JSX.Element {
     (address: Address, value: Value | null): void => {
       setComputer(writeMemory(address, value));
     },
-    []
+    [],
   );
 
   const handleInstructionRegister = React.useCallback((value: Value): void => {
@@ -456,7 +456,7 @@ function App(props: AppProps): JSX.Element {
       hardwareState,
       helpScreenState,
       sourceFile,
-    ]
+    ],
   );
 
   const handleMessage = React.useCallback(
@@ -480,7 +480,7 @@ function App(props: AppProps): JSX.Element {
               input: input,
               output: output,
             },
-            message.program
+            message.program,
           );
 
           setComputer(hardwareState.computer);
@@ -496,7 +496,7 @@ function App(props: AppProps): JSX.Element {
           assertNever(message);
       }
     },
-    [computer, cpuStopped, handleDebugMessage, input, output, simulationState]
+    [computer, cpuStopped, handleDebugMessage, input, output, simulationState],
   );
 
   useWindowMessages(extensionBridge, handleMessage);
@@ -567,7 +567,7 @@ function isResetEnabled(
   computer: ComputerState,
   cpuStopped: StopResult | null,
   input: InputState,
-  output: OutputState
+  output: OutputState,
 ): boolean {
   return (
     computer.programCounter !== 0 ||
@@ -579,7 +579,7 @@ function isResetEnabled(
 
 function processDebugSetCpuRegisters(
   message: ExtensionDebugMessage.SetCpuRegisters,
-  computer: ComputerState
+  computer: ComputerState,
 ): ComputerState {
   return {
     ...computer,
@@ -596,7 +596,7 @@ function processDebugSetCpuRegisters(
 }
 
 function toggleHelpScreenState(
-  helpScreenState: HelpScreenState
+  helpScreenState: HelpScreenState,
 ): HelpScreenState {
   switch (helpScreenState) {
     case "CLOSED":
@@ -618,7 +618,7 @@ function getSourceFileId(sourceFile: SourceFile | null): SourceFileId {
   switch (sourceFile.info.kind) {
     case "InvalidSourceFile":
       throw new Error(
-        `Invalid "InvalidSourceFile" sourceFile: ${JSON.stringify(sourceFile)}`
+        `Invalid "InvalidSourceFile" sourceFile: ${JSON.stringify(sourceFile)}`,
       );
     case "ValidSourceFile":
       return sourceFile.info.id;

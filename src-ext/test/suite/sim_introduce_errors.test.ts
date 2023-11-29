@@ -67,7 +67,7 @@ export const run = testCase(async (): Promise<void> => {
   await step("Edit Text (fix error)", async () => {
     await textEditor.edit((editBuilder): void => {
       editBuilder.delete(
-        new vscode.Range(new vscode.Position(3, 0), new vscode.Position(3, 3))
+        new vscode.Range(new vscode.Position(3, 0), new vscode.Position(3, 3)),
       );
     });
   });

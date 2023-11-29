@@ -59,7 +59,7 @@ export interface SimulatorManager {
 }
 
 export function createSimulatorManager(
-  diagnosticsService: DiagnosticsService
+  diagnosticsService: DiagnosticsService,
 ): SimulatorManager {
   return {
     diagnosticsService: diagnosticsService,
@@ -72,12 +72,12 @@ export function createSimulatorManager(
 
 export function activateVicSimulator(
   context: vscode.ExtensionContext,
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): void {
   context.subscriptions.push(
     vscode.commands.registerCommand(vicOpenSimulatorCommand, () => {
       showVicSimulator(simulatorManager, context.extensionUri);
-    })
+    }),
   );
 
   context.subscriptions.push(
@@ -85,7 +85,7 @@ export function activateVicSimulator(
       // Called when the user runs the "Developer: Reload Window" command.
       async deserializeWebviewPanel(
         webviewPanel: vscode.WebviewPanel,
-        state: AppState
+        state: AppState,
       ): Promise<void> {
         // `state` is the state persisted using `setState` inside the webview
 
@@ -95,7 +95,7 @@ export function activateVicSimulator(
           simulatorManager,
           webviewPanel,
           context.extensionUri,
-          null
+          null,
         );
 
         simulatorManager.panel = {
@@ -107,7 +107,7 @@ export function activateVicSimulator(
 
         await Promise.resolve();
       },
-    })
+    }),
   );
 
   context.subscriptions.push(
@@ -120,12 +120,12 @@ export function activateVicSimulator(
             kind: "SourceFileChange",
             sourceFile: buildSourceFile(
               simulatorManager.diagnosticsService,
-              activeTextEditor.document
+              activeTextEditor.document,
             ),
           });
         }
-      }
-    )
+      },
+    ),
   );
 
   context.subscriptions.push(
@@ -139,12 +139,12 @@ export function activateVicSimulator(
             kind: "SourceFileChange",
             sourceFile: buildSourceFile(
               simulatorManager.diagnosticsService,
-              activeDocument
+              activeDocument,
             ),
           });
         }
       }
-    })
+    }),
   );
 
   context.subscriptions.push(
@@ -157,7 +157,7 @@ export function activateVicSimulator(
           sourceFile: null,
         });
       }
-    })
+    }),
   );
 
   if (vscode.window.activeTextEditor !== undefined) {
@@ -192,7 +192,7 @@ export function activateVicSimulator(
 
 function buildSourceFile(
   diagnosticsService: DiagnosticsService,
-  textDocument: vscode.TextDocument
+  textDocument: vscode.TextDocument,
 ): SourceFile {
   const filename = getUriBasename(textDocument.uri);
 
@@ -207,7 +207,7 @@ function buildSourceFile(
         id: uriToSourceFileId(textDocument.uri),
         hasErrors: getTextDocumentHasErrors(
           diagnosticsService,
-          textDocument.uri
+          textDocument.uri,
         ),
       },
     };
@@ -229,7 +229,7 @@ export const simulatorTabTitle = "Vic Simulator";
 
 function showVicSimulator(
   simulatorManager: SimulatorManager,
-  extensionUri: vscode.Uri
+  extensionUri: vscode.Uri,
 ): void {
   if (simulatorManager.panel !== null) {
     simulatorManager.panel.webviewPanel.reveal();
@@ -257,7 +257,7 @@ function showVicSimulator(
     vicWebviewPanelType,
     simulatorTabTitle,
     viewColumn,
-    getWebviewOptions(extensionUri)
+    getWebviewOptions(extensionUri),
   );
 
   renderVicPanel(simulatorManager, panel, extensionUri, simulatorManager.state);
@@ -329,7 +329,7 @@ function renderVicPanel(
   simulatorManager: SimulatorManager,
   panel: vscode.WebviewPanel,
   extensionUri: vscode.Uri,
-  appState: AppState | null
+  appState: AppState | null,
 ): void {
   // User closes the VSCode tab containing the panel:
   panel.onDidDispose(() => {
@@ -355,7 +355,7 @@ function renderVicPanel(
           kind: "SourceFileChange",
           sourceFile: buildSourceFile(
             simulatorManager.diagnosticsService,
-            simulatorManager.activeTextDocument
+            simulatorManager.activeTextDocument,
           ),
         });
       }
@@ -376,12 +376,12 @@ export function genWebviewHtml(
   extensionUri: vscode.Uri,
   webview: vscode.Webview,
   appState: SimulatorState | null,
-  callback: (pageHtml: string) => void
+  callback: (pageHtml: string) => void,
 ): void {
   const assetMannifestPath = vscode.Uri.joinPath(
     extensionUri,
     webviewBuildDir,
-    "asset-manifest.json"
+    "asset-manifest.json",
   );
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
@@ -390,10 +390,10 @@ export function genWebviewHtml(
       /* istanbul ignore next */
       if (assetManifest.kind === "Error") {
         console.error(
-          `Error loading asset-manifest.json:\n${assetManifest.error}`
+          `Error loading asset-manifest.json:\n${assetManifest.error}`,
         );
         void vscode.window.showErrorMessage(
-          `Error loading asset-manifest.json:\n${assetManifest.error}`
+          `Error loading asset-manifest.json:\n${assetManifest.error}`,
         );
       } else {
         const nonce = generateSecureNonce();
@@ -404,7 +404,7 @@ export function genWebviewHtml(
           webview.cspSource,
           (u) => webview.asWebviewUri(u),
           assetManifest.value,
-          appState
+          appState,
         );
 
         callback(pageHtml);
@@ -414,15 +414,15 @@ export function genWebviewHtml(
     (err) => {
       console.error(`Error loading asset-manifest.json:\n${err as string}`);
       void vscode.window.showErrorMessage(
-        `Error loading asset-manifest.json:\n${err as string}`
+        `Error loading asset-manifest.json:\n${err as string}`,
       );
-    }
+    },
   );
 }
 
 function handleSimulatorMessage(
   simulatorManager: SimulatorManager,
-  message: SimulatorMessage<AppState>
+  message: SimulatorMessage<AppState>,
 ): void {
   switch (message.kind) {
     case "Ready":
@@ -433,7 +433,7 @@ function handleSimulatorMessage(
             kind: "SourceFileChange",
             sourceFile: buildSourceFile(
               simulatorManager.diagnosticsService,
-              simulatorManager.activeTextDocument
+              simulatorManager.activeTextDocument,
             ),
           });
         }
@@ -491,10 +491,10 @@ function handleSimulatorMessage(
 
 function handleLoadSourceFile(
   simulatorManager: SimulatorManager,
-  sourceFileId: SourceFileId
+  sourceFileId: SourceFileId,
 ): void {
   const textDocument = vscode.workspace.textDocuments.find(
-    (t) => uriToSourceFileId(t.uri) === sourceFileId
+    (t) => uriToSourceFileId(t.uri) === sourceFileId,
   );
 
   /* istanbul ignore if */
@@ -517,13 +517,13 @@ function handleLoadSourceFile(
         case "COMPILE_ERROR":
           // See [Note about message passing race conditions]
           void vscode.window.showErrorMessage(
-            `Error loading ${getUriBasename(textDocument.uri)}`
+            `Error loading ${getUriBasename(textDocument.uri)}`,
           );
           break;
         case "INVALID_FILE_MODE":
           // See [Note about message passing race conditions]
           void vscode.window.showErrorMessage(
-            `Invalid file mode: ${textDocument.languageId}`
+            `Invalid file mode: ${textDocument.languageId}`,
           );
           break;
         /* istanbul ignore next */
@@ -544,7 +544,7 @@ function handleLoadSourceFile(
  * `vicBinLanguageId`.
  */
 export function compileTextDocument(
-  textDocument: vscode.TextDocument
+  textDocument: vscode.TextDocument,
 ): Result<"COMPILE_ERROR" | "INVALID_FILE_MODE", number[]> {
   const source = textDocument.getText();
 
@@ -593,7 +593,7 @@ export function compileTextDocument(
 }
 
 async function handleShowErrors(
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): Promise<void> {
   /* istanbul ignore if */
   if (simulatorManager.activeTextDocument === null) {
@@ -604,18 +604,18 @@ async function handleShowErrors(
   await vscode.commands.executeCommand("workbench.panel.markers.view.focus");
 
   const viewColumn = textDocumentViewColumn(
-    simulatorManager.activeTextDocument
+    simulatorManager.activeTextDocument,
   );
   if (viewColumn !== null) {
     await vscode.window.showTextDocument(
       simulatorManager.activeTextDocument,
-      viewColumn
+      viewColumn,
     );
   }
 }
 
 function textDocumentViewColumn(
-  document: vscode.TextDocument
+  document: vscode.TextDocument,
 ): vscode.ViewColumn | null {
   for (const textEditor of vscode.window.visibleTextEditors) {
     if (textEditor.document === document) {
@@ -649,7 +649,7 @@ type OutgoingMessage<T> = T & { source: "vic-ide-ext" };
 
 export function webviewPostMessage(
   simulatorManager: SimulatorManager,
-  message: ExtensionMessage
+  message: ExtensionMessage,
 ): void {
   if (simulatorManager.panel !== null) {
     const outgoingMessage: OutgoingMessage<ExtensionMessage> = {
@@ -673,13 +673,13 @@ export function webviewPostMessage(
           // event.
           //
           // See: <https://github.com/microsoft/vscode/issues/48509>
-        }
+        },
       );
   }
 }
 
 function getWebviewOptions(
-  extensionUri: vscode.Uri
+  extensionUri: vscode.Uri,
 ): vscode.WebviewPanelOptions & vscode.WebviewOptions {
   return {
     // Enable javascript in the webview

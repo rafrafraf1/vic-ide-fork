@@ -10,7 +10,7 @@
  * returned `RegisteredDynCSS` instance.
  */
 export function withDynamicCSS(
-  callback: (dyn: DynamicCSS) => void
+  callback: (dyn: DynamicCSS) => void,
 ): RegisteredDynCSS {
   let cssContents = "";
 

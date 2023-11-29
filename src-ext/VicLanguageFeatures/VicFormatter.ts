@@ -7,8 +7,8 @@ export function activateVicFormatter(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.languages.registerDocumentRangeFormattingEditProvider(
       [vicAsmLanguageId, vicBinLanguageId],
-      new Provider()
-    )
+      new Provider(),
+    ),
   );
 }
 
@@ -17,7 +17,7 @@ export class Provider implements vscode.DocumentRangeFormattingEditProvider {
     document: vscode.TextDocument,
     range: vscode.Range,
     options: vscode.FormattingOptions,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.TextEdit[]> {
     const [startLine, endLine] = getStartAndEndLines(range);
 
@@ -57,7 +57,7 @@ function formatLines(
   document: vscode.TextDocument,
   startLine: number,
   endLine: number,
-  lineFormatter: (line: string) => string
+  lineFormatter: (line: string) => string,
 ): ChangedLine[] {
   const changes: ChangedLine[] = [];
   for (let i = startLine; i < endLine; i++) {
@@ -75,11 +75,11 @@ function formatLines(
 
 function changedLineEdit(
   document: vscode.TextDocument,
-  changedLine: ChangedLine
+  changedLine: ChangedLine,
 ): vscode.TextEdit {
   const endCol = document.lineAt(changedLine.lineNumber).text.length;
   return vscode.TextEdit.replace(
     new vscode.Range(changedLine.lineNumber, 0, changedLine.lineNumber, endCol),
-    changedLine.newText
+    changedLine.newText,
   );
 }

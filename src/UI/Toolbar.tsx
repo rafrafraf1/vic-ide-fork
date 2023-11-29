@@ -85,7 +85,7 @@ interface ToolbarProps {
 }
 
 export const Toolbar = React.memo(function Toolbar(
-  props: ToolbarProps
+  props: ToolbarProps,
 ): JSX.Element {
   const {
     className,
@@ -168,7 +168,7 @@ export const Toolbar = React.memo(function Toolbar(
       <Tippy
         singleton={tippyTarget}
         content={uiString(
-          "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER"
+          "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER",
         )}
       >
         <Button
@@ -206,7 +206,7 @@ export const Toolbar = React.memo(function Toolbar(
       <Tippy
         singleton={tippyTarget}
         content={uiString(
-          "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
+          "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT",
         )}
       >
         <Button
@@ -334,7 +334,7 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
         return (
           <Tippy
             content={`${uiString("COMPILE")} ${sourceFile.filename} ${uiString(
-              "AND_LOAD_IT_INTO_THE_SIMULATOR"
+              "AND_LOAD_IT_INTO_THE_SIMULATOR",
             )}`}
             placement="bottom"
           >

@@ -8,7 +8,7 @@ import { delay } from "./Delay";
  */
 export async function step<A>(
   label: string,
-  body: () => Promise<A>
+  body: () => Promise<A>,
 ): Promise<A> {
   console.log(`BEGIN STEP: ${label}`);
 
@@ -44,6 +44,6 @@ export async function showStepDialog(label: string): Promise<void> {
         });
         await delay(100);
       }
-    }
+    },
   );
 }

@@ -9,13 +9,13 @@ import { vicOpenSimulatorCommand } from "../ExtManifest";
 
 export function activateVicDebugAdapter(
   context: vscode.ExtensionContext,
-  simulatorManager: SimulatorManager
+  simulatorManager: SimulatorManager,
 ): void {
   context.subscriptions.push(
     vscode.debug.registerDebugConfigurationProvider(
       "vic",
-      new Provider(simulatorManager)
-    )
+      new Provider(simulatorManager),
+    ),
   );
 }
 
@@ -27,7 +27,7 @@ export class Provider implements vscode.DebugConfigurationProvider {
   async resolveDebugConfiguration?(
     folder: vscode.WorkspaceFolder | undefined,
     debugConfiguration: vscode.DebugConfiguration,
-    token?: vscode.CancellationToken
+    token?: vscode.CancellationToken,
   ): Promise<vscode.DebugConfiguration | undefined> {
     let compiledProgram: number[] | null = null;
 

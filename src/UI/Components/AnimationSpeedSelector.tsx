@@ -62,7 +62,7 @@ export const AnimationSpeedSelector = React.memo(
         />
       </div>
     );
-  }
+  },
 );
 
 interface OptionProps {
@@ -97,7 +97,7 @@ function Option(props: OptionProps): JSX.Element {
       <button
         className={classNames(
           "AnimationSpeedSelector-Button",
-          buttonCssClassName
+          buttonCssClassName,
         )}
         onClick={handleClick}
       />
@@ -111,7 +111,7 @@ function Option(props: OptionProps): JSX.Element {
       <label
         className={classNames(
           "AnimationSpeedSelector-Label",
-          labelCssClassName
+          labelCssClassName,
         )}
       >
         {label}

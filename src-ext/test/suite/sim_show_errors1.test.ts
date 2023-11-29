@@ -56,7 +56,7 @@ export const run = testCase(async (): Promise<void> => {
 
   assert.deepStrictEqual<typeof activeTextEditorUri>(
     activeTextEditorUri,
-    "untitled:Untitled-1"
+    "untitled:Untitled-1",
   );
 
   const tabGroups = vscode.window.tabGroups.all.map(tabGroupView);

@@ -124,11 +124,11 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           switch (uiCell.kind) {
             case "CpuRegister":
               return nonNull(cpuRef.current).getBoundingClientRect(
-                uiCell.cpuRegister
+                uiCell.cpuRegister,
               );
             case "MemoryCell":
               return nonNull(mainMemoryRef.current).getBoundingClientRect(
-                uiCell.address
+                uiCell.address,
               );
             case "Input":
               return nonNull(inputRef.current).getInputBoundingClientRect();
@@ -158,7 +158,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           }
         },
       }),
-      []
+      [],
     );
 
     const handleInputClearClick = React.useCallback((): void => {
@@ -173,7 +173,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           onInputChange(appendInput(input, value));
         }
       },
-      [input, onInputChange]
+      [input, onInputChange],
     );
 
     const handleInputChange = React.useCallback(
@@ -182,7 +182,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           onInputChange(inputChange(input, index, value));
         }
       },
-      [input, onInputChange]
+      [input, onInputChange],
     );
 
     const handleDeleteInput = React.useCallback(
@@ -191,7 +191,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           onInputChange(deleteInput(input, index));
         }
       },
-      [input, onInputChange]
+      [input, onInputChange],
     );
 
     return (
@@ -265,7 +265,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export interface MainMemoryHandle {
@@ -308,7 +308,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
           throw new Error(`Invalid address: ${address}`);
         }
       },
-      []
+      [],
     );
 
     React.useImperativeHandle(
@@ -322,7 +322,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
           getMemorySegmentRef(address).scrollIntoView(address);
         },
       }),
-      [getMemorySegmentRef]
+      [getMemorySegmentRef],
     );
 
     return (
@@ -347,7 +347,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
         />
       </div>
     );
-  }
+  },
 );
 
 export interface MemorySegmentHandle {
@@ -385,7 +385,7 @@ const MemoryValueCellInput = React.memo(
   React.forwardRef(
     (
       props: MemoryValueCellInputProps,
-      ref: React.ForwardedRef<ValueCellInputHandle>
+      ref: React.ForwardedRef<ValueCellInputHandle>,
     ) => {
       const { uiString, address, value, highlighted, onValueChange } = props;
 
@@ -393,7 +393,7 @@ const MemoryValueCellInput = React.memo(
         (newValue: Value | null): void => {
           onValueChange(address, newValue);
         },
-        [address, onValueChange]
+        [address, onValueChange],
       );
 
       const disabled = address >= MEMORY_READONLY_REGION;
@@ -408,8 +408,8 @@ const MemoryValueCellInput = React.memo(
           onValueChange={handleValueChange}
         />
       );
-    }
-  )
+    },
+  ),
 );
 
 export const MemorySegment = React.forwardRef<
@@ -436,7 +436,7 @@ export const MemorySegment = React.forwardRef<
       }
       return ref;
     },
-    [segmentStart]
+    [segmentStart],
   );
 
   React.useImperativeHandle(
@@ -450,7 +450,7 @@ export const MemorySegment = React.forwardRef<
         getMemoryCellRef(address).scrollIntoView();
       },
     }),
-    [getMemoryCellRef]
+    [getMemoryCellRef],
   );
 
   React.useEffect(() => {
@@ -463,7 +463,7 @@ export const MemorySegment = React.forwardRef<
         onMemoryCellChange(address, value);
       }
     },
-    [onMemoryCellChange]
+    [onMemoryCellChange],
   );
 
   return (
@@ -562,7 +562,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
           switch (cpuRegister) {
             case "INSTRUCTION_REGISTER":
               return nonNull(
-                instructionRegisterRef.current
+                instructionRegisterRef.current,
               ).getBoundingClientRect();
             case "DATA_REGISTER":
               return nonNull(dataRegisterRef.current).getBoundingClientRect();
@@ -571,7 +571,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
           }
         },
       }),
-      []
+      [],
     );
 
     return (
@@ -603,7 +603,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
         />
       </div>
     );
-  }
+  },
 );
 
 interface CpuRegisterProps {
@@ -630,7 +630,7 @@ function appendInput(input: InputState, value: Value): InputState {
 function inputChange(
   input: InputState,
   index: number,
-  value: Value
+  value: Value,
 ): InputState {
   if (index >= input.values.length) {
     throw new Error(`Invalid array index for input values: ${index}`);

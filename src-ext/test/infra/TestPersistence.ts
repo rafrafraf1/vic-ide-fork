@@ -44,7 +44,7 @@ function writePersistentStateFile(value: string): void {
 
 /* istanbul ignore next */
 async function withTmpFile<A>(
-  body: (filename: string) => Promise<A>
+  body: (filename: string) => Promise<A>,
 ): Promise<A> {
   const file = tmp.fileSync({
     discardDescriptor: true,
@@ -58,7 +58,7 @@ async function withTmpFile<A>(
 
 /* istanbul ignore next */
 export async function withPersistentStateAvailable<A>(
-  body: (envVarName: string, envVarValue: string) => Promise<A>
+  body: (envVarName: string, envVarValue: string) => Promise<A>,
 ): Promise<A> {
   return await withTmpFile(async (filename) => {
     return await body(STATE_FILE_ENV_VAR, filename);

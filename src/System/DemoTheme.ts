@@ -99,7 +99,7 @@ const themeChangeListeners = new Set<ThemeChangeListener>();
  * longer needed.
  */
 export function registerThemeChangeListener(
-  themeChangeListener: ThemeChangeListener
+  themeChangeListener: ThemeChangeListener,
 ): void {
   themeChangeListeners.add(themeChangeListener);
 }
@@ -109,7 +109,7 @@ export function registerThemeChangeListener(
  * "registerThemeChangeListener".
  */
 export function unregisterThemeChangeListener(
-  themeChangeListener: ThemeChangeListener
+  themeChangeListener: ThemeChangeListener,
 ): void {
   themeChangeListeners.delete(themeChangeListener);
 }
@@ -125,7 +125,7 @@ export function getCurrentTheme(): DemoTheme {
   const linkTag = document.getElementById(themeStyleId);
   if (linkTag === null) {
     throw new Error(
-      `getCurrentTheme: Document element "${themeStyleId}" not found`
+      `getCurrentTheme: Document element "${themeStyleId}" not found`,
     );
   }
 
@@ -133,7 +133,7 @@ export function getCurrentTheme(): DemoTheme {
 
   if (hrefValue === null) {
     throw new Error(
-      `getCurrentTheme: Document element "${themeStyleId}" missing "href" value`
+      `getCurrentTheme: Document element "${themeStyleId}" missing "href" value`,
     );
   }
 
@@ -159,7 +159,7 @@ export function setCurrentTheme(theme: DemoTheme): void {
   const linkTag = document.getElementById(themeStyleId);
   if (linkTag === null) {
     throw new Error(
-      `setCurrentTheme: Document element "${themeStyleId}" not found`
+      `setCurrentTheme: Document element "${themeStyleId}" not found`,
     );
   }
 
@@ -167,7 +167,7 @@ export function setCurrentTheme(theme: DemoTheme): void {
 
   if (hrefValue === null) {
     throw new Error(
-      `setCurrentTheme: Document element "${themeStyleId}" missing "href" value`
+      `setCurrentTheme: Document element "${themeStyleId}" missing "href" value`,
     );
   }
 

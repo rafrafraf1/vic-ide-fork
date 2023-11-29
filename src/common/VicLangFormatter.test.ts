@@ -24,7 +24,7 @@ describe("formatVicLine defaultOptions", () => {
 
   test("strip prefix label", () => {
     expect(formatVicLine("    start:", defaultOptions)).toEqual<string>(
-      "start:"
+      "start:",
     );
   });
 
@@ -34,19 +34,19 @@ describe("formatVicLine defaultOptions", () => {
 
   test("strip prefix and suffix label", () => {
     expect(formatVicLine("  start:  ", defaultOptions)).toEqual<string>(
-      "start:"
+      "start:",
     );
   });
 
   test("label with comment", () => {
     expect(formatVicLine("start: // comment", defaultOptions)).toEqual<string>(
-      "start: // comment"
+      "start: // comment",
     );
   });
 
   test("label with comment format", () => {
     expect(
-      formatVicLine(" start:   // comment", defaultOptions)
+      formatVicLine(" start:   // comment", defaultOptions),
     ).toEqual<string>("start: // comment");
   });
 
@@ -56,55 +56,55 @@ describe("formatVicLine defaultOptions", () => {
 
   test("instruction stop formatted", () => {
     expect(formatVicLine("    stop", defaultOptions)).toEqual<string>(
-      "    stop"
+      "    stop",
     );
   });
 
   test("instruction add", () => {
     expect(formatVicLine("add zero", defaultOptions)).toEqual<string>(
-      "    add zero"
+      "    add zero",
     );
   });
 
   test("instruction add with inner whitespace", () => {
     expect(formatVicLine("    add  zero", defaultOptions)).toEqual<string>(
-      "    add zero"
+      "    add zero",
     );
   });
 
   test("instruction add with comment", () => {
     expect(
-      formatVicLine("    add zero // comment", defaultOptions)
+      formatVicLine("    add zero // comment", defaultOptions),
     ).toEqual<string>("    add zero // comment");
   });
 
   test("instruction add with comment fix whitespace", () => {
     expect(
-      formatVicLine("    add zero  // comment", defaultOptions)
+      formatVicLine("    add zero  // comment", defaultOptions),
     ).toEqual<string>("    add zero // comment");
   });
 
   test("only comment", () => {
     expect(formatVicLine("// comment", defaultOptions)).toEqual<string>(
-      "// comment"
+      "// comment",
     );
   });
 
   test("only comment format", () => {
     expect(formatVicLine(" // comment", defaultOptions)).toEqual<string>(
-      "// comment"
+      "// comment",
     );
   });
 
   test("strip comment trailing whitespace", () => {
     expect(formatVicLine("// comment ", defaultOptions)).toEqual<string>(
-      "// comment"
+      "// comment",
     );
   });
 
   test("preserve comment start whitespace", () => {
     expect(formatVicLine("//comment", defaultOptions)).toEqual<string>(
-      "//comment"
+      "//comment",
     );
   });
 });
@@ -115,7 +115,7 @@ describe("formatVicLine custom options", () => {
       formatVicLine("add zero", {
         insertSpaces: true,
         tabSize: 2,
-      })
+      }),
     ).toEqual<string>("  add zero");
   });
 
@@ -124,7 +124,7 @@ describe("formatVicLine custom options", () => {
       formatVicLine("add zero", {
         insertSpaces: false,
         tabSize: 4,
-      })
+      }),
     ).toEqual<string>("\tadd zero");
   });
 });

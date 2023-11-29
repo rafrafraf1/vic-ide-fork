@@ -12,7 +12,7 @@ export interface ComputerAnimation {
 
 export function nextInstructionAnimation(
   computer: ComputerState,
-  nextInput: Value | null
+  nextInput: Value | null,
 ): ComputerAnimation | null {
   const instruction = parseInstruction(computer.instructionRegister);
 

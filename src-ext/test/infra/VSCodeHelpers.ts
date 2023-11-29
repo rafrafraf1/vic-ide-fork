@@ -5,7 +5,7 @@ import * as vscode from "vscode";
  * document to actually finish opening.
  */
 export async function waitForTextDocumentToOpen(
-  textDocument: vscode.TextDocument
+  textDocument: vscode.TextDocument,
 ): Promise<void> {
   await new Promise<void>((resolve) => {
     const eventRegistration = vscode.window.onDidChangeActiveTextEditor((e) => {

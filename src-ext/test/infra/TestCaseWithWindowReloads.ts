@@ -10,18 +10,18 @@ export class ReloadWindow {
 
 export function testCaseWithWindowReloads(
   step1: (reloadWindow: () => Promise<ReloadWindow>) => Promise<ReloadWindow>,
-  step2: () => Promise<void>
+  step2: () => Promise<void>,
 ): () => Promise<void>;
 export function testCaseWithWindowReloads(
   step1: (reloadWindow: () => Promise<ReloadWindow>) => Promise<ReloadWindow>,
   step2: (reloadWindow: () => Promise<ReloadWindow>) => Promise<ReloadWindow>,
-  step3: () => Promise<void>
+  step3: () => Promise<void>,
 ): () => Promise<void>;
 export function testCaseWithWindowReloads(
   step1: (reloadWindow: () => Promise<ReloadWindow>) => Promise<ReloadWindow>,
   step2: (reloadWindow: () => Promise<ReloadWindow>) => Promise<ReloadWindow>,
   step3: (reloadWindow: () => Promise<ReloadWindow>) => Promise<ReloadWindow>,
-  step4: () => Promise<void>
+  step4: () => Promise<void>,
 ): () => Promise<void>;
 
 export function testCaseWithWindowReloads(

@@ -129,7 +129,7 @@ function deleteAnimatedElem(animatedElem: AnimatedElem | null): void {
 export function useAnimate(): Animate {
   const nextActiveAnimationid = React.useRef<ActiveAnimationId>(1);
   const activeAnimations = React.useRef(
-    new Map<ActiveAnimationId, ActiveAnimation>()
+    new Map<ActiveAnimationId, ActiveAnimation>(),
   );
 
   React.useEffect(() => {

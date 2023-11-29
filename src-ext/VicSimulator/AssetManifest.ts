@@ -3,7 +3,7 @@ import type { Result } from "../../src/common/Functional/Result";
 export class AssetManifest {
   public constructor(
     private files: Map<string, string>,
-    private entrypoints: string[]
+    private entrypoints: string[],
   ) {
     // Nothing
   }
@@ -30,7 +30,7 @@ export class AssetManifest {
 const FRAMEWORK = "cra" as string;
 
 export function loadAssetManifest(
-  fileContents: string
+  fileContents: string,
 ): Result<string, AssetManifest> {
   if (FRAMEWORK === "cra") {
     return loadCraAssetManifest(fileContents);
@@ -40,7 +40,7 @@ export function loadAssetManifest(
 }
 
 export function loadCraAssetManifest(
-  fileContents: string
+  fileContents: string,
 ): Result<string, AssetManifest> {
   let json: unknown;
   try {

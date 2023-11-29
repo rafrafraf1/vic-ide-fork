@@ -12,7 +12,7 @@ const reportWebVitals = (onPerfEntry?: ReportHandler): void => {
       },
       (err) => {
         throw new Error(`Error loading web-vitals: ${err as string}`);
-      }
+      },
     );
   }
 };

@@ -35,7 +35,7 @@ export const run = testCase(async (): Promise<void> => {
   await step("Switch Text Document language to Vic", async () => {
     await vscode.languages.setTextDocumentLanguage(
       textDocument,
-      vicAsmLanguageId
+      vicAsmLanguageId,
     );
   });
 

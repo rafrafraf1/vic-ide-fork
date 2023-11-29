@@ -51,7 +51,7 @@ export const ValueCellInput: React.ForwardRefExoticComponent<
         return parseInt(inputStr, 10);
       }
     },
-  })
+  }),
 );
 
 export interface BlankableValueCellInputProps extends ValueCellInputPropsMixin {
@@ -77,7 +77,7 @@ export const BlankableValueCellInput: React.ForwardRefExoticComponent<
         return parseInt(inputStr, 10);
       }
     },
-  })
+  }),
 );
 
 interface ValueCellInputTemplateProps<T> extends ValueCellInputPropsMixin {
@@ -91,19 +91,19 @@ interface ValueCellInputTemplateParams<T> {
 }
 
 function ValueCellInputTemplate<T>(
-  params: ValueCellInputTemplateParams<T>
+  params: ValueCellInputTemplateParams<T>,
 ): React.ForwardRefExoticComponent<
   ValueCellInputTemplateProps<T> & React.RefAttributes<ValueCellInputHandle>
 > {
   return React.forwardRef<ValueCellInputHandle, ValueCellInputTemplateProps<T>>(
     (
       props: ValueCellInputTemplateProps<T>,
-      ref: React.ForwardedRef<ValueCellInputHandle>
+      ref: React.ForwardedRef<ValueCellInputHandle>,
     ): JSX.Element => {
       const { value, highlighted, disabled, tooltip, onValueChange } = props;
 
       const [inputStr, setInputStr] = React.useState<string>(() =>
-        params.renderValue(value)
+        params.renderValue(value),
       );
 
       const [focused, setFocused] = React.useState<boolean>(false);
@@ -129,7 +129,7 @@ function ValueCellInputTemplate<T>(
             nonNull(inputRef.current).scrollIntoView(scrollOptions);
           },
         }),
-        [inputRef]
+        [inputRef],
       );
 
       // React to changes to the "value" prop
@@ -218,7 +218,7 @@ function ValueCellInputTemplate<T>(
             }
           }
         },
-        [inputRef, value]
+        [inputRef, value],
       );
 
       // This happens when the user presses enter when the input element is
@@ -237,7 +237,7 @@ function ValueCellInputTemplate<T>(
             }
           }
         },
-        [inputRef]
+        [inputRef],
       );
 
       const elem = (
@@ -277,7 +277,7 @@ function ValueCellInputTemplate<T>(
           </Tippy>
         );
       }
-    }
+    },
   );
 }
 

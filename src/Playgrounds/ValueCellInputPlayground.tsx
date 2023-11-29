@@ -39,21 +39,21 @@ export function ValueCellInputTester(): JSX.Element {
       }
       setValue(value);
     },
-    []
+    [],
   );
 
   const handleHighlightedChange = React.useCallback(
     (e: ChangeEvent<HTMLInputElement>): void => {
       setHighlighted(e.target.checked);
     },
-    []
+    [],
   );
 
   const handleDisabledChange = React.useCallback(
     (e: ChangeEvent<HTMLInputElement>): void => {
       setDisabled(e.target.checked);
     },
-    []
+    [],
   );
 
   return (
@@ -109,21 +109,21 @@ export function BlankableValueCellInputTester(): JSX.Element {
       }
       setValue(value);
     },
-    []
+    [],
   );
 
   const handleHighlightedChange = React.useCallback(
     (e: ChangeEvent<HTMLInputElement>): void => {
       setHighlighted(e.target.checked);
     },
-    []
+    [],
   );
 
   const handleDisabledChange = React.useCallback(
     (e: ChangeEvent<HTMLInputElement>): void => {
       setDisabled(e.target.checked);
     },
-    []
+    [],
   );
 
   return (

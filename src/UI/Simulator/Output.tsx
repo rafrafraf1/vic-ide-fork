@@ -40,11 +40,11 @@ export const Output = React.memo(
           },
           scrollToBottom: (): void => {
             nonNull(root.current).scrollTop = nonNull(
-              root.current
+              root.current,
             ).scrollHeight;
           },
         }),
-        []
+        [],
       );
 
       React.useEffect(() => {
@@ -77,6 +77,6 @@ export const Output = React.memo(
           </span>
         </div>
       );
-    }
-  )
+    },
+  ),
 );

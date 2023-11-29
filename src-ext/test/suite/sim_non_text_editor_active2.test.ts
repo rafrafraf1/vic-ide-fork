@@ -37,7 +37,7 @@ export const run = testCase(async (): Promise<void> => {
 
   await step("Close Text Document", async () => {
     await vscode.commands.executeCommand(
-      "workbench.action.closeEditorsToTheRight"
+      "workbench.action.closeEditorsToTheRight",
     );
   });
 

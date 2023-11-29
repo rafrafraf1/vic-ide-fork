@@ -69,7 +69,7 @@ export function parseVicBin(source: string): Result<SrcError[], number[]> {
  */
 export function parseVicBinLine(
   line: string,
-  lineNumber: number
+  lineNumber: number,
 ): Result<SrcError, number | null> {
   const [first, second] = splitWords(line);
 

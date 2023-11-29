@@ -18,7 +18,7 @@ export function isOutputEmpty(output: OutputState): boolean {
 }
 
 export function appendOutput(
-  value: Value
+  value: Value,
 ): (output: OutputState) => OutputState {
   return (output: OutputState) => {
     return {

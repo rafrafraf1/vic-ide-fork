@@ -4,13 +4,13 @@ import { parseVicProgram } from "../../src/common/VicLangParser";
 import { vicAsmLanguageId } from "../ExtManifest";
 
 export function activateVicDocumentHighlightProvider(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
 ): void {
   context.subscriptions.push(
     vscode.languages.registerDocumentHighlightProvider(
       vicAsmLanguageId,
-      new VicDocumentHighlightProvider()
-    )
+      new VicDocumentHighlightProvider(),
+    ),
   );
 }
 
@@ -18,7 +18,7 @@ class VicDocumentHighlightProvider implements vscode.DocumentHighlightProvider {
   provideDocumentHighlights(
     document: vscode.TextDocument,
     position: vscode.Position,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
   ): vscode.ProviderResult<vscode.DocumentHighlight[]> {
     const source = document.getText();
     const parsedProgram = parseVicProgram(source);
@@ -35,9 +35,9 @@ class VicDocumentHighlightProvider implements vscode.DocumentHighlightProvider {
             srcLoc.line,
             srcLoc.startCol,
             srcLoc.line,
-            srcLoc.endCol
-          )
-        )
+            srcLoc.endCol,
+          ),
+        ),
     );
   }
 }

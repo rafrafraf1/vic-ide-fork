@@ -79,7 +79,7 @@ export const HelpSidebar = React.memo(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export const InstructionsHelp = React.memo((): JSX.Element => {
