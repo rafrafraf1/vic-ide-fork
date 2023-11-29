@@ -22,10 +22,10 @@ import {
   vicWebviewPanelType,
   webviewBuildDir,
 } from "../ExtManifest";
-import { AssetManifest } from "./AssetManifest";
 import type { Result } from "../../src/common/Functional/Result";
 import { assertNever } from "assert-never";
 import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+import { loadAssetManifest } from "./AssetManifest";
 import { parseVicBin } from "../../src/common/VicBinParser";
 
 export interface Panel {
@@ -386,12 +386,14 @@ export function genWebviewHtml(
 
   vscode.workspace.fs.readFile(assetMannifestPath).then(
     (contents) => {
-      const assetManifest = AssetManifest.load(contents.toString());
+      const assetManifest = loadAssetManifest(contents.toString());
       /* istanbul ignore next */
-      if (typeof assetManifest === "string") {
-        console.error(`Error loading asset-manifest.json:\n${assetManifest}`);
+      if (assetManifest.kind === "Error") {
+        console.error(
+          `Error loading asset-manifest.json:\n${assetManifest.error}`
+        );
         void vscode.window.showErrorMessage(
-          `Error loading asset-manifest.json:\n${assetManifest}`
+          `Error loading asset-manifest.json:\n${assetManifest.error}`
         );
       } else {
         const nonce = generateSecureNonce();
@@ -401,7 +403,7 @@ export function genWebviewHtml(
           nonce,
           webview.cspSource,
           (u) => webview.asWebviewUri(u),
-          assetManifest,
+          assetManifest.value,
           appState
         );
 
