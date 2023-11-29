@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import type { AppState, SimulatorState } from "./AppState";
 import {
   type DebugState,
   handleDebugMessage,
@@ -21,7 +22,6 @@ import {
   vicWebviewPanelType,
   webviewBuildDir,
 } from "../ExtManifest";
-import type { AppState } from "./AppState";
 import { AssetManifest } from "./AssetManifest";
 import type { Result } from "../../src/common/Functional/Result";
 import { assertNever } from "assert-never";
@@ -331,12 +331,6 @@ function renderVicPanel(
   extensionUri: vscode.Uri,
   appState: AppState | null
 ): void {
-  const assetMannifestPath = vscode.Uri.joinPath(
-    extensionUri,
-    webviewBuildDir,
-    "asset-manifest.json"
-  );
-
   // User closes the VSCode tab containing the panel:
   panel.onDidDispose(() => {
     simulatorManager.panel = null;
@@ -373,6 +367,23 @@ function renderVicPanel(
     handleSimulatorMessage(simulatorManager, message);
   });
 
+  genWebviewHtml(extensionUri, panel.webview, appState, (pageHtml) => {
+    panel.webview.html = pageHtml;
+  });
+}
+
+export function genWebviewHtml(
+  extensionUri: vscode.Uri,
+  webview: vscode.Webview,
+  appState: SimulatorState | null,
+  callback: (pageHtml: string) => void
+): void {
+  const assetMannifestPath = vscode.Uri.joinPath(
+    extensionUri,
+    webviewBuildDir,
+    "asset-manifest.json"
+  );
+
   vscode.workspace.fs.readFile(assetMannifestPath).then(
     (contents) => {
       const assetManifest = AssetManifest.load(contents.toString());
@@ -388,13 +399,13 @@ function renderVicPanel(
         const pageHtml = renderPageHtml(
           extensionUri,
           nonce,
-          panel.webview.cspSource,
-          (u) => panel.webview.asWebviewUri(u),
+          webview.cspSource,
+          (u) => webview.asWebviewUri(u),
           assetManifest,
           appState
         );
 
-        panel.webview.html = pageHtml;
+        callback(pageHtml);
       }
     },
     /* istanbul ignore next */
