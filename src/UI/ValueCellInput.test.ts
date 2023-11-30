@@ -1,4 +1,4 @@
-import { sanitizeValue } from "./ValueCellInput";
+import { sanitizeValue } from "./ValueCellInput/SanitizeValue";
 
 describe("sanitizeValue", () => {
   test("sanitizeValue('')", () => {
