@@ -151,7 +151,7 @@ function countInstructions(statements: Statement[]): CountInstructionsResult {
       }
       case "NullaryInstruction":
         instructionCounter++;
-        if (error == null && instructionCounter > maxNumInstructions) {
+        if (error === null && instructionCounter > maxNumInstructions) {
           error = {
             message: "Too many instructions",
             srcLoc: statement.srcLoc,
@@ -160,7 +160,7 @@ function countInstructions(statements: Statement[]): CountInstructionsResult {
         break;
       case "UnaryInstruction":
         instructionCounter++;
-        if (error == null && instructionCounter > maxNumInstructions) {
+        if (error === null && instructionCounter > maxNumInstructions) {
           error = {
             message: "Too many instructions",
             srcLoc:
