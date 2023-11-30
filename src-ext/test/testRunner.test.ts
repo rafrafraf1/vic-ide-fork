@@ -16,9 +16,9 @@ import { withPersistentStateAvailable } from "./infra/TestPersistence";
  */
 const VSCODE_VERSION = "1.78.2";
 
-const testFiles = new glob.GlobSync("**/**.test.ts", {
+const testFiles = glob.globSync("**/**.test.ts", {
   cwd: path.resolve(__dirname, "../../../src-ext/test/suite/"),
-}).found;
+});
 
 const COVERAGE_REQUESTED: boolean =
   process.env["COVERAGE"] !== undefined && process.env["COVERAGE"] !== "0";
