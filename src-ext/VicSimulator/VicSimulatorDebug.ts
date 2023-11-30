@@ -1,11 +1,12 @@
-import type { AppState, SimulatorState } from "./AppState";
+import { assertNever } from "assert-never";
+
 import type {
   ExtensionDebugMessage,
   SimulatorDebugMessage,
 } from "../../src/common/Vic/MessagesDebug";
-import { type SimulatorManager, webviewPostMessage } from "./VicSimulator";
 import type { SourceFile } from "../../src/common/Vic/SourceFile";
-import { assertNever } from "assert-never";
+import type { AppState, SimulatorState } from "./AppState";
+import { webviewPostMessage, type SimulatorManager } from "./VicSimulator";
 
 export interface DebugState {
   panelReadyListeners: (() => void)[];

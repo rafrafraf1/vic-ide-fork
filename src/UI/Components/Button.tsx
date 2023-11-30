@@ -1,5 +1,7 @@
-import "./Button.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./Button.css";
+
 import * as React from "react";
+
 import classNames from "classnames";
 
 export interface ButtonProps {

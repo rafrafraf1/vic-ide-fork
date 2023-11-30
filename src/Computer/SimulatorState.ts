@@ -1,11 +1,11 @@
+import type { AnimationSpeed } from "../UI/Simulator/AnimationSpeed";
 import {
+  newComputerState,
   type ComputerState,
   type StopResult,
-  newComputerState,
 } from "./Computer";
-import { type InputState, emptyInput } from "./Input";
-import { type OutputState, emptyOutput } from "./Output";
-import type { AnimationSpeed } from "../UI/Simulator/AnimationSpeed";
+import { emptyInput, type InputState } from "./Input";
+import { emptyOutput, type OutputState } from "./Output";
 
 export interface HardwareState {
   computer: ComputerState;

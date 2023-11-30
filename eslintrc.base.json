@@ -1,7 +1,6 @@
 {
     "extends": [
         "eslint:recommended",
-        "plugin:import/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:@typescript-eslint/strict",
@@ -30,11 +29,10 @@
         "@typescript-eslint/method-signature-style": "warn",
         "@typescript-eslint/no-confusing-void-expression": "warn",
         "@typescript-eslint/no-dupe-class-members": "warn",
-        "@typescript-eslint/no-duplicate-imports": "warn",
         "@typescript-eslint/no-empty-function": "warn",
         "@typescript-eslint/no-empty-interface": "warn",
         "@typescript-eslint/no-implicit-any-catch": "warn",
-        "@typescript-eslint/no-import-type-side-effects": "warn",
+        "@typescript-eslint/no-import-type-side-effects": "off",
         "@typescript-eslint/no-inferrable-types": [
             "warn",
             {
@@ -129,7 +127,6 @@
         "prefer-rest-params": "warn",
         "prefer-spread": "warn",
         "prefer-template": "warn",
-        "radix": "warn",
-        "sort-imports": "warn"
+        "radix": "warn"
     }
 }

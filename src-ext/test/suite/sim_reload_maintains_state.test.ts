@@ -1,16 +1,18 @@
-import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "../infra/test_bootstrap";
 
 import * as assert from "assert";
+
 import * as vscode from "vscode";
+
+import { getSimulatorManager } from "../../extension";
+import { vicOpenSimulatorCommand } from "../../ExtManifest";
 import {
   simulatorGetState,
   simulatorSetCpuRegisters,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
-import { getSimulatorManager } from "../../extension";
-import { step } from "../infra/TestSteps";
 import { testCaseWithWindowReloads } from "../infra/TestCaseWithWindowReloads";
-import { vicOpenSimulatorCommand } from "../../ExtManifest";
+import { step } from "../infra/TestSteps";
 
 export const run = testCaseWithWindowReloads(
   async (reloadWindow) => {

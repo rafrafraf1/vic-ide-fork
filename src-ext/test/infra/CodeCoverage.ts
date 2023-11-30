@@ -1,7 +1,9 @@
-import * as NYC from "nyc";
-import * as mkdirp from "make-dir";
 import * as path from "path";
+
+import * as mkdirp from "make-dir";
+import * as NYC from "nyc";
 import * as rimraf from "rimraf";
+
 import { NYC_TEMP_DIRECTORY } from "../../code_coverage_support";
 
 // Technique for getting code coverage adapted from:

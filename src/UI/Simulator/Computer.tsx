@@ -1,35 +1,38 @@
-import "./Computer.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./Computer.css";
+
 import * as React from "react";
+
+import { assertNever } from "assert-never";
+import classNames from "classnames";
+import { VscTrash } from "react-icons/vsc";
+
+import {
+  MEMORY_READONLY_REGION,
+  memoryRead,
+  type ComputerState,
+  type MemoryCell,
+  type StopResult,
+} from "../../Computer/Computer";
+import type { CpuState } from "../../Computer/CpuState";
+import {
+  emptyInput,
+  isEmptyInput,
+  type InputState,
+} from "../../Computer/Input";
+import type { Address } from "../../Computer/Instruction";
+import { isOutputEmpty, type OutputState } from "../../Computer/Output";
+import type { Value } from "../../Computer/Value";
+import { nonNull } from "../../Functional/Nullability";
+import { Button, ButtonLabel } from "../Components/Button";
+import type { UIStrings } from "../UIStrings";
 import {
   BlankableValueCellInput,
   ValueCellInput,
   type ValueCellInputHandle,
 } from "../ValueCellInput";
-import { Button, ButtonLabel } from "../Components/Button";
-import {
-  type ComputerState,
-  MEMORY_READONLY_REGION,
-  type MemoryCell,
-  type StopResult,
-  memoryRead,
-} from "../../Computer/Computer";
-import { Input, type InputHandle } from "./Input";
-import {
-  type InputState,
-  emptyInput,
-  isEmptyInput,
-} from "../../Computer/Input";
-import { Output, type OutputHandle } from "./Output";
-import { type OutputState, isOutputEmpty } from "../../Computer/Output";
-import type { Address } from "../../Computer/Instruction";
-import type { CpuState } from "../../Computer/CpuState";
 import { CpuStatus } from "./CpuStatus";
-import type { UIStrings } from "../UIStrings";
-import type { Value } from "../../Computer/Value";
-import { VscTrash } from "react-icons/vsc";
-import { assertNever } from "assert-never";
-import classNames from "classnames";
-import { nonNull } from "../../Functional/Nullability";
+import { Input, type InputHandle } from "./Input";
+import { Output, type OutputHandle } from "./Output";
 
 export type UICell =
   | UICell.CpuRegister

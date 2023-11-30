@@ -1,9 +1,10 @@
-import * as vscode from "vscode";
-import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
-import type { SrcError } from "../../src/common/SrcError";
 import { assertNever } from "assert-never";
-import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+import * as vscode from "vscode";
+
+import type { SrcError } from "../../src/common/SrcError";
 import { parseVicBin } from "../../src/common/VicBinParser";
+import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
 
 const vicDiagnosticsName = "vic";
 

@@ -1,7 +1,7 @@
 import {
-  type Instruction,
   assembleInstruction,
   parseInstruction,
+  type Instruction,
 } from "./Instruction";
 
 describe("Instruction parsing", () => {

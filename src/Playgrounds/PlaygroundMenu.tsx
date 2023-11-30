@@ -1,11 +1,14 @@
-import "./PlaygroundMenu.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./PlaygroundMenu.css";
+
 import * as React from "react";
+
+import { assertNever } from "assert-never";
+
 import { Button, ButtonLabel } from "../UI/Components/Button";
-import { EnglishStrings } from "../UI/UIStrings";
 import { ThemeSwitcher } from "../UI/Toolbar";
+import { EnglishStrings } from "../UI/UIStrings";
 import { ToolbarPlayground } from "./ToolbarPlayground";
 import { ValueCellInputPlayground } from "./ValueCellInputPlayground";
-import { assertNever } from "assert-never";
 
 type Playground = "None" | "ValueCellInputPlayground" | "ToolbarPlayground";
 

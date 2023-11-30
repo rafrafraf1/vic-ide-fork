@@ -1,4 +1,5 @@
 import * as fs from "fs";
+
 import * as tmp from "tmp";
 
 const STATE_FILE_ENV_VAR = "VIC_IDE_TEST_STATE_FILE";

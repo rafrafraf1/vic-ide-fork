@@ -1,6 +1,7 @@
-import { type SrcLoc, type SrcPos, srcPosWithinSrcLoc } from "./SrcLoc";
-import { type Statement, instructionArgKind } from "./VicLangParser";
 import { assertNever } from "assert-never";
+
+import { srcPosWithinSrcLoc, type SrcLoc, type SrcPos } from "./SrcLoc";
+import { instructionArgKind, type Statement } from "./VicLangParser";
 
 /**
  * Get the location of all the occurences of a symbol.

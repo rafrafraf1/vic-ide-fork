@@ -1,38 +1,41 @@
-import "./Toolbar.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./Toolbar.css";
+
 import * as React from "react";
+
+import Tippy, { useSingleton, type TippyProps } from "@tippyjs/react";
+import { assertNever } from "assert-never";
+import classNames from "classnames";
+import type { IconType } from "react-icons";
 import { BsCpu, BsHourglass } from "react-icons/bs";
-import { Button, ButtonLabel } from "./Components/Button";
-import {
-  type DemoTheme,
-  type ThemeChangeListener,
-  getCurrentTheme,
-  nextTheme,
-  registerThemeChangeListener,
-  setCurrentTheme,
-  unregisterThemeChangeListener,
-} from "../System/DemoTheme";
-import {
-  type SimulationState,
-  simulationActive,
-} from "./Simulator/SimulationState";
-import Tippy, { type TippyProps, useSingleton } from "@tippyjs/react";
+import { FaFileUpload } from "react-icons/fa";
+import { MdErrorOutline } from "react-icons/md";
+import { RiRewindMiniFill } from "react-icons/ri";
 import {
   VscDebugContinue,
   VscDebugStart,
   VscDebugStop,
   VscQuestion,
 } from "react-icons/vsc";
-import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
-import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
-import { FaFileUpload } from "react-icons/fa";
-import type { IconType } from "react-icons";
-import { MdErrorOutline } from "react-icons/md";
-import { MenuButton } from "./Components/MenuButton";
-import { RiRewindMiniFill } from "react-icons/ri";
+
 import type { SourceFile } from "../common/Vic/SourceFile";
+import {
+  getCurrentTheme,
+  nextTheme,
+  registerThemeChangeListener,
+  setCurrentTheme,
+  unregisterThemeChangeListener,
+  type DemoTheme,
+  type ThemeChangeListener,
+} from "../System/DemoTheme";
+import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
+import { Button, ButtonLabel } from "./Components/Button";
+import { MenuButton } from "./Components/MenuButton";
+import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
+import {
+  simulationActive,
+  type SimulationState,
+} from "./Simulator/SimulationState";
 import type { UIStrings } from "./UIStrings";
-import { assertNever } from "assert-never";
-import classNames from "classnames";
 
 interface ToolbarProps {
   className?: string;

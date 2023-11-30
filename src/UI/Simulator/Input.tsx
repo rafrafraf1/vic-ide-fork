@@ -1,15 +1,18 @@
-import "./Input.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./Input.css";
+
 import * as React from "react";
+
+import { VscArrowCircleRight } from "react-icons/vsc";
+
+import { atEndOfInput, type InputState } from "../../Computer/Input";
+import type { Value } from "../../Computer/Value";
+import { nonNull } from "../../Functional/Nullability";
+import { usePrevious } from "../ReactHooks/UsePrevious";
 import {
   BlankableValueCellInput,
   ValueCellInput,
   type ValueCellInputHandle,
 } from "../ValueCellInput";
-import { type InputState, atEndOfInput } from "../../Computer/Input";
-import type { Value } from "../../Computer/Value";
-import { VscArrowCircleRight } from "react-icons/vsc";
-import { nonNull } from "../../Functional/Nullability";
-import { usePrevious } from "../ReactHooks/UsePrevious";
 
 export interface InputHandle {
   /**

@@ -1,4 +1,4 @@
-import { type ParseLineResult, parseLine } from "./VicLangLineParser";
+import { parseLine, type ParseLineResult } from "./VicLangLineParser";
 
 describe("parseLine success", () => {
   test("empty string", () => {

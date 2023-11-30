@@ -1,4 +1,4 @@
-import { type FormattingOptions, formatVicLine } from "./VicLangFormatter";
+import { formatVicLine, type FormattingOptions } from "./VicLangFormatter";
 
 const defaultOptions: FormattingOptions = {
   tabSize: 4,

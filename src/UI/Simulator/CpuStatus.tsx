@@ -1,9 +1,12 @@
-import "./CpuStatus.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./CpuStatus.css";
+
 import * as React from "react";
-import type { CpuState } from "../../Computer/CpuState";
-import type { StopResult } from "../../Computer/Computer";
-import type { UIStrings } from "../UIStrings";
+
 import { assertNever } from "assert-never";
+
+import type { StopResult } from "../../Computer/Computer";
+import type { CpuState } from "../../Computer/CpuState";
+import type { UIStrings } from "../UIStrings";
 
 export interface CpuStatusProps {
   uiString: UIStrings;

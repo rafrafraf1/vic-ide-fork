@@ -1,6 +1,6 @@
 import type { SrcLoc, SrcPos } from "./SrcLoc";
-import { getHighlights } from "./VicLangSrcAnalysis";
 import { parseVicProgram } from "./VicLangParser";
+import { getHighlights } from "./VicLangSrcAnalysis";
 
 /**
  * Helper function for parsing and highlighting a source program.

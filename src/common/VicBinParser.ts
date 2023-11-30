@@ -1,7 +1,8 @@
+import { assertNever } from "assert-never";
+
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
 import type { SrcLoc } from "./SrcLoc";
-import { assertNever } from "assert-never";
 
 /**
  * The maximum size of a program.

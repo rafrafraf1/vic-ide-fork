@@ -1,7 +1,10 @@
-import "./HelpScreen.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./HelpScreen.css";
+
 import * as React from "react";
-import { Button, ButtonLabel } from "./Components/Button";
+
 import { VscClose, VscPin, VscPinned } from "react-icons/vsc";
+
+import { Button, ButtonLabel } from "./Components/Button";
 
 export interface HelpScreenProps {
   onCloseClick?: () => void;

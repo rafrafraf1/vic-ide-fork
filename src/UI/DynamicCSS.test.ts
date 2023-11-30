@@ -1,5 +1,6 @@
 import * as crypto from "crypto";
-import { type CSS, css, withDynamicCSS } from "./DynamicCSS";
+
+import { css, withDynamicCSS, type CSS } from "./DynamicCSS";
 
 describe("DynamicCSS css tag", () => {
   test("css empty", () => {

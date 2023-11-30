@@ -1,7 +1,8 @@
 import * as vscode from "vscode";
-import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
+
 import { formatVicBinLine } from "../../src/common/VicBinFormatter";
 import { formatVicLine } from "../../src/common/VicLangFormatter";
+import { vicAsmLanguageId, vicBinLanguageId } from "../ExtManifest";
 
 export function activateVicFormatter(context: vscode.ExtensionContext): void {
   context.subscriptions.push(

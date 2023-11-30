@@ -1,7 +1,8 @@
-import * as React from "react";
-import { BlankableValueCellInput, ValueCellInput } from "../UI/ValueCellInput";
 import type { ChangeEvent } from "react";
+import * as React from "react";
+
 import type { Value } from "../Computer/Value";
+import { BlankableValueCellInput, ValueCellInput } from "../UI/ValueCellInput";
 
 export function ValueCellInputPlayground(): JSX.Element {
   return (

@@ -1,8 +1,9 @@
-import { type ComputerState, readMemory } from "../../Computer/Computer";
-import type { UICell } from "../Simulator/Computer";
-import type { Value } from "../../Computer/Value";
 import { assertNever } from "assert-never";
+
+import { readMemory, type ComputerState } from "../../Computer/Computer";
 import { parseInstruction } from "../../Computer/Instruction";
+import type { Value } from "../../Computer/Value";
+import type { UICell } from "../Simulator/Computer";
 
 export interface ComputerAnimation {
   start: UICell;

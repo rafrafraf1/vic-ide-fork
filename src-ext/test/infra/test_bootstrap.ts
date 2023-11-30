@@ -3,12 +3,12 @@
 //
 // This is needed so that it shows the TypeScript source file, instead of the
 // compiled JavaScript file.
-import "source-map-support/register"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "source-map-support/register"; //
 
 // Import the extension early on, so that the code coverage system will be
 // initialized (The extension module initializes the code coverage system by
 // importing "code_coverage_init").
-import "../../extension"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "../../extension"; //
 
 // This is checked in the `testCase` function to make sure that the test file
 // imported "test_bootstrap" (this file).

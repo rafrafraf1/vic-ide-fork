@@ -1,6 +1,6 @@
 import {
-  type HardwareState,
   newHardwareState,
+  type HardwareState,
 } from "../Computer/SimulatorState";
 import type { Value } from "../Computer/Value";
 import { examplePrograms } from "./Examples";

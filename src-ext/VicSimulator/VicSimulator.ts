@@ -1,20 +1,14 @@
+import { assertNever } from "assert-never";
 import * as vscode from "vscode";
-import type { AppState, SimulatorState } from "./AppState";
-import {
-  type DebugState,
-  handleDebugMessage,
-  initDebugState,
-} from "./VicSimulatorDebug";
-import {
-  type DiagnosticsService,
-  getTextDocumentHasErrors,
-} from "../VicLanguageFeatures/VicDiagnostics";
+
+import type { Result } from "../../src/common/Functional/Result";
 import type {
   ExtensionMessage,
   SimulatorMessage,
 } from "../../src/common/Vic/Messages";
 import type { SourceFile, SourceFileId } from "../../src/common/Vic/SourceFile";
-import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
+import { parseVicBin } from "../../src/common/VicBinParser";
+import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
 import {
   vicAsmLanguageId,
   vicBinLanguageId,
@@ -22,11 +16,18 @@ import {
   vicWebviewPanelType,
   webviewBuildDir,
 } from "../ExtManifest";
-import type { Result } from "../../src/common/Functional/Result";
-import { assertNever } from "assert-never";
-import { compileVicProgram } from "../../src/common/VicLangFullCompiler";
+import {
+  getTextDocumentHasErrors,
+  type DiagnosticsService,
+} from "../VicLanguageFeatures/VicDiagnostics";
+import type { AppState, SimulatorState } from "./AppState";
 import { loadAssetManifest } from "./AssetManifest";
-import { parseVicBin } from "../../src/common/VicBinParser";
+import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
+import {
+  handleDebugMessage,
+  initDebugState,
+  type DebugState,
+} from "./VicSimulatorDebug";
 
 export interface Panel {
   webviewPanel: vscode.WebviewPanel;

@@ -1,5 +1,6 @@
-import type { SimulatorMessage } from "../common/Vic/Messages";
 import type { WebviewApi } from "vscode-webview";
+
+import type { SimulatorMessage } from "../common/Vic/Messages";
 
 /**
  * A service for communicating with the VS Code extension code that houses the

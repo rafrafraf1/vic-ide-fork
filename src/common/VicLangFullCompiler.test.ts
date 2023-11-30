@@ -1,9 +1,9 @@
-import {
-  type VicCompileResult,
-  compileVicProgram,
-} from "./VicLangFullCompiler";
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
+import {
+  compileVicProgram,
+  type VicCompileResult,
+} from "./VicLangFullCompiler";
 
 describe("compileVicProgram success", () => {
   test("empty string", () => {

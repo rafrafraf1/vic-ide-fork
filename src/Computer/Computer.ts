@@ -1,7 +1,8 @@
-import { type Address, parseInstruction } from "./Instruction";
-import type { Value } from "./Value";
 import { assertNever } from "assert-never";
+
 import { compose } from "../Functional/Compose";
+import { parseInstruction, type Address } from "./Instruction";
+import type { Value } from "./Value";
 
 export type Register = Value;
 

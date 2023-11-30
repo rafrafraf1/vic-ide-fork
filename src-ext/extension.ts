@@ -1,20 +1,21 @@
-import "./code_coverage_init"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./code_coverage_init";
 
 import type * as vscode from "vscode";
-import {
-  type SimulatorManager,
-  activateVicSimulator,
-  createSimulatorManager,
-} from "./VicSimulator/VicSimulator";
+
+import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
+import { activateVicDebugAdapter } from "./VicLanguageFeatures/VicDebugAdapter";
 import {
   activateDiagnosticsService,
   createDiagnosticsService,
 } from "./VicLanguageFeatures/VicDiagnostics";
-import { activateVicCompletionItemProvider } from "./VicLanguageFeatures/VicCompletionItemProvider";
-import { activateVicDebugAdapter } from "./VicLanguageFeatures/VicDebugAdapter";
 import { activateVicDocumentHighlightProvider } from "./VicLanguageFeatures/VicDocumentHighlightProvider";
 import { activateVicFormatter } from "./VicLanguageFeatures/VicFormatter";
 import { activateVicHoverProvider } from "./VicLanguageFeatures/VicHoverProvider";
+import {
+  activateVicSimulator,
+  createSimulatorManager,
+  type SimulatorManager,
+} from "./VicSimulator/VicSimulator";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed

@@ -1,12 +1,14 @@
-import * as glob from "glob";
 import * as path from "path";
+
+import { runTests } from "@vscode/test-electron";
+import * as glob from "glob";
+
+import { ENABLE_COVERAGE_ENV_VAR } from "../code_coverage_support";
 import {
   resetCodeCoverageDirectory,
   writeCodeCoverageReport,
 } from "./infra/CodeCoverage";
-import { ENABLE_COVERAGE_ENV_VAR } from "../code_coverage_support";
 import { TESTS_TIMEOUT } from "./infra/Config";
-import { runTests } from "@vscode/test-electron";
 import { withPersistentStateAvailable } from "./infra/TestPersistence";
 
 /**

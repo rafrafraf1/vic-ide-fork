@@ -1,66 +1,69 @@
-import "./App.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./App.css";
+
 import * as React from "react";
+
+import { assertNever } from "assert-never";
+
+import type { ExtensionMessage } from "./common/Vic/Messages";
+import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
+import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
 import {
-  type AnimationSpeed,
-  animationSpeedDuration,
-} from "./UI/Simulator/AnimationSpeed";
-import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
-import {
-  type ComputerState,
-  type StopResult,
   executeInstruction,
   fetchInstruction,
   setDataRegister,
   setInstructionRegister,
   setProgramCounter,
   writeMemory,
+  type ComputerState,
+  type StopResult,
 } from "./Computer/Computer";
+import type { CpuState } from "./Computer/CpuState";
 import {
-  type HardwareState,
-  type HelpScreenState,
-  type SimulatorState,
-  newSimulatorState,
-} from "./Computer/SimulatorState";
-import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
-import {
-  type InputState,
   atBeginningOfInput,
   consumeInput,
   readNextInput,
   rewindInput,
+  type InputState,
 } from "./Computer/Input";
+import type { Address } from "./Computer/Instruction";
 import {
-  type OutputState,
   appendOutput,
   emptyOutput,
   isOutputEmpty,
+  type OutputState,
 } from "./Computer/Output";
+import { loadProgram } from "./Computer/Program";
 import {
-  type SimulationState,
-  simulationActive,
-} from "./UI/Simulator/SimulationState";
-import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
+  newSimulatorState,
+  type HardwareState,
+  type HelpScreenState,
+  type SimulatorState,
+} from "./Computer/SimulatorState";
+import type { Value } from "./Computer/Value";
 import {
   getExampleProgramNames,
   loadExampleProgram,
   lookupExampleProgram,
 } from "./Examples/ExampleProgram";
-import type { Address } from "./Computer/Instruction";
-import type { CpuState } from "./Computer/CpuState";
-import { EnglishStrings } from "./UI/UIStrings";
-import type { ExtensionBridge } from "./System/ExtensionBridge";
-import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
-import type { ExtensionMessage } from "./common/Vic/Messages";
-import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
-import { Toolbar } from "./UI/Toolbar";
-import type { Value } from "./Computer/Value";
-import { assertNever } from "assert-never";
-import { loadProgram } from "./Computer/Program";
-import { nextInstructionAnimation } from "./UI/Simulator/Animations";
 import { nonNull } from "./Functional/Nullability";
-import { useAnimate } from "./UI/UseAnimate";
+import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
+import type { ExtensionBridge } from "./System/ExtensionBridge";
+import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
 import { useEvents } from "./UI/ReactHooks/UseEvents";
 import { useWindowMessages } from "./UI/ReactHooks/UseWindowMessages";
+import { nextInstructionAnimation } from "./UI/Simulator/Animations";
+import {
+  animationSpeedDuration,
+  type AnimationSpeed,
+} from "./UI/Simulator/AnimationSpeed";
+import { Computer, type ComputerHandle } from "./UI/Simulator/Computer";
+import {
+  simulationActive,
+  type SimulationState,
+} from "./UI/Simulator/SimulationState";
+import { Toolbar } from "./UI/Toolbar";
+import { EnglishStrings } from "./UI/UIStrings";
+import { useAnimate } from "./UI/UseAnimate";
 
 export interface AppProps {
   extensionBridge: ExtensionBridge<SimulatorState>;

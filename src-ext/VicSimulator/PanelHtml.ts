@@ -1,8 +1,10 @@
 import * as crypto from "crypto";
+
 import * as vscode from "vscode";
+
+import { webviewBuildDir } from "../ExtManifest";
 import type { AppState } from "./AppState";
 import type { AssetManifest } from "./AssetManifest";
-import { webviewBuildDir } from "../ExtManifest";
 
 /**
  * Renders the HTML page for the Vic-IDE web panel.

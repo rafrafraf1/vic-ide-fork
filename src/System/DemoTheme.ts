@@ -1,5 +1,6 @@
-import { IS_DEMO_ENVIRONMENT } from "./Environment";
 import { assertNever } from "assert-never";
+
+import { IS_DEMO_ENVIRONMENT } from "./Environment";
 
 /**
  * The color themes that are available in demo mode (Dark mode / Light mode).

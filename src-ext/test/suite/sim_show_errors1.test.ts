@@ -1,18 +1,20 @@
-import "../infra/test_bootstrap"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "../infra/test_bootstrap";
 
 import * as assert from "assert";
+
 import * as vscode from "vscode";
+
+import { getSimulatorManager } from "../../extension";
+import { vicAsmLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
+import { simulatorTabTitle } from "../../VicSimulator/VicSimulator";
 import {
   simulatorDoShowErrorsClick,
   simulatorGetSourceFile,
   waitForSimulatorReady,
 } from "../../VicSimulator/VicSimulatorDebug";
-import { vicAsmLanguageId, vicOpenSimulatorCommand } from "../../ExtManifest";
-import { getSimulatorManager } from "../../extension";
-import { simulatorTabTitle } from "../../VicSimulator/VicSimulator";
+import { testCase } from "../infra/TestCase";
 import { step } from "../infra/TestSteps";
 import { tabGroupView } from "../infra/VSCodeHelpers";
-import { testCase } from "../infra/TestCase";
 
 export const run = testCase(async (): Promise<void> => {
   await step("Open Text Document (with error)", async () => {

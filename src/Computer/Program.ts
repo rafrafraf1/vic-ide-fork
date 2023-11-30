@@ -1,11 +1,11 @@
 import {
-  type ComputerState,
-  WRITABLE_MEMORY_SIZE,
   newComputerState,
+  WRITABLE_MEMORY_SIZE,
+  type ComputerState,
 } from "./Computer";
+import { emptyOutput } from "./Output";
 import type { HardwareState } from "./SimulatorState";
 import { assertValidValue } from "./Value";
-import { emptyOutput } from "./Output";
 
 /**
  * Loads a program into the Computer hardware.

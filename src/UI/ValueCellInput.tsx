@@ -1,11 +1,14 @@
-import "./ValueCellInput.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./ValueCellInput.css";
+
 import * as React from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { type FocusableElement, tabbable } from "tabbable";
-import Tippy from "@tippyjs/react";
-import type { Value } from "../Computer/Value";
-import classNames from "classnames";
+
 import { hide } from "@popperjs/core";
+import Tippy from "@tippyjs/react";
+import classNames from "classnames";
+import { tabbable, type FocusableElement } from "tabbable";
+
+import type { Value } from "../Computer/Value";
 import { nonNull } from "../Functional/Nullability";
 
 export interface ValueCellInputHandle {

@@ -1,11 +1,12 @@
+import { assertNever } from "assert-never";
 import * as vscode from "vscode";
+
+import { vicOpenSimulatorCommand } from "../ExtManifest";
 import {
-  type SimulatorManager,
   compileTextDocument,
   webviewPostMessage,
+  type SimulatorManager,
 } from "../VicSimulator/VicSimulator";
-import { assertNever } from "assert-never";
-import { vicOpenSimulatorCommand } from "../ExtManifest";
 
 export function activateVicDebugAdapter(
   context: vscode.ExtensionContext,

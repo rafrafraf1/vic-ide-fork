@@ -1,6 +1,6 @@
-import { parseVicBin, parseVicBinLine } from "./VicBinParser";
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
+import { parseVicBin, parseVicBinLine } from "./VicBinParser";
 
 describe("parseVicBinLine success", () => {
   test("empty string", () => {

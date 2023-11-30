@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+
 import { SLOW_TESTS_ENABLED } from "./Config";
 import { delay } from "./Delay";
 

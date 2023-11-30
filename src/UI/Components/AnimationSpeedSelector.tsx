@@ -1,8 +1,11 @@
-import "./AnimationSpeedSelector.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./AnimationSpeedSelector.css";
+
 import * as React from "react";
+
+import classNames from "classnames";
+
 import type { AnimationSpeed } from "../Simulator/AnimationSpeed";
 import type { UIStrings } from "../UIStrings";
-import classNames from "classnames";
 
 export interface AnimationSpeedSelectorProps {
   className?: string;

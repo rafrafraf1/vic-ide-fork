@@ -1,7 +1,7 @@
-import { type Statement, parseVicProgram } from "./VicLangParser";
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
 import { assembleVicProgram } from "./VicLangAssembler";
+import { parseVicProgram, type Statement } from "./VicLangParser";
 
 export interface VicCompileResult {
   statements: Statement[];

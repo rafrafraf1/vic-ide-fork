@@ -1,11 +1,13 @@
 import * as React from "react";
+
+import classNames from "classnames";
+
 import {
-  type DynamicCSS,
-  type RegisteredDynCSS,
   css,
   withDynamicCSS,
+  type DynamicCSS,
+  type RegisteredDynCSS,
 } from "./DynamicCSS";
-import classNames from "classnames";
 
 export interface Animation {
   /**

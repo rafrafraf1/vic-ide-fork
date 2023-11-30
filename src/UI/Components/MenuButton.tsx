@@ -1,4 +1,5 @@
-import "./MenuButton.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "./MenuButton.css";
+
 import * as React from "react";
 import type { ChangeEvent } from "react";
 

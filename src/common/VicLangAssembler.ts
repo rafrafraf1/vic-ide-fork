@@ -1,7 +1,8 @@
-import type { Arg, Statement } from "./VicLangParser";
+import { assertNever } from "assert-never";
+
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
-import { assertNever } from "assert-never";
+import type { Arg, Statement } from "./VicLangParser";
 
 export function assembleVicProgram(
   statements: Statement[],

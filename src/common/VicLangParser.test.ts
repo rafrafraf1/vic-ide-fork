@@ -1,4 +1,4 @@
-import { type VicParsedProgram, parseVicProgram } from "./VicLangParser";
+import { parseVicProgram, type VicParsedProgram } from "./VicLangParser";
 
 describe("parseVicProgram success", () => {
   test("empty string", () => {

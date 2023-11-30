@@ -1,12 +1,13 @@
+import { assertNever } from "assert-never";
+
+import type { SrcError } from "./SrcError";
 import {
+  instructionArgKind,
   type Arg,
   type NullaryInstructionType,
   type Statement,
   type UnaryInstructionType,
-  instructionArgKind,
 } from "./VicLangParser";
-import type { SrcError } from "./SrcError";
-import { assertNever } from "assert-never";
 
 export interface ParseLineResult {
   /**

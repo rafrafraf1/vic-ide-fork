@@ -1,13 +1,16 @@
-import "modern-css-reset"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
-import "./index.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
-import "tippy.js/dist/tippy.css"; // eslint-disable-line @typescript-eslint/no-import-type-side-effects
+import "modern-css-reset";
+import "tippy.js/dist/tippy.css";
+import "./index.css";
+
 import * as React from "react";
-import App from "./App";
-import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";
+
 import ReactDOM from "react-dom/client";
+
+import App from "./App";
 import type { SimulatorState } from "./Computer/SimulatorState";
-import { getExtensionBridge } from "./System/ExtensionBridge";
+import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";
 import reportWebVitals from "./reportWebVitals";
+import { getExtensionBridge } from "./System/ExtensionBridge";
 
 function getRequiredElement(elementId: string): HTMLElement {
   const rootElem = document.getElementById(elementId);

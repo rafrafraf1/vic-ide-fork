@@ -1,6 +1,7 @@
+import { assertNever } from "assert-never";
+
 import type { SrcError } from "./SrcError";
 import type { SrcLoc } from "./SrcLoc";
-import { assertNever } from "assert-never";
 import { parseLine } from "./VicLangLineParser";
 
 /**
