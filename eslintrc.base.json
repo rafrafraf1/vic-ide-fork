@@ -10,9 +10,7 @@
   "rules": {
     "@typescript-eslint/consistent-type-exports": [
       "warn",
-      {
-        "fixMixedExportsWithInlineTypeSpecifier": true
-      }
+      { "fixMixedExportsWithInlineTypeSpecifier": true }
     ],
     "@typescript-eslint/consistent-type-imports": [
       "warn",
@@ -35,9 +33,7 @@
     "@typescript-eslint/no-import-type-side-effects": "off",
     "@typescript-eslint/no-inferrable-types": [
       "warn",
-      {
-        "ignoreParameters": true
-      }
+      { "ignoreParameters": true }
     ],
     "@typescript-eslint/no-invalid-this": "warn",
     "@typescript-eslint/no-namespace": "off",
@@ -81,8 +77,8 @@
     "no-constant-binary-expression": "warn",
     "no-div-regex": "warn",
     "no-duplicate-imports": "warn",
-    "no-empty": "warn",
     "no-empty-function": "warn",
+    "no-empty": "warn",
     "no-eval": "warn",
     "no-extra-label": "warn",
     "no-floating-decimal": "warn",
