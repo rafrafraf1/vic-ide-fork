@@ -27,13 +27,15 @@ export class AssetManifest {
  *
  *   - "cra": create-react-app <https://create-react-app.dev/>
  */
-const FRAMEWORK = "cra" as string;
+const FRAMEWORK = "vite" as string;
 
 export function loadAssetManifest(
   fileContents: string,
 ): Result<string, AssetManifest> {
   if (FRAMEWORK === "cra") {
     return loadCraAssetManifest(fileContents);
+  } else if (FRAMEWORK === "vite") {
+    return loadViteAssetManifest(fileContents);
   } else {
     throw new Error(`Unknown FRAMEWORK: ${FRAMEWORK}`);
   }
@@ -131,6 +133,119 @@ function loadCraEntrypoints(json: object): Result<string, string[]> {
     }
     result.push(entrypoint);
   }
+  return {
+    kind: "Ok",
+    value: result,
+  };
+}
+
+export function loadViteAssetManifest(
+  fileContents: string,
+): Result<string, AssetManifest> {
+  let json: unknown;
+  try {
+    json = JSON.parse(fileContents);
+  } catch (err: unknown) {
+    return {
+      kind: "Error",
+      error: `Error parsing JSON: ${err as string}`,
+    };
+  }
+  if (Array.isArray(json)) {
+    return {
+      kind: "Error",
+      error: `Expected JSON object, got array: ${json as unknown as string}`,
+    };
+  }
+  if (typeof json !== "object" || json === null) {
+    return {
+      kind: "Error",
+      error: `Error parsing JSON: ${json as string}`,
+    };
+  }
+
+  if (!("index.html" in json)) {
+    return {
+      kind: "Error",
+      error: 'Missing key: "index.html"',
+    };
+  }
+
+  const index = json["index.html"];
+
+  if (index === null || typeof index !== "object" || Array.isArray(index)) {
+    return {
+      kind: "Error",
+      error: `Invalid value for "files": ${index as string}`,
+    };
+  }
+
+  const file = loadViteFile(index);
+  if (file.kind === "Error") {
+    return file;
+  }
+
+  const css = loadViteCss(index);
+  if (css.kind === "Error") {
+    return css;
+  }
+
+  const entryPoints = [file.value].concat(css.value);
+
+  return {
+    kind: "Ok",
+    value: new AssetManifest(new Map(), entryPoints),
+  };
+}
+
+function loadViteFile(index: object): Result<string, string> {
+  if (!("file" in index)) {
+    return {
+      kind: "Error",
+      error: 'Missing key: "file"',
+    };
+  }
+  const file = index.file;
+  if (typeof file !== "string") {
+    return {
+      kind: "Error",
+      error: `Invalid value for key "file": ${file as string}`,
+    };
+  }
+
+  return {
+    kind: "Ok",
+    value: file,
+  };
+}
+
+function loadViteCss(index: object): Result<string, string[]> {
+  if (!("css" in index)) {
+    return {
+      kind: "Ok",
+      value: [],
+    };
+  }
+
+  if (!Array.isArray(index.css)) {
+    return {
+      kind: "Error",
+      error: `Invalid value for "css": ${index.css as string}`,
+    };
+  }
+
+  const result: string[] = [];
+
+  for (const css of index.css) {
+    if (typeof css !== "string") {
+      return {
+        kind: "Error",
+        error: `Invalid "css": ${css as string}`,
+      };
+    }
+    result.push(css);
+  }
+
   return {
     kind: "Ok",
     value: result,

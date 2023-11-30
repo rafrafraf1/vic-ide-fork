@@ -39,7 +39,7 @@ describe("Vic IDE Extension Test Suite", () => {
   }
 
   for (const testFile of testFiles) {
-    // eslint-disable-next-line jest/valid-title
+    // eslint-disable-next-line jest/valid-title, jest/expect-expect
     test(testFile, async () => {
       // Output a banner so the test can be identified:
       console.log(

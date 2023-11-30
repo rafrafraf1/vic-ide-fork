@@ -3,4 +3,5 @@
  * true.
  */
 export const IS_DEMO_ENVIRONMENT =
-  process.env.NODE_ENV !== "test" && !("acquireVsCodeApi" in window);
+  (typeof process === "undefined" || process.env["NODE_ENV"] !== "test") &&
+  !("acquireVsCodeApi" in window);

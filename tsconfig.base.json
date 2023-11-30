@@ -3,14 +3,13 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "exactOptionalPropertyTypes": false,
-    "importsNotUsedAsValues": "error",
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "useUnknownInCatchVariables": true,
-    // "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true,
     "isolatedModules": true
   }
 }
