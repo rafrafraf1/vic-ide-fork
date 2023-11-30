@@ -98,8 +98,8 @@ After you fix the errors, the "Load" button will succeed.
 
 ## More Tips
 
-  - The "Help" button in the Vic Simulator toolbar opens a help window with the list of all Vic instructions. You can pin it to the side to keep it open as you work.
-  - You can also hover over errors with your mouse and a tooltip will popup giving you the error detail.
-  - You can also open the Vic Simulator, and load the current program into it by using the menu item "Run" → "Start Debugging" (or keyboard shortcut `F5`)
-  - You can automatically fix the indentation of your Vic source files by running the command "Format Document" (from the command palette, or from the right-click menu).
-  - VS Code contains built-in source control tools using Git. You can access these from "View" → "Source Control". This can help you keep track of changes that you make to your source files, as well as allow collaboration between multiple people. See: [Using Git source control in VS Code](https://code.visualstudio.com/docs/sourcecontrol/overview)
+- The "Help" button in the Vic Simulator toolbar opens a help window with the list of all Vic instructions. You can pin it to the side to keep it open as you work.
+- You can also hover over errors with your mouse and a tooltip will popup giving you the error detail.
+- You can also open the Vic Simulator, and load the current program into it by using the menu item "Run" → "Start Debugging" (or keyboard shortcut `F5`)
+- You can automatically fix the indentation of your Vic source files by running the command "Format Document" (from the command palette, or from the right-click menu).
+- VS Code contains built-in source control tools using Git. You can access these from "View" → "Source Control". This can help you keep track of changes that you make to your source files, as well as allow collaboration between multiple people. See: [Using Git source control in VS Code](https://code.visualstudio.com/docs/sourcecontrol/overview)

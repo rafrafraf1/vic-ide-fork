@@ -1,13 +1,13 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "Vic Binary",
-	"patterns": [
-		{
-			"match": "^\\s*(-?\\d+)",
-			"captures": {
-				"1": { "name": "variable" }
-			}
-		}
-	],
-	"scopeName": "source.vic-bin"
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Vic Binary",
+  "patterns": [
+    {
+      "match": "^\\s*(-?\\d+)",
+      "captures": {
+        "1": { "name": "variable" }
+      }
+    }
+  ],
+  "scopeName": "source.vic-bin"
 }

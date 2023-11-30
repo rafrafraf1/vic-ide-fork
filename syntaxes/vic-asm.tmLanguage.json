@@ -1,47 +1,47 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "Vic assembly",
-	"patterns": [
-		{
-			"match": "^\\s*(\\w+):",
-			"captures": {
-				"1": { "name": "variable" }
-			}
-		},
-		{
-			"match": "(?i)^\\s*((add)|(sub)|(load)|(store))\\s+((zero)|(one))\\s",
-			"captures": {
-				"1": { "name": "keyword.control.vic" },
-				"6": { "name": "string" }
-			}
-		},
-		{
-			"match": "(?i)^\\s*(goto(z|p?))\\s+(\\w+)",
-			"captures": {
-				"1": { "name": "keyword.control.vic" },
-				"3": { "name": "variable" }
-			}
-		},
-		{
-			"match": "(?i)^\\s*((read)|(write)|(stop)|(add)|(sub)|(load)|(store)|(goto(z|p?)))\\s",
-			"captures": {
-				"1": { "name": "keyword.control.vic" }
-			}
-		},
-		{
-			"include": "#comments"
-		}
-	],
-	"repository": {
-		"comments" : {
-            "patterns": [
-                {
-                   "begin": "//",
-                   "end": "$",
-                   "name": "comment.line.double-slash.astra"
-                }
-             ]
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Vic assembly",
+  "patterns": [
+    {
+      "match": "^\\s*(\\w+):",
+      "captures": {
+        "1": { "name": "variable" }
+      }
+    },
+    {
+      "match": "(?i)^\\s*((add)|(sub)|(load)|(store))\\s+((zero)|(one))\\s",
+      "captures": {
+        "1": { "name": "keyword.control.vic" },
+        "6": { "name": "string" }
+      }
+    },
+    {
+      "match": "(?i)^\\s*(goto(z|p?))\\s+(\\w+)",
+      "captures": {
+        "1": { "name": "keyword.control.vic" },
+        "3": { "name": "variable" }
+      }
+    },
+    {
+      "match": "(?i)^\\s*((read)|(write)|(stop)|(add)|(sub)|(load)|(store)|(goto(z|p?)))\\s",
+      "captures": {
+        "1": { "name": "keyword.control.vic" }
+      }
+    },
+    {
+      "include": "#comments"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "begin": "//",
+          "end": "$",
+          "name": "comment.line.double-slash.astra"
         }
-	},
-	"scopeName": "source.vic-asm"
+      ]
+    }
+  },
+  "scopeName": "source.vic-asm"
 }
