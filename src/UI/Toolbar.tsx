@@ -9,7 +9,7 @@ import type { IconType } from "react-icons";
 import { BsCpu, BsHourglass } from "react-icons/bs";
 import { FaFileUpload } from "react-icons/fa";
 import { MdErrorOutline } from "react-icons/md";
-import { RiRewindMiniFill } from "react-icons/ri";
+import { RiContrastFill, RiRewindMiniFill } from "react-icons/ri";
 import {
   VscDebugContinue,
   VscDebugStart,
@@ -149,7 +149,6 @@ export const Toolbar = React.memo(function Toolbar(
   return (
     <div className={classNames(className, "Toolbar-root")}>
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
-      {showThemeSwitcher ? <ThemeSwitcher uiString={uiString} /> : null}
       {showExamples ? (
         <MenuButton
           disabled={simulationActive(simulationState)}
@@ -249,6 +248,12 @@ export const Toolbar = React.memo(function Toolbar(
           <VscQuestion size={24} />
         </ButtonLabel>
       </Button>
+      {showThemeSwitcher ? (
+        <>
+          <Separator />
+          <ThemeSwitcher uiString={uiString} />
+        </>
+      ) : null}
     </div>
   );
 });
@@ -474,6 +479,9 @@ export function ThemeSwitcher(props: ThemeSwitcherProps): JSX.Element {
 
   return (
     <Button onClick={handleClick}>
+      <ButtonLabel>
+        <RiContrastFill size={22} />
+      </ButtonLabel>
       <ButtonLabel>{themeLabel(uiString, theme)}</ButtonLabel>
     </Button>
   );
