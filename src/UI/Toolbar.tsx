@@ -9,12 +9,14 @@ import type { IconType } from "react-icons";
 import { BsCpu, BsHourglass } from "react-icons/bs";
 import { FaFileUpload } from "react-icons/fa";
 import { MdErrorOutline } from "react-icons/md";
+import { PiFolderOpenDuotone } from "react-icons/pi";
 import { RiContrastFill, RiRewindMiniFill } from "react-icons/ri";
 import {
   VscDebugContinue,
   VscDebugStart,
   VscDebugStop,
   VscQuestion,
+  VscTrash,
 } from "react-icons/vsc";
 
 import type { SourceFile } from "../common/Vic/SourceFile";
@@ -84,8 +86,17 @@ interface ToolbarProps {
   onSingleStepClick?: () => void;
   onRunClick?: () => void;
   onStopClick?: () => void;
+
+  onClearClick?: (option: ClearOption) => void;
+
   onHelpClick?: () => void;
 }
+
+export type ClearOption =
+  | "CLEAR_IO"
+  | "CLEAR_HIGH_MEMORY"
+  | "CLEAR_LOW_MEMORY"
+  | "CLEAR_ALL";
 
 export const Toolbar = React.memo(function Toolbar(
   props: ToolbarProps,
@@ -111,6 +122,7 @@ export const Toolbar = React.memo(function Toolbar(
     onSingleStepClick,
     onRunClick,
     onStopClick,
+    onClearClick,
     onHelpClick,
   } = props;
 
@@ -143,6 +155,15 @@ export const Toolbar = React.memo(function Toolbar(
     }
   }, [onRunClick, onStopClick, simulationState]);
 
+  const handleClearClick = React.useCallback(
+    (value: ClearOption): void => {
+      if (onClearClick !== undefined) {
+        onClearClick(value);
+      }
+    },
+    [onClearClick],
+  );
+
   // Reference: <https://github.com/atomiks/tippyjs-react#-usesingleton>
   const [tippySource, tippyTarget] = useSingleton();
 
@@ -150,10 +171,11 @@ export const Toolbar = React.memo(function Toolbar(
     <div className={classNames(className, "Toolbar-root")}>
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
       {showExamples ? (
-        <MenuButton
+        <MenuButton<string>
           disabled={simulationActive(simulationState)}
+          icon={<PiFolderOpenDuotone size={22} />}
           label={uiString("LOAD_EXAMPLE")}
-          values={examples}
+          values={examples.map((e) => [e, e])}
           onValueClick={onLoadExample}
         />
       ) : null}
@@ -241,6 +263,19 @@ export const Toolbar = React.memo(function Toolbar(
           </ButtonLabel>
         </Button>
       </Tippy>
+      <Separator />
+      <MenuButton<ClearOption>
+        icon={<VscTrash size={22} />}
+        label={uiString("CLEAR")}
+        values={[
+          ["CLEAR_IO", uiString("CLEAR_IO")],
+          ["CLEAR_HIGH_MEMORY", uiString("CLEAR_HIGH_MEMORY")],
+          ["CLEAR_LOW_MEMORY", uiString("CLEAR_LOW_MEMORY")],
+          ["CLEAR_ALL", uiString("CLEAR_ALL")],
+        ]}
+        disabled={simulationActive(simulationState)}
+        onValueClick={handleClearClick}
+      />
       <Separator />
       <Button onClick={onHelpClick}>
         <ButtonLabel>{uiString("HELP")}</ButtonLabel>

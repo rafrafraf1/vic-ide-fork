@@ -42,17 +42,9 @@
 }
 
 .Computer-IoTitleRow {
-  height: 40px;
-  display: flex;
-  align-items: stretch;
-}
-
-.Computer-IoTitleRowHeading {
-  align-self: center;
+  text-align: center;
   color: var(--vscode-notifications-foreground);
   font-weight: bold;
-  margin: 0 12px;
-  margin-left: 32px;
   font-size: 140%;
 }
 

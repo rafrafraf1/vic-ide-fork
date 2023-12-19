@@ -17,10 +17,15 @@ import {
   type ComputerState,
   type StopResult,
 } from "./Computer/Computer";
+import {
+  clearComputerHighMemory,
+  clearComputerLowMemory,
+} from "./Computer/ComputerUtils";
 import type { CpuState } from "./Computer/CpuState";
 import {
   atBeginningOfInput,
   consumeInput,
+  emptyInput,
   readNextInput,
   rewindInput,
   type InputState,
@@ -61,7 +66,7 @@ import {
   simulationActive,
   type SimulationState,
 } from "./UI/Simulator/SimulationState";
-import { Toolbar } from "./UI/Toolbar";
+import { Toolbar, type ClearOption } from "./UI/Toolbar";
 import { EnglishStrings } from "./UI/UIStrings";
 import { useAnimate } from "./UI/UseAnimate";
 
@@ -368,6 +373,29 @@ function App(props: AppProps): JSX.Element {
     setSimulationState("STOPPING");
   }, []);
 
+  const handleClearClick = React.useCallback((option: ClearOption): void => {
+    switch (option) {
+      case "CLEAR_IO":
+        setInput(emptyInput());
+        setOutput(emptyOutput());
+        break;
+      case "CLEAR_HIGH_MEMORY":
+        setComputer(clearComputerHighMemory);
+        break;
+      case "CLEAR_LOW_MEMORY":
+        setComputer(clearComputerLowMemory);
+        break;
+      case "CLEAR_ALL":
+        setInput(emptyInput());
+        setOutput(emptyOutput());
+        setComputer(clearComputerHighMemory);
+        setComputer(clearComputerLowMemory);
+        break;
+      default:
+        assertNever(option);
+    }
+  }, []);
+
   const handleHelpClick = React.useCallback((): void => {
     setHelpScreenState(toggleHelpScreenState);
   }, []);
@@ -382,10 +410,6 @@ function App(props: AppProps): JSX.Element {
 
   const handleHelpScreenUnpinClick = React.useCallback((): void => {
     setHelpScreenState("OPEN");
-  }, []);
-
-  const handleClearOutputClick = React.useCallback((): void => {
-    setOutput(emptyOutput());
   }, []);
 
   const handleMemoryCellChange = React.useCallback(
@@ -527,6 +551,7 @@ function App(props: AppProps): JSX.Element {
         onSingleStepClick={handleSingleStepClick}
         onRunClick={handleRunClick}
         onStopClick={handleStopClick}
+        onClearClick={handleClearClick}
         onHelpClick={handleHelpClick}
       />
       <div className="App-Main">
@@ -534,13 +559,11 @@ function App(props: AppProps): JSX.Element {
           ref={computerRef}
           className="App-Computer-Cont"
           uiString={uiString}
-          animating={simulationActive(simulationState)}
           computer={computer}
           cpuStopped={cpuStopped}
           cpuState={cpuState}
           input={input}
           output={output}
-          onClearOutputClick={handleClearOutputClick}
           onMemoryCellChange={handleMemoryCellChange}
           onInstructionRegister={handleInstructionRegister}
           onDataRegisterChange={handleDataRegisterChange}

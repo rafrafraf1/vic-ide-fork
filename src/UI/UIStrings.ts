@@ -19,6 +19,11 @@ export type UIStringKey =
   | "RUN"
   | "STOP"
   | "STOPPING"
+  | "CLEAR"
+  | "CLEAR_IO"
+  | "CLEAR_HIGH_MEMORY"
+  | "CLEAR_LOW_MEMORY"
+  | "CLEAR_ALL"
   | "HELP"
   | "NO_FILE_AVAILABLE"
   | "USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE"
@@ -92,6 +97,16 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Stop";
     case "STOPPING":
       return "Stopping";
+    case "CLEAR":
+      return "Clear";
+    case "CLEAR_IO":
+      return "I/O";
+    case "CLEAR_HIGH_MEMORY":
+      return "High Memory";
+    case "CLEAR_LOW_MEMORY":
+      return "Low Memory";
+    case "CLEAR_ALL":
+      return "All";
     case "HELP":
       return "Help";
     case "NO_FILE_AVAILABLE":

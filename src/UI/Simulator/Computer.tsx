@@ -4,26 +4,22 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 import classNames from "classnames";
-import { VscTrash } from "react-icons/vsc";
 
 import {
+  MEMORY_HIGH_START,
   MEMORY_READONLY_REGION,
+  MEMORY_SIZE,
   memoryRead,
   type ComputerState,
   type MemoryCell,
   type StopResult,
 } from "../../Computer/Computer";
 import type { CpuState } from "../../Computer/CpuState";
-import {
-  emptyInput,
-  isEmptyInput,
-  type InputState,
-} from "../../Computer/Input";
+import type { InputState } from "../../Computer/Input";
 import type { Address } from "../../Computer/Instruction";
-import { isOutputEmpty, type OutputState } from "../../Computer/Output";
+import type { OutputState } from "../../Computer/Output";
 import type { Value } from "../../Computer/Value";
 import { nonNull } from "../../Functional/Nullability";
-import { Button, ButtonLabel } from "../Components/Button";
 import type { UIStrings } from "../UIStrings";
 import {
   BlankableValueCellInput,
@@ -78,17 +74,11 @@ export interface ComputerProps {
 
   uiString: UIStrings;
 
-  /**
-   * Whether an animation is currently running or not.
-   */
-  animating: boolean;
-
   computer: ComputerState;
   cpuStopped: StopResult | null;
   cpuState: CpuState;
   input: InputState;
   output: OutputState;
-  onClearOutputClick?: () => void;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
@@ -101,13 +91,11 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     const {
       className,
       uiString,
-      animating,
       computer,
       cpuStopped,
       cpuState,
       input,
       output,
-      onClearOutputClick,
       onMemoryCellChange,
       onInstructionRegister,
       onDataRegisterChange,
@@ -164,12 +152,6 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       [],
     );
 
-    const handleInputClearClick = React.useCallback((): void => {
-      if (onInputChange !== undefined) {
-        onInputChange(emptyInput());
-      }
-    }, [onInputChange]);
-
     const handleAppendInput = React.useCallback(
       (value: Value): void => {
         if (onInputChange !== undefined) {
@@ -200,19 +182,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
     return (
       <div className={classNames(className, "Computer-Root")}>
         <div className="Computer-Io">
-          <div className="Computer-IoTitleRow">
-            <span className="Computer-IoTitleRowHeading">
-              {uiString("INPUT")}
-            </span>
-            <Button
-              disabled={animating || isEmptyInput(input)}
-              onClick={handleInputClearClick}
-            >
-              <ButtonLabel>
-                <VscTrash size={24} />
-              </ButtonLabel>
-            </Button>
-          </div>
+          <div className="Computer-IoTitleRow">{uiString("INPUT")}</div>
           <Input
             ref={inputRef}
             input={input}
@@ -220,19 +190,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
             onInputChange={handleInputChange}
             onDeleteInput={handleDeleteInput}
           />
-          <div className="Computer-IoTitleRow">
-            <span className="Computer-IoTitleRowHeading">
-              {uiString("OUTPUT")}
-            </span>
-            <Button
-              disabled={animating || isOutputEmpty(output)}
-              onClick={onClearOutputClick}
-            >
-              <ButtonLabel>
-                <VscTrash size={24} />
-              </ButtonLabel>
-            </Button>
-          </div>
+          <div className="Computer-IoTitleRow">{uiString("OUTPUT")}</div>
           <Output ref={outputRef} output={output} />
         </div>
         <div className="Computer-Divider Computer-Divider1"></div>
@@ -303,9 +261,9 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
 
     const getMemorySegmentRef = React.useCallback(
       (address: Address): MemorySegmentHandle => {
-        if (address >= 0 && address <= 49) {
+        if (address >= 0 && address < MEMORY_HIGH_START) {
           return nonNull(memorySegment1.current);
-        } else if (address >= 50 && address <= 99) {
+        } else if (address >= MEMORY_HIGH_START && address < MEMORY_SIZE) {
           return nonNull(memorySegment2.current);
         } else {
           throw new Error(`Invalid address: ${address}`);
@@ -336,7 +294,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
           memory={memory}
           programCounter={programCounter}
           segmentStart={0}
-          segmentEnd={49}
+          segmentEnd={MEMORY_HIGH_START - 1}
           onMemoryCellChange={onMemoryCellChange}
         />
         <MemorySegment
@@ -344,8 +302,8 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
           uiString={uiString}
           memory={memory}
           programCounter={programCounter}
-          segmentStart={50}
-          segmentEnd={99}
+          segmentStart={MEMORY_HIGH_START}
+          segmentEnd={MEMORY_SIZE - 1}
           onMemoryCellChange={onMemoryCellChange}
         />
       </div>

@@ -19,6 +19,11 @@ export const WRITABLE_MEMORY_SIZE = 98;
 export const MEMORY_READONLY_REGION = 98;
 
 /**
+ * Start address of the high memory segment.
+ */
+export const MEMORY_HIGH_START = 50;
+
+/**
  * This structure is immutable.
  *
  * Do not modify the "memory" array. Instead use the "writeMemory" function.
