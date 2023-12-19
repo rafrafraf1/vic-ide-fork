@@ -205,6 +205,26 @@ export const Toolbar = React.memo(function Toolbar(
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
       <Separator />
+      <RunButton
+        uiString={uiString}
+        tippyTarget={tippyTarget}
+        simulationState={simulationState}
+        onClick={handleRunClick}
+      />
+      <Tippy
+        singleton={tippyTarget}
+        content={uiString("FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT")}
+      >
+        <Button
+          disabled={simulationActive(simulationState)}
+          onClick={onSingleStepClick}
+        >
+          <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
+          <ButtonLabel>
+            <VscDebugContinue />
+          </ButtonLabel>
+        </Button>
+      </Tippy>
       <Tippy
         singleton={tippyTarget}
         content={uiString(
@@ -221,26 +241,6 @@ export const Toolbar = React.memo(function Toolbar(
           </ButtonLabel>
         </Button>
       </Tippy>
-      <Tippy
-        singleton={tippyTarget}
-        content={uiString("FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT")}
-      >
-        <Button
-          disabled={simulationActive(simulationState)}
-          onClick={onSingleStepClick}
-        >
-          <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
-          <ButtonLabel>
-            <VscDebugContinue />
-          </ButtonLabel>
-        </Button>
-      </Tippy>
-      <RunButton
-        uiString={uiString}
-        tippyTarget={tippyTarget}
-        simulationState={simulationState}
-        onClick={handleRunClick}
-      />
       <Separator />
       <Button onClick={onHelpClick}>
         <ButtonLabel>{uiString("HELP")}</ButtonLabel>
