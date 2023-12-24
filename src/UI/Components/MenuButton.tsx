@@ -9,8 +9,20 @@ export interface MenuButtonProps<T> {
   icon: React.ReactNode;
   label: string;
   disabled?: boolean;
-  values: [T, string][];
+  values: MenuButtonOption<T>[];
   onValueClick?: (value: T) => void;
+}
+
+export interface MenuButtonOption<T> {
+  /**
+   * If value is `null` then the option is not able to be selected, and
+   * functions as a separator.
+   */
+  value: T | null;
+
+  label: string;
+
+  className?: string;
 }
 
 export function MenuButton<T>(props: MenuButtonProps<T>): JSX.Element {
@@ -26,8 +38,8 @@ export function MenuButton<T>(props: MenuButtonProps<T>): JSX.Element {
       const index = parseInt(e.target.value, 10);
       if (onValueClick !== undefined) {
         const chosen = values[index];
-        if (chosen !== undefined) {
-          onValueClick(chosen[0]);
+        if (chosen !== undefined && chosen.value !== null) {
+          onValueClick(chosen.value);
         }
       }
     },
@@ -54,9 +66,14 @@ export function MenuButton<T>(props: MenuButtonProps<T>): JSX.Element {
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           {label}
         </option>
-        {values.map(([, label], index) => (
-          <option key={index} className="MenuButton-Option" value={index}>
-            {label}
+        {values.map((option, index) => (
+          <option
+            disabled={option.value === null}
+            key={index}
+            className={classNames(option.className, "MenuButton-Option")}
+            value={index}
+          >
+            {option.label}
           </option>
         ))}
       </select>

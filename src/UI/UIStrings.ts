@@ -6,6 +6,8 @@ import { assertNever } from "assert-never";
 export type UIStringKey =
   | "DARK_MODE"
   | "LIGHT_MODE"
+  | "FILE"
+  | "OPEN_FILE"
   | "LOAD_EXAMPLE"
   | "FETCH"
   | "EXECUTE"
@@ -71,6 +73,10 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Dark Mode";
     case "LIGHT_MODE":
       return "Light Mode";
+    case "FILE":
+      return "File";
+    case "OPEN_FILE":
+      return "Open File";
     case "LOAD_EXAMPLE":
       return "Load Example";
     case "FETCH":

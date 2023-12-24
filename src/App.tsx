@@ -54,6 +54,7 @@ import { nonNull } from "./Functional/Nullability";
 import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
+import { LoadDialog } from "./UI/LoadDialog";
 import { useEvents } from "./UI/ReactHooks/UseEvents";
 import { useWindowMessages } from "./UI/ReactHooks/UseWindowMessages";
 import { nextInstructionAnimation } from "./UI/Simulator/Animations";
@@ -123,6 +124,7 @@ function App(props: AppProps): JSX.Element {
   const [animationSpeed, setAnimationSpeed] = React.useState(
     initialState.animationSpeed,
   );
+  const [loadDialogOpen, setLoadDialogOpen] = React.useState(false);
   const [helpScreenState, setHelpScreenState] = React.useState(
     initialState.helpScreenState,
   );
@@ -221,6 +223,10 @@ function App(props: AppProps): JSX.Element {
 
   const animate = useAnimate();
 
+  const handleOpenFile = React.useCallback((): void => {
+    setLoadDialogOpen(true);
+  }, []);
+
   const handleLoadExample = React.useCallback((example: string): void => {
     const exampleProgram = lookupExampleProgram(example);
     if (exampleProgram !== null) {
@@ -231,6 +237,27 @@ function App(props: AppProps): JSX.Element {
       setOutput(hardware.output);
     }
   }, []);
+
+  const handleProgramLoaded = React.useCallback(
+    (memory: Value[]): void => {
+      const hardwareState = loadProgram(
+        {
+          computer: computer,
+          cpuStopped: cpuStopped,
+          input: input,
+          output: output,
+        },
+        memory,
+      );
+
+      setLoadDialogOpen(false);
+      setComputer(hardwareState.computer);
+      setCpuStopped(hardwareState.cpuStopped);
+      setInput(hardwareState.input);
+      setOutput(hardwareState.output);
+    },
+    [computer, cpuStopped, input, output],
+  );
 
   const handleAnimationSpeedChange = React.useCallback(
     (value: AnimationSpeed): void => {
@@ -400,6 +427,10 @@ function App(props: AppProps): JSX.Element {
     setHelpScreenState(toggleHelpScreenState);
   }, []);
 
+  const handleLoadDialogCloseClick = React.useCallback((): void => {
+    setLoadDialogOpen(false);
+  }, []);
+
   const handleHelpScreenCloseClick = React.useCallback((): void => {
     setHelpScreenState("CLOSED");
   }, []);
@@ -539,6 +570,7 @@ function App(props: AppProps): JSX.Element {
         simulationState={simulationState}
         resetEnabled={isResetEnabled(computer, cpuStopped, input, output)}
         examples={getExampleProgramNames()}
+        onOpenFile={handleOpenFile}
         onLoadExample={handleLoadExample}
         sourceFile={sourceFile}
         onLoadSourceFileClick={handleLoadSourceFileClick}
@@ -579,6 +611,13 @@ function App(props: AppProps): JSX.Element {
           </div>
         ) : null}
       </div>
+      {loadDialogOpen ? (
+        <LoadDialog
+          uiString={uiString}
+          onCloseClick={handleLoadDialogCloseClick}
+          onProgramLoaded={handleProgramLoaded}
+        />
+      ) : null}
       {helpScreenState === "OPEN" ? (
         <HelpScreen
           onCloseClick={handleHelpScreenCloseClick}

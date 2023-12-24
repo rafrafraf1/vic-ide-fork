@@ -31,7 +31,7 @@ import {
 } from "../System/DemoTheme";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import { Button, ButtonLabel } from "./Components/Button";
-import { MenuButton } from "./Components/MenuButton";
+import { MenuButton, type MenuButtonOption } from "./Components/MenuButton";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import {
   simulationActive,
@@ -72,6 +72,7 @@ interface ToolbarProps {
 
   examples: string[];
   onLoadExample?: (example: string) => void;
+  onOpenFile?: () => void;
 
   sourceFile: SourceFile | null;
   onLoadSourceFileClick?: () => void;
@@ -92,6 +93,21 @@ interface ToolbarProps {
   onHelpClick?: () => void;
 }
 
+type OpenFileSelection =
+  | OpenFileSelection.OpenFile
+  | OpenFileSelection.LoadExample;
+
+namespace OpenFileSelection {
+  export interface OpenFile {
+    kind: "OpenFile";
+  }
+
+  export interface LoadExample {
+    kind: "LoadExample";
+    example: string;
+  }
+}
+
 export type ClearOption =
   | "CLEAR_IO"
   | "CLEAR_HIGH_MEMORY"
@@ -110,6 +126,7 @@ export const Toolbar = React.memo(function Toolbar(
     simulationState,
     resetEnabled,
     examples,
+    onOpenFile,
     onLoadExample,
     sourceFile,
     onLoadSourceFileClick,
@@ -125,6 +142,51 @@ export const Toolbar = React.memo(function Toolbar(
     onClearClick,
     onHelpClick,
   } = props;
+
+  const exampleValues = React.useMemo<
+    MenuButtonOption<OpenFileSelection>[]
+  >(() => {
+    const spacer: MenuButtonOption<OpenFileSelection> = {
+      value: null,
+      label: "",
+      className: "Toolbar-MenuButton-Spacer",
+    };
+    const openFile: MenuButtonOption<OpenFileSelection> = {
+      value: { kind: "OpenFile" },
+      label: uiString("OPEN_FILE"),
+    };
+    const loadExample: MenuButtonOption<OpenFileSelection> = {
+      value: null,
+      label: `\u2500 ${uiString("LOAD_EXAMPLE")} \u2500`,
+    };
+    const exampleEntries = examples.map<MenuButtonOption<OpenFileSelection>>(
+      (e) => ({
+        value: { kind: "LoadExample", example: e },
+        label: e,
+      }),
+    );
+    return [spacer, openFile, spacer, loadExample].concat(exampleEntries);
+  }, [examples, uiString]);
+
+  const handleOpenFileClick = React.useCallback(
+    (value: OpenFileSelection): void => {
+      switch (value.kind) {
+        case "OpenFile":
+          if (onOpenFile !== undefined) {
+            onOpenFile();
+          }
+          break;
+        case "LoadExample":
+          if (onLoadExample !== undefined) {
+            onLoadExample(value.example);
+          }
+          break;
+        default:
+          assertNever(value);
+      }
+    },
+    [onLoadExample, onOpenFile],
+  );
 
   const handleRunClick = React.useCallback((): void => {
     switch (simulationState) {
@@ -171,12 +233,12 @@ export const Toolbar = React.memo(function Toolbar(
     <div className={classNames(className, "Toolbar-root")}>
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
       {showExamples ? (
-        <MenuButton<string>
+        <MenuButton<OpenFileSelection>
           disabled={simulationActive(simulationState)}
           icon={<PiFolderOpenDuotone size={22} />}
-          label={uiString("LOAD_EXAMPLE")}
-          values={examples.map((e) => [e, e])}
-          onValueClick={onLoadExample}
+          label={uiString("FILE")}
+          values={exampleValues}
+          onValueClick={handleOpenFileClick}
         />
       ) : null}
       {showSourceLoader ? (
@@ -268,10 +330,10 @@ export const Toolbar = React.memo(function Toolbar(
         icon={<VscTrash size={22} />}
         label={uiString("CLEAR")}
         values={[
-          ["CLEAR_IO", uiString("CLEAR_IO")],
-          ["CLEAR_HIGH_MEMORY", uiString("CLEAR_HIGH_MEMORY")],
-          ["CLEAR_LOW_MEMORY", uiString("CLEAR_LOW_MEMORY")],
-          ["CLEAR_ALL", uiString("CLEAR_ALL")],
+          { value: "CLEAR_IO", label: uiString("CLEAR_IO") },
+          { value: "CLEAR_HIGH_MEMORY", label: uiString("CLEAR_HIGH_MEMORY") },
+          { value: "CLEAR_LOW_MEMORY", label: uiString("CLEAR_LOW_MEMORY") },
+          { value: "CLEAR_ALL", label: uiString("CLEAR_ALL") },
         ]}
         disabled={simulationActive(simulationState)}
         onValueClick={handleClearClick}

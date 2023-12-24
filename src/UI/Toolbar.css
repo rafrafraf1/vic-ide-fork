@@ -11,6 +11,10 @@
   width: 18px;
 }
 
+.Toolbar-MenuButton-Spacer {
+  font-size: 30%;
+}
+
 .Toolbar-RunLabels {
   display: grid;
 }
