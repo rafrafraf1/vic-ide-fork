@@ -145,6 +145,64 @@ function App(props: AppProps): JSX.Element {
     [computer, cpuStopped, input, output],
   );
 
+  const computerRef = React.useRef<ComputerHandle>(null);
+
+  // Whenever any part of the `SimulatorState` changes (`computer`, `input`,
+  // `output`, or `animationSpeed`), we send a message to the
+  // `extensionBridge` to persist the updated state.
+  React.useEffect(() => {
+    extensionBridge.setState({
+      hardwareState: hardwareState,
+      animationSpeed: animationSpeed,
+      helpScreenState: helpScreenState,
+    });
+  }, [animationSpeed, extensionBridge, hardwareState, helpScreenState]);
+
+  const animate = useAnimate();
+
+  const handleOpenFile = React.useCallback((): void => {
+    setLoadDialogOpen(true);
+  }, []);
+
+  const handleLoadExample = React.useCallback((example: string): void => {
+    const exampleProgram = lookupExampleProgram(example);
+    if (exampleProgram !== null) {
+      const hardware = loadExampleProgram(exampleProgram);
+      setComputer(hardware.computer);
+      setCpuStopped(hardware.cpuStopped);
+      setInput(hardware.input);
+      setOutput(hardware.output);
+    }
+  }, []);
+
+  const handleProgramLoaded = React.useCallback(
+    (memory: Value[]): void => {
+      const hardwareState = loadProgram(
+        {
+          computer: computer,
+          cpuStopped: cpuStopped,
+          input: input,
+          output: output,
+        },
+        memory,
+      );
+
+      setLoadDialogOpen(false);
+      setComputer(hardwareState.computer);
+      setCpuStopped(hardwareState.cpuStopped);
+      setInput(hardwareState.input);
+      setOutput(hardwareState.output);
+    },
+    [computer, cpuStopped, input, output],
+  );
+
+  const handleAnimationSpeedChange = React.useCallback(
+    (value: AnimationSpeed): void => {
+      setAnimationSpeed(value);
+    },
+    [],
+  );
+
   const triggerStepComplete = useEvents<StepComplete>(
     (step: StepComplete): void => {
       switch (simulationState) {
@@ -206,64 +264,6 @@ function App(props: AppProps): JSX.Element {
           assertNever(simulationState);
       }
     },
-  );
-
-  const computerRef = React.useRef<ComputerHandle>(null);
-
-  // Whenever any part of the `SimulatorState` changes (`computer`, `input`,
-  // `output`, or `animationSpeed`), we send a message to the
-  // `extensionBridge` to persist the updated state.
-  React.useEffect(() => {
-    extensionBridge.setState({
-      hardwareState: hardwareState,
-      animationSpeed: animationSpeed,
-      helpScreenState: helpScreenState,
-    });
-  }, [animationSpeed, extensionBridge, hardwareState, helpScreenState]);
-
-  const animate = useAnimate();
-
-  const handleOpenFile = React.useCallback((): void => {
-    setLoadDialogOpen(true);
-  }, []);
-
-  const handleLoadExample = React.useCallback((example: string): void => {
-    const exampleProgram = lookupExampleProgram(example);
-    if (exampleProgram !== null) {
-      const hardware = loadExampleProgram(exampleProgram);
-      setComputer(hardware.computer);
-      setCpuStopped(hardware.cpuStopped);
-      setInput(hardware.input);
-      setOutput(hardware.output);
-    }
-  }, []);
-
-  const handleProgramLoaded = React.useCallback(
-    (memory: Value[]): void => {
-      const hardwareState = loadProgram(
-        {
-          computer: computer,
-          cpuStopped: cpuStopped,
-          input: input,
-          output: output,
-        },
-        memory,
-      );
-
-      setLoadDialogOpen(false);
-      setComputer(hardwareState.computer);
-      setCpuStopped(hardwareState.cpuStopped);
-      setInput(hardwareState.input);
-      setOutput(hardwareState.output);
-    },
-    [computer, cpuStopped, input, output],
-  );
-
-  const handleAnimationSpeedChange = React.useCallback(
-    (value: AnimationSpeed): void => {
-      setAnimationSpeed(value);
-    },
-    [],
   );
 
   const doFetchInstruction = React.useCallback((): void => {
