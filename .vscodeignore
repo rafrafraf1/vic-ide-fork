@@ -6,10 +6,14 @@ src/**
 src-ext/**
 public/**
 .gitignore
-cra-readme.md
+index.html
+jest.config.js
+vite-readme.md
+vite.config.mts
 vsc-extension-language-quickstart.md
 vsc-extension-quickstart.md
 eslintrc.base.json
 package-lock.json
 tsconfig.base.json
+tsconfig.node.json
 tsconfig.json
