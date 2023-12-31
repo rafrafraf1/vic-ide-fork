@@ -20,6 +20,7 @@ import {
 } from "react-icons/vsc";
 
 import type { SourceFile } from "../common/Vic/SourceFile";
+import type { CpuState } from "../Computer/SimulatorState";
 import {
   getCurrentTheme,
   nextTheme,
@@ -66,6 +67,7 @@ interface ToolbarProps {
    */
   showSourceLoader: boolean;
 
+  cpuState: CpuState;
   simulationState: SimulationState;
 
   resetEnabled: boolean;
@@ -123,6 +125,7 @@ export const Toolbar = React.memo(function Toolbar(
     showThemeSwitcher,
     showExamples,
     showSourceLoader,
+    cpuState,
     simulationState,
     resetEnabled,
     examples,
@@ -258,7 +261,10 @@ export const Toolbar = React.memo(function Toolbar(
         )}
       >
         <Button
-          disabled={simulationActive(simulationState)}
+          disabled={
+            simulationActive(simulationState) ||
+            cpuState.kind !== "PendingFetch"
+          }
           onClick={onFetchInstructionClick}
         >
           <ButtonLabel>{uiString("FETCH")}</ButtonLabel>
@@ -272,7 +278,10 @@ export const Toolbar = React.memo(function Toolbar(
         content={uiString("EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER")}
       >
         <Button
-          disabled={simulationActive(simulationState)}
+          disabled={
+            simulationActive(simulationState) ||
+            cpuState.kind !== "PendingExecute"
+          }
           onClick={onExecuteInstructionClick}
         >
           <ButtonLabel>
@@ -292,6 +301,7 @@ export const Toolbar = React.memo(function Toolbar(
       <RunButton
         uiString={uiString}
         tippyTarget={tippyTarget}
+        cpuState={cpuState}
         simulationState={simulationState}
         onClick={handleRunClick}
       />
@@ -300,7 +310,10 @@ export const Toolbar = React.memo(function Toolbar(
         content={uiString("FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT")}
       >
         <Button
-          disabled={simulationActive(simulationState)}
+          disabled={
+            simulationActive(simulationState) ||
+            cpuState.kind !== "PendingFetch"
+          }
           onClick={onSingleStepClick}
         >
           <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
@@ -490,12 +503,13 @@ function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
 interface RunButtonProps {
   uiString: UIStrings;
   tippyTarget: TippyProps["singleton"];
+  cpuState: CpuState;
   simulationState: SimulationState;
   onClick: () => void;
 }
 
 export function RunButton(props: RunButtonProps): JSX.Element {
-  const { uiString, tippyTarget, simulationState, onClick } = props;
+  const { uiString, tippyTarget, cpuState, simulationState, onClick } = props;
 
   const [label, icon] = ((): [string, IconType] => {
     switch (simulationState) {
@@ -529,7 +543,10 @@ export function RunButton(props: RunButtonProps): JSX.Element {
       content={uiString("RUN_PROGRAM_UNTIL_IT_TERMINATES")}
     >
       <Button
-        disabled={!(simulationState === "IDLE" || simulationState === "RUN")}
+        disabled={
+          !(simulationState === "IDLE" || simulationState === "RUN") ||
+          cpuState.kind === "Stopped"
+        }
         onClick={onClick}
       >
         <>

@@ -4,7 +4,7 @@ import {
   type ComputerState,
 } from "./Computer";
 import { emptyOutput } from "./Output";
-import type { HardwareState } from "./SimulatorState";
+import { initialCpuState, type HardwareState } from "./SimulatorState";
 import { assertValidValue } from "./Value";
 
 /**
@@ -24,7 +24,7 @@ export function loadProgram(
 ): HardwareState {
   return {
     computer: newComputerWithProgram(program),
-    cpuStopped: null,
+    cpuState: initialCpuState(),
     input: {
       values: hardwareState.input.values,
       next: 0,

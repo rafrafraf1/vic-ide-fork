@@ -4,19 +4,18 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 
-import type { StopResult } from "../../Computer/Computer";
-import type { CpuState } from "../../Computer/CpuState";
+import type { CpuState } from "../../Computer/SimulatorState";
 import type { UIStrings } from "../UIStrings";
 
 export interface CpuStatusProps {
   uiString: UIStrings;
 
-  cpuStopped: StopResult | null;
   cpuState: CpuState;
+  cpuWorking: boolean;
 }
 
 export const CpuStatus = React.memo((props: CpuStatusProps): JSX.Element => {
-  const { uiString, cpuStopped, cpuState } = props;
+  const { uiString, cpuState, cpuWorking } = props;
 
   return (
     <div className="CpuStatus-Root">
@@ -24,8 +23,8 @@ export const CpuStatus = React.memo((props: CpuStatusProps): JSX.Element => {
       <div className="CpuStatus-Message">
         <CpuStatusMessage
           uiString={uiString}
-          cpuStopped={cpuStopped}
           cpuState={cpuState}
+          cpuWorking={cpuWorking}
         />
       </div>
     </div>
@@ -35,49 +34,57 @@ export const CpuStatus = React.memo((props: CpuStatusProps): JSX.Element => {
 interface CpuStatusMessageProps {
   uiString: UIStrings;
 
-  cpuStopped: StopResult | null;
   cpuState: CpuState;
+  cpuWorking: boolean;
 }
 
 function CpuStatusMessage(props: CpuStatusMessageProps): JSX.Element {
-  const { uiString, cpuStopped, cpuState } = props;
+  const { uiString, cpuState, cpuWorking } = props;
 
-  if (cpuStopped !== null) {
-    switch (cpuStopped) {
-      case "STOP":
-        return <span className="CpuStatus-Stop">{uiString("CPU_STOP")}</span>;
-      case "NO_INPUT":
+  switch (cpuState.kind) {
+    case "Stopped":
+      switch (cpuState.stopResult) {
+        case "STOP":
+          return <span className="CpuStatus-Stop">{uiString("CPU_STOP")}</span>;
+        case "NO_INPUT":
+          return (
+            <span className="CpuStatus-NoInput">
+              {uiString("CPU_NO_INPUT")}
+            </span>
+          );
+        case "INVALID_INSTRUCTION":
+          return (
+            <span className="CpuStatus-InvalidInstruction">
+              {uiString("CPU_INVALID_INSTRUCTION")}
+            </span>
+          );
+        case "INVALID_WRITE":
+          return (
+            <span className="CpuStatus-InvalidInstruction">
+              {uiString("CPU_INVALID_WRITE")}
+            </span>
+          );
+        default:
+          return assertNever(cpuState.stopResult);
+      }
+    case "PendingFetch":
+      if (cpuWorking) {
         return (
-          <span className="CpuStatus-NoInput">{uiString("CPU_NO_INPUT")}</span>
+          <span className="CpuStatus-Fetching">{uiString("CPU_FETCHING")}</span>
         );
-      case "INVALID_INSTRUCTION":
+      } else {
+        return <span>{uiString("CPU_IDLE_PENDING_FETCH")}</span>;
+      }
+    case "PendingExecute":
+      if (cpuWorking) {
         return (
-          <span className="CpuStatus-InvalidInstruction">
-            {uiString("CPU_INVALID_INSTRUCTION")}
+          <span className="CpuStatus-Executing">
+            {uiString("CPU_EXECUTING")}
           </span>
         );
-      case "INVALID_WRITE":
-        return (
-          <span className="CpuStatus-InvalidInstruction">
-            {uiString("CPU_INVALID_WRITE")}
-          </span>
-        );
-      default:
-        return assertNever(cpuStopped);
-    }
-  }
-
-  switch (cpuState) {
-    case "IDLE":
-      return <span>{uiString("CPU_IDLE")}</span>;
-    case "FETCHING":
-      return (
-        <span className="CpuStatus-Fetching">{uiString("CPU_FETCHING")}</span>
-      );
-    case "EXECUTING":
-      return (
-        <span className="CpuStatus-Executing">{uiString("CPU_EXECUTING")}</span>
-      );
+      } else {
+        return <span>{uiString("CPU_IDLE_PENDING_EXECUTE")}</span>;
+      }
     default:
       return assertNever(cpuState);
   }

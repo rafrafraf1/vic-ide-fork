@@ -15,13 +15,11 @@ import {
   setProgramCounter,
   writeMemory,
   type ComputerState,
-  type StopResult,
 } from "./Computer/Computer";
 import {
   clearComputerHighMemory,
   clearComputerLowMemory,
 } from "./Computer/ComputerUtils";
-import type { CpuState } from "./Computer/CpuState";
 import {
   atBeginningOfInput,
   consumeInput,
@@ -39,7 +37,9 @@ import {
 } from "./Computer/Output";
 import { loadProgram } from "./Computer/Program";
 import {
+  initialCpuState,
   newSimulatorState,
+  type CpuState,
   type HardwareState,
   type HelpScreenState,
   type SimulatorState,
@@ -50,6 +50,7 @@ import {
   loadExampleProgram,
   lookupExampleProgram,
 } from "./Examples/ExampleProgram";
+import { compose } from "./Functional/Compose";
 import { nonNull } from "./Functional/Nullability";
 import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
@@ -90,19 +91,6 @@ function initSimulatorState(
   }
 }
 
-type StepComplete = StepComplete.FetchComplete | StepComplete.ExecuteComplete;
-
-namespace StepComplete {
-  export interface FetchComplete {
-    kind: "FetchComplete";
-  }
-
-  export interface ExecuteComplete {
-    kind: "ExecuteComplete";
-    stopped: StopResult | null;
-  }
-}
-
 function App(props: AppProps): JSX.Element {
   const { extensionBridge } = props;
 
@@ -116,8 +104,8 @@ function App(props: AppProps): JSX.Element {
   const [computer, setComputer] = React.useState(
     initialState.hardwareState.computer,
   );
-  const [cpuStopped, setCpuStopped] = React.useState(
-    initialState.hardwareState.cpuStopped,
+  const [cpuState, setCpuState] = React.useState<CpuState>(
+    initialState.hardwareState.cpuState,
   );
   const [input, setInput] = React.useState(initialState.hardwareState.input);
   const [output, setOutput] = React.useState(initialState.hardwareState.output);
@@ -128,7 +116,6 @@ function App(props: AppProps): JSX.Element {
   const [helpScreenState, setHelpScreenState] = React.useState(
     initialState.helpScreenState,
   );
-  const [cpuState, setCpuState] = React.useState<CpuState>("IDLE");
 
   const [simulationState, setSimulationState] =
     React.useState<SimulationState>("IDLE");
@@ -138,11 +125,11 @@ function App(props: AppProps): JSX.Element {
   const hardwareState = React.useMemo<HardwareState>(
     () => ({
       computer: computer,
-      cpuStopped: cpuStopped,
+      cpuState: cpuState,
       input: input,
       output: output,
     }),
-    [computer, cpuStopped, input, output],
+    [computer, cpuState, input, output],
   );
 
   const computerRef = React.useRef<ComputerHandle>(null);
@@ -169,7 +156,7 @@ function App(props: AppProps): JSX.Element {
     if (exampleProgram !== null) {
       const hardware = loadExampleProgram(exampleProgram);
       setComputer(hardware.computer);
-      setCpuStopped(hardware.cpuStopped);
+      setCpuState(hardware.cpuState);
       setInput(hardware.input);
       setOutput(hardware.output);
     }
@@ -180,7 +167,7 @@ function App(props: AppProps): JSX.Element {
       const hardwareState = loadProgram(
         {
           computer: computer,
-          cpuStopped: cpuStopped,
+          cpuState: cpuState,
           input: input,
           output: output,
         },
@@ -189,11 +176,11 @@ function App(props: AppProps): JSX.Element {
 
       setLoadDialogOpen(false);
       setComputer(hardwareState.computer);
-      setCpuStopped(hardwareState.cpuStopped);
+      setCpuState(hardwareState.cpuState);
       setInput(hardwareState.input);
       setOutput(hardwareState.output);
     },
-    [computer, cpuStopped, input, output],
+    [computer, cpuState, input, output],
   );
 
   const handleAnimationSpeedChange = React.useCallback(
@@ -203,73 +190,66 @@ function App(props: AppProps): JSX.Element {
     [],
   );
 
-  const triggerStepComplete = useEvents<StepComplete>(
-    (step: StepComplete): void => {
-      switch (simulationState) {
-        case "IDLE":
-          // TODO This should never happen (assert)?
-          break;
-        case "FETCH_INSTRUCTION":
-          // TODO assert that "step" is "FetchComplete" (?)
-          setCpuState("IDLE");
-          setSimulationState("IDLE");
-          break;
-        case "EXECUTE_INSTRUCTION":
-          if (step.kind !== "ExecuteComplete") {
-            throw new Error(
-              `Expected "step" to be of kind "ExecuteComplete", got: ${step.kind}`,
-            );
-          }
-          setCpuStopped(step.stopped);
-          setCpuState("IDLE");
-          setSimulationState("IDLE");
-          break;
-        case "SINGLE_STEP":
-          switch (step.kind) {
-            case "FetchComplete":
-              doExecuteInstruction();
-              break;
-            case "ExecuteComplete":
-              setCpuStopped(step.stopped);
-              setCpuState("IDLE");
-              setSimulationState("IDLE");
-              break;
-            default:
-              assertNever(step);
-          }
-          break;
-        case "RUN":
-          switch (step.kind) {
-            case "FetchComplete":
-              doExecuteInstruction();
-              break;
-            case "ExecuteComplete":
-              if (step.stopped !== null) {
-                setCpuStopped(step.stopped);
-                setCpuState("IDLE");
-                setSimulationState("IDLE");
-              } else {
-                doFetchInstruction();
-              }
-              break;
-            default:
-              assertNever(step);
-          }
-          break;
-        case "STOPPING":
-          setCpuState("IDLE");
-          setSimulationState("IDLE");
-          break;
-        default:
-          assertNever(simulationState);
-      }
-    },
-  );
+  const triggerStepComplete = useEvents<undefined>((): void => {
+    switch (simulationState) {
+      case "IDLE":
+        // TODO This should never happen (assert)?
+        break;
+      case "FETCH_INSTRUCTION":
+        setSimulationState("IDLE");
+        break;
+      case "EXECUTE_INSTRUCTION":
+        setSimulationState("IDLE");
+        break;
+      case "SINGLE_STEP":
+        switch (cpuState.kind) {
+          case "PendingExecute":
+            doExecuteInstruction();
+            break;
+          case "PendingFetch":
+          case "Stopped":
+            setSimulationState("IDLE");
+            break;
+          default:
+            assertNever(cpuState);
+        }
+        break;
+      case "RUN":
+        switch (cpuState.kind) {
+          case "PendingFetch":
+            doFetchInstruction();
+            break;
+          case "PendingExecute":
+            doExecuteInstruction();
+            break;
+          case "Stopped":
+            setSimulationState("IDLE");
+            break;
+          default:
+            assertNever(cpuState);
+        }
+        break;
+      case "STOPPING":
+        switch (cpuState.kind) {
+          case "PendingFetch":
+            setSimulationState("IDLE");
+            break;
+          case "PendingExecute":
+            doExecuteInstruction();
+            break;
+          case "Stopped":
+            setSimulationState("IDLE");
+            break;
+          default:
+            assertNever(cpuState);
+        }
+        break;
+      default:
+        assertNever(simulationState);
+    }
+  });
 
   const doFetchInstruction = React.useCallback((): void => {
-    setCpuStopped(null);
-    setCpuState("FETCHING");
-
     nonNull(computerRef.current).scrollIntoView({
       kind: "MemoryCell",
       address: computer.programCounter,
@@ -297,18 +277,16 @@ function App(props: AppProps): JSX.Element {
       },
       (): void => {
         setComputer(newComputer);
-
-        triggerStepComplete({
-          kind: "FetchComplete",
+        setCpuState({
+          kind: "PendingExecute",
         });
+
+        triggerStepComplete(undefined);
       },
     );
   }, [animate, animationSpeed, computer, triggerStepComplete]);
 
   const doExecuteInstruction = React.useCallback((): void => {
-    setCpuStopped(null);
-    setCpuState("EXECUTING");
-
     const nextInput = readNextInput(input);
 
     function updateComputer(): void {
@@ -317,6 +295,11 @@ function App(props: AppProps): JSX.Element {
         nextInput,
       );
       setComputer(newComputer);
+      setCpuState(
+        executeResult.stop !== null
+          ? { kind: "Stopped", stopResult: executeResult.stop }
+          : { kind: "PendingFetch" },
+      );
       if (executeResult.consumedInput) {
         setInput(consumeInput(input));
       }
@@ -324,10 +307,7 @@ function App(props: AppProps): JSX.Element {
         setOutput(appendOutput(executeResult.output));
       }
 
-      triggerStepComplete({
-        kind: "ExecuteComplete",
-        stopped: executeResult.stop,
-      });
+      triggerStepComplete(undefined);
     }
 
     const animation = nextInstructionAnimation(computer, nextInput);
@@ -380,8 +360,14 @@ function App(props: AppProps): JSX.Element {
   }, [doExecuteInstruction]);
 
   const handleResetClick = React.useCallback((): void => {
-    setComputer(setProgramCounter(0));
-    setCpuStopped(null);
+    setComputer(
+      compose(
+        setInstructionRegister(0),
+        setDataRegister(0),
+        setProgramCounter(0),
+      ),
+    );
+    setCpuState(initialCpuState());
     setInput((input) => rewindInput(input));
     setOutput(emptyOutput());
   }, []);
@@ -393,8 +379,20 @@ function App(props: AppProps): JSX.Element {
 
   const handleRunClick = React.useCallback((): void => {
     setSimulationState("RUN");
-    doFetchInstruction();
-  }, [doFetchInstruction]);
+    switch (cpuState.kind) {
+      case "PendingFetch":
+        doFetchInstruction();
+        break;
+      case "PendingExecute":
+        doExecuteInstruction();
+        break;
+      case "Stopped":
+        // TODO This should never happen (assert)?
+        break;
+      default:
+        assertNever(cpuState);
+    }
+  }, [cpuState, doExecuteInstruction, doFetchInstruction]);
 
   const handleStopClick = React.useCallback((): void => {
     setSimulationState("STOPPING");
@@ -534,7 +532,7 @@ function App(props: AppProps): JSX.Element {
           const hardwareState = loadProgram(
             {
               computer: computer,
-              cpuStopped: cpuStopped,
+              cpuState: cpuState,
               input: input,
               output: output,
             },
@@ -542,7 +540,7 @@ function App(props: AppProps): JSX.Element {
           );
 
           setComputer(hardwareState.computer);
-          setCpuStopped(hardwareState.cpuStopped);
+          setCpuState(hardwareState.cpuState);
           setInput(hardwareState.input);
           setOutput(hardwareState.output);
           break;
@@ -554,7 +552,7 @@ function App(props: AppProps): JSX.Element {
           assertNever(message);
       }
     },
-    [computer, cpuStopped, handleDebugMessage, input, output, simulationState],
+    [computer, cpuState, handleDebugMessage, input, output, simulationState],
   );
 
   useWindowMessages(extensionBridge, handleMessage);
@@ -567,8 +565,9 @@ function App(props: AppProps): JSX.Element {
         showExamples={IS_DEMO_ENVIRONMENT}
         showThemeSwitcher={IS_DEMO_ENVIRONMENT}
         showSourceLoader={!IS_DEMO_ENVIRONMENT}
+        cpuState={cpuState}
         simulationState={simulationState}
-        resetEnabled={isResetEnabled(computer, cpuStopped, input, output)}
+        resetEnabled={isResetEnabled(computer, cpuState, input, output)}
         examples={getExampleProgramNames()}
         onOpenFile={handleOpenFile}
         onLoadExample={handleLoadExample}
@@ -592,8 +591,8 @@ function App(props: AppProps): JSX.Element {
           className="App-Computer-Cont"
           uiString={uiString}
           computer={computer}
-          cpuStopped={cpuStopped}
           cpuState={cpuState}
+          cpuWorking={simulationActive(simulationState)}
           input={input}
           output={output}
           onMemoryCellChange={handleMemoryCellChange}
@@ -630,15 +629,17 @@ function App(props: AppProps): JSX.Element {
 
 function isResetEnabled(
   computer: ComputerState,
-  cpuStopped: StopResult | null,
+  cpuState: CpuState,
   input: InputState,
   output: OutputState,
 ): boolean {
   return (
+    computer.instructionRegister !== 0 ||
+    computer.dataRegister !== 0 ||
     computer.programCounter !== 0 ||
     !atBeginningOfInput(input) ||
     !isOutputEmpty(output) ||
-    cpuStopped !== null
+    cpuState.kind !== "PendingFetch"
   );
 }
 

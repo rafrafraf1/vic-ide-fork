@@ -50,7 +50,8 @@ export type UIStringKey =
   | "DATA_REGISTER"
   | "PROGRAM_COUNTER"
   | "CPU_STATUS"
-  | "CPU_IDLE"
+  | "CPU_IDLE_PENDING_FETCH"
+  | "CPU_IDLE_PENDING_EXECUTE"
   | "CPU_FETCHING"
   | "CPU_EXECUTING"
   | "CPU_STOP"
@@ -161,8 +162,10 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Program Counter";
     case "CPU_STATUS":
       return "CPU Status";
-    case "CPU_IDLE":
-      return "Idle";
+    case "CPU_IDLE_PENDING_FETCH":
+      return "Idle (Pending Fetch)";
+    case "CPU_IDLE_PENDING_EXECUTE":
+      return "Idle (Pending Execute)";
     case "CPU_FETCHING":
       return "Fetching...";
     case "CPU_EXECUTING":

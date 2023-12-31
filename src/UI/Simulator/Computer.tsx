@@ -12,12 +12,11 @@ import {
   memoryRead,
   type ComputerState,
   type MemoryCell,
-  type StopResult,
 } from "../../Computer/Computer";
-import type { CpuState } from "../../Computer/CpuState";
 import type { InputState } from "../../Computer/Input";
 import type { Address } from "../../Computer/Instruction";
 import type { OutputState } from "../../Computer/Output";
+import type { CpuState } from "../../Computer/SimulatorState";
 import type { Value } from "../../Computer/Value";
 import { nonNull } from "../../Functional/Nullability";
 import type { UIStrings } from "../UIStrings";
@@ -75,8 +74,8 @@ export interface ComputerProps {
   uiString: UIStrings;
 
   computer: ComputerState;
-  cpuStopped: StopResult | null;
   cpuState: CpuState;
+  cpuWorking: boolean;
   input: InputState;
   output: OutputState;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
@@ -92,8 +91,8 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       className,
       uiString,
       computer,
-      cpuStopped,
       cpuState,
+      cpuWorking,
       input,
       output,
       onMemoryCellChange,
@@ -200,8 +199,8 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           instructionRegister={computer.instructionRegister}
           dataRegister={computer.dataRegister}
           programCounter={computer.programCounter}
-          cpuStopped={cpuStopped}
           cpuState={cpuState}
+          cpuWorking={cpuWorking}
           onInstructionRegister={onInstructionRegister}
           onDataRegisterChange={onDataRegisterChange}
           onProgramCounterChange={onProgramCounterChange}
@@ -492,8 +491,8 @@ interface CpuProps {
   instructionRegister: Value;
   dataRegister: Value;
   programCounter: Value;
-  cpuStopped: StopResult | null;
   cpuState: CpuState;
+  cpuWorking: boolean;
   onInstructionRegister?: (value: Value) => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
@@ -506,8 +505,8 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
       instructionRegister,
       dataRegister,
       programCounter,
-      cpuStopped,
       cpuState,
+      cpuWorking,
       onInstructionRegister,
       onDataRegisterChange,
       onProgramCounterChange,
@@ -559,8 +558,8 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
         </CpuRegister>
         <CpuStatus
           uiString={uiString}
-          cpuStopped={cpuStopped}
           cpuState={cpuState}
+          cpuWorking={cpuWorking}
         />
       </div>
     );

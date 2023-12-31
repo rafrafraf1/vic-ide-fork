@@ -9,9 +9,33 @@ import { emptyOutput, type OutputState } from "./Output";
 
 export interface HardwareState {
   computer: ComputerState;
-  cpuStopped: StopResult | null;
+  cpuState: CpuState;
   input: InputState;
   output: OutputState;
+}
+
+export type CpuState =
+  | CpuState.PendingFetch
+  | CpuState.PendingExecute
+  | CpuState.Stopped;
+
+export namespace CpuState {
+  export interface PendingFetch {
+    kind: "PendingFetch";
+  }
+
+  export interface PendingExecute {
+    kind: "PendingExecute";
+  }
+
+  export interface Stopped {
+    kind: "Stopped";
+    stopResult: StopResult;
+  }
+}
+
+export function initialCpuState(): CpuState {
+  return { kind: "PendingFetch" };
 }
 
 export type HelpScreenState = "CLOSED" | "OPEN" | "PINNED";
@@ -25,7 +49,7 @@ export interface SimulatorState {
 export function newHardwareState(): HardwareState {
   return {
     computer: newComputerState(),
-    cpuStopped: null,
+    cpuState: initialCpuState(),
     input: emptyInput(),
     output: emptyOutput(),
   };
