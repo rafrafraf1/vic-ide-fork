@@ -24,7 +24,7 @@ Search for the "vic simulator" command and run it:
 
 The Vic Simulator is now open:
 
-![command palette vic simulator](getting-started/vic_ide_blank_simulator.png)
+![vic ide blank simulator](getting-started/vic_ide_blank_simulator.png)
 
 The simulator is initially blank. You can enter a program by entering memory values into the memory cells and input cells and then use the toolbar buttons to run the program.
 
