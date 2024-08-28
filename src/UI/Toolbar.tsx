@@ -237,6 +237,7 @@ export const Toolbar = React.memo(function Toolbar(
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
       {showExamples ? (
         <MenuButton<OpenFileSelection>
+          className="Toolbar-Button"
           disabled={simulationActive(simulationState)}
           icon={<PiFolderOpenDuotone size={22} />}
           label={uiString("FILE")}
@@ -246,6 +247,7 @@ export const Toolbar = React.memo(function Toolbar(
       ) : null}
       {showSourceLoader ? (
         <SourceFileLoader
+          className="Toolbar-Button"
           uiString={uiString}
           disabled={simulationActive(simulationState)}
           sourceFile={sourceFile}
@@ -261,6 +263,7 @@ export const Toolbar = React.memo(function Toolbar(
         )}
       >
         <Button
+          className="Toolbar-Button"
           disabled={
             simulationActive(simulationState) ||
             cpuState.kind !== "PendingFetch"
@@ -278,6 +281,7 @@ export const Toolbar = React.memo(function Toolbar(
         content={uiString("EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER")}
       >
         <Button
+          className="Toolbar-Button"
           disabled={
             simulationActive(simulationState) ||
             cpuState.kind !== "PendingExecute"
@@ -293,12 +297,14 @@ export const Toolbar = React.memo(function Toolbar(
 
       <Separator />
       <AnimationSpeedSelector
+        className="Toolbar-AnimationSpeedSelector"
         uiString={uiString}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={onAnimationSpeedChange}
       />
       <Separator />
       <RunButton
+        className="Toolbar-Button"
         uiString={uiString}
         tippyTarget={tippyTarget}
         cpuState={cpuState}
@@ -310,6 +316,7 @@ export const Toolbar = React.memo(function Toolbar(
         content={uiString("FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT")}
       >
         <Button
+          className="Toolbar-Button"
           disabled={
             simulationActive(simulationState) ||
             cpuState.kind !== "PendingFetch"
@@ -329,6 +336,7 @@ export const Toolbar = React.memo(function Toolbar(
         )}
       >
         <Button
+          className="Toolbar-Button"
           disabled={simulationActive(simulationState) || !resetEnabled}
           onClick={onResetClick}
         >
@@ -340,6 +348,7 @@ export const Toolbar = React.memo(function Toolbar(
       </Tippy>
       <Separator />
       <MenuButton<ClearOption>
+        className="Toolbar-Button"
         icon={<VscTrash size={22} />}
         label={uiString("CLEAR")}
         values={[
@@ -352,7 +361,7 @@ export const Toolbar = React.memo(function Toolbar(
         onValueClick={handleClearClick}
       />
       <Separator />
-      <Button onClick={onHelpClick}>
+      <Button className="Toolbar-Button" onClick={onHelpClick}>
         <ButtonLabel>{uiString("HELP")}</ButtonLabel>
         <ButtonLabel>
           <VscQuestion size={24} />
@@ -361,7 +370,7 @@ export const Toolbar = React.memo(function Toolbar(
       {showThemeSwitcher ? (
         <>
           <Separator />
-          <ThemeSwitcher uiString={uiString} />
+          <ThemeSwitcher className="Toolbar-Button" uiString={uiString} />
         </>
       ) : null}
     </div>
@@ -373,6 +382,7 @@ function Separator(): React.JSX.Element {
 }
 
 interface SourceFileLoaderProps {
+  className?: string;
   uiString: UIStrings;
   disabled?: boolean;
   sourceFile: SourceFile | null;
@@ -382,6 +392,7 @@ interface SourceFileLoaderProps {
 
 function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
   const {
+    className,
     uiString,
     disabled,
     sourceFile,
@@ -395,7 +406,7 @@ function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
         content={uiString("USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE")}
         placement="bottom"
       >
-        <Button disabled={true}>
+        <Button className={className} disabled={true}>
           <ButtonLabel>
             <FaFileUpload />
           </ButtonLabel>
@@ -422,7 +433,7 @@ function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
           }
           placement="bottom"
         >
-          <Button disabled={true}>
+          <Button className={className} disabled={true}>
             <ButtonLabel>
               <FaFileUpload />
             </ButtonLabel>
@@ -456,7 +467,11 @@ function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
             )}`}
             placement="bottom"
           >
-            <Button disabled={disabled} onClick={handleLoadClick}>
+            <Button
+              className={className}
+              disabled={disabled}
+              onClick={handleLoadClick}
+            >
               <ButtonLabel>
                 <FaFileUpload />
               </ButtonLabel>
@@ -480,7 +495,11 @@ function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
             }
             placement="bottom"
           >
-            <Button disabled={disabled} onClick={handleLoadClick}>
+            <Button
+              className={className}
+              disabled={disabled}
+              onClick={handleLoadClick}
+            >
               <ButtonLabel>
                 <FaFileUpload />
               </ButtonLabel>
@@ -501,6 +520,7 @@ function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
 }
 
 interface RunButtonProps {
+  className?: string;
   uiString: UIStrings;
   tippyTarget: TippyProps["singleton"];
   cpuState: CpuState;
@@ -509,7 +529,14 @@ interface RunButtonProps {
 }
 
 export function RunButton(props: RunButtonProps): React.JSX.Element {
-  const { uiString, tippyTarget, cpuState, simulationState, onClick } = props;
+  const {
+    className,
+    uiString,
+    tippyTarget,
+    cpuState,
+    simulationState,
+    onClick,
+  } = props;
 
   const [label, icon] = ((): [string, IconType] => {
     switch (simulationState) {
@@ -543,6 +570,7 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
       content={uiString("RUN_PROGRAM_UNTIL_IT_TERMINATES")}
     >
       <Button
+        className={className}
         disabled={
           !(simulationState === "IDLE" || simulationState === "RUN") ||
           cpuState.kind === "Stopped"
@@ -564,11 +592,12 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
 }
 
 interface ThemeSwitcherProps {
+  className?: string;
   uiString: UIStrings;
 }
 
 export function ThemeSwitcher(props: ThemeSwitcherProps): React.JSX.Element {
-  const { uiString } = props;
+  const { className, uiString } = props;
 
   const [theme, setTheme] = React.useState<DemoTheme>(() => getCurrentTheme());
 
@@ -592,7 +621,7 @@ export function ThemeSwitcher(props: ThemeSwitcherProps): React.JSX.Element {
   }, [theme]);
 
   return (
-    <Button onClick={handleClick}>
+    <Button className={className} onClick={handleClick}>
       <ButtonLabel>
         <RiContrastFill size={22} />
       </ButtonLabel>

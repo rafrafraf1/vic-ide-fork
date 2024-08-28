@@ -6,6 +6,7 @@ import type { ChangeEvent } from "react";
 import classNames from "classnames";
 
 export interface MenuButtonProps<T> {
+  className?: string;
   icon: React.ReactNode;
   label: string;
   disabled?: boolean;
@@ -26,7 +27,7 @@ export interface MenuButtonOption<T> {
 }
 
 export function MenuButton<T>(props: MenuButtonProps<T>): React.JSX.Element {
-  const { icon, label, disabled, values, onValueClick } = props;
+  const { className, icon, label, disabled, values, onValueClick } = props;
 
   const selectRef = React.useRef<HTMLSelectElement>(null);
 
@@ -57,7 +58,7 @@ export function MenuButton<T>(props: MenuButtonProps<T>): React.JSX.Element {
       </div>
       <select
         ref={selectRef}
-        className="MenuButton"
+        className={classNames(className, "MenuButton")}
         disabled={disabled}
         onChange={handleChange}
         value=""
