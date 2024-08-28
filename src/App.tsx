@@ -54,6 +54,7 @@ import { compose } from "./Functional/Compose";
 import { nonNull } from "./Functional/Nullability";
 import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
+import { ComputerFrame } from "./UI/ComputerFrame";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
 import { LoadDialog } from "./UI/LoadDialog";
 import { useEvents } from "./UI/ReactHooks/UseEvents";
@@ -586,21 +587,22 @@ function App(props: AppProps): React.JSX.Element {
         onHelpClick={handleHelpClick}
       />
       <div className="App-Main">
-        <Computer
-          ref={computerRef}
-          className="App-Computer-Cont"
-          uiString={uiString}
-          computer={computer}
-          cpuState={cpuState}
-          cpuWorking={simulationActive(simulationState)}
-          input={input}
-          output={output}
-          onMemoryCellChange={handleMemoryCellChange}
-          onInstructionRegister={handleInstructionRegister}
-          onDataRegisterChange={handleDataRegisterChange}
-          onProgramCounterChange={handleProgramCounterChange}
-          onInputChange={handleInputChange}
-        />
+        <ComputerFrame className="App-ComputerFrame-Cont" uiString={uiString}>
+          <Computer
+            ref={computerRef}
+            uiString={uiString}
+            computer={computer}
+            cpuState={cpuState}
+            cpuWorking={simulationActive(simulationState)}
+            input={input}
+            output={output}
+            onMemoryCellChange={handleMemoryCellChange}
+            onInstructionRegister={handleInstructionRegister}
+            onDataRegisterChange={handleDataRegisterChange}
+            onProgramCounterChange={handleProgramCounterChange}
+            onInputChange={handleInputChange}
+          />
+        </ComputerFrame>
         {helpScreenState === "PINNED" ? (
           <div className="App-HelpSidebar-Cont">
             <HelpSidebar

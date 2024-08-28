@@ -15,10 +15,12 @@
   min-height: 0;
   align-self: stretch;
   display: flex;
+  justify-content: center;
 }
 
-.App-Computer-Cont {
-  flex: 1 1 auto;
+.App-ComputerFrame-Cont {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .App-HelpSidebar-Cont {

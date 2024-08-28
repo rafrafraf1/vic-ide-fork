@@ -1,0 +1,34 @@
+.ComputerFrame-Root {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--vscode-inputOption-hoverBackground);
+  border-radius: 8px;
+}
+
+.ComputerFrame-Titlebar {
+  flex: 0 0 auto;
+  align-self: stretch;
+  height: 32px;
+  display: flex;
+  color: var(--vscode-quickInput-foreground);
+  background-color: var(--vscode-inputOption-hoverBackground);
+  padding-left: 12px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.ComputerFrame-Titlebar-Heading {
+  align-self: center;
+  font-size: 112%;
+  text-align: center;
+}
+
+.ComputerFrame-Contents {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 6px;
+}

@@ -1,12 +1,13 @@
 .Computer-Root {
   display: grid;
-  grid-template-columns:
-    1fr minmax(auto, 244px) 10px minmax(auto, 448px) 10px minmax(auto, 312px)
-    1fr;
+  grid-template-columns: minmax(auto, 244px) 10px minmax(auto, 448px) 10px minmax(
+      auto,
+      312px
+    );
   grid-template-rows: 1fr 48px;
   grid-template-areas:
-    ". io       . cpu       . memory ."
-    ". io-label . cpu-label . memory-label .";
+    "io       . cpu       . memory"
+    "io-label . cpu-label . memory-label";
 }
 
 .Computer-Divider {
@@ -19,15 +20,15 @@
 }
 
 .Computer-Divider1 {
-  grid-column-start: 3;
-  grid-column-end: 4;
+  grid-column-start: 2;
+  grid-column-end: 3;
   grid-row-start: 1;
   grid-row-end: 2;
 }
 
 .Computer-Divider2 {
-  grid-column-start: 5;
-  grid-column-end: 6;
+  grid-column-start: 4;
+  grid-column-end: 5;
   grid-row-start: 1;
   grid-row-end: 2;
 }
