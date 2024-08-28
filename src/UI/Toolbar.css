@@ -38,3 +38,7 @@
 .Toolbar-RunLabelSpacer {
   visibility: hidden;
 }
+
+.Toolbar-ButtonLabelDim {
+  opacity: 0.6;
+}

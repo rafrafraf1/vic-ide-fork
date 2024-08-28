@@ -256,45 +256,15 @@ export const Toolbar = React.memo(function Toolbar(
         />
       ) : null}
       <Separator />
-      <Tippy
-        singleton={tippyTarget}
-        content={uiString(
-          "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER",
-        )}
-      >
-        <Button
-          className="Toolbar-Button"
-          disabled={
-            simulationActive(simulationState) ||
-            cpuState.kind !== "PendingFetch"
-          }
-          onClick={onFetchInstructionClick}
-        >
-          <ButtonLabel>{uiString("FETCH")}</ButtonLabel>
-          <ButtonLabel>
-            <BsCpu size={22} />
-          </ButtonLabel>
-        </Button>
-      </Tippy>
-      <Tippy
-        singleton={tippyTarget}
-        content={uiString("EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER")}
-      >
-        <Button
-          className="Toolbar-Button"
-          disabled={
-            simulationActive(simulationState) ||
-            cpuState.kind !== "PendingExecute"
-          }
-          onClick={onExecuteInstructionClick}
-        >
-          <ButtonLabel>
-            <BsCpu size={22} />
-          </ButtonLabel>
-          <ButtonLabel>{uiString("EXECUTE")}</ButtonLabel>
-        </Button>
-      </Tippy>
-
+      <FetchExecuteButton
+        className="Toolbar-Button"
+        uiString={uiString}
+        tippyTarget={tippyTarget}
+        cpuState={cpuState}
+        simulationState={simulationState}
+        onFetchInstructionClick={onFetchInstructionClick}
+        onExecuteInstructionClick={onExecuteInstructionClick}
+      />
       <Separator />
       <AnimationSpeedSelector
         className="Toolbar-AnimationSpeedSelector"
@@ -517,6 +487,95 @@ function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
     default:
       return assertNever(sourceFile.info);
   }
+}
+
+interface FetchExecuteButtonProps {
+  className?: string;
+  uiString: UIStrings;
+  tippyTarget: TippyProps["singleton"];
+
+  cpuState: CpuState;
+  simulationState: SimulationState;
+
+  onFetchInstructionClick?: () => void;
+  onExecuteInstructionClick?: () => void;
+}
+
+export function FetchExecuteButton(
+  props: FetchExecuteButtonProps,
+): React.JSX.Element {
+  const {
+    className,
+    uiString,
+    tippyTarget,
+    cpuState,
+    simulationState,
+    onFetchInstructionClick,
+    onExecuteInstructionClick,
+  } = props;
+
+  const fetchDisabled =
+    simulationActive(simulationState) || cpuState.kind !== "PendingFetch";
+
+  const executeDisabled =
+    simulationActive(simulationState) || cpuState.kind !== "PendingExecute";
+
+  const handleClick = React.useCallback(() => {
+    if (fetchDisabled && !executeDisabled) {
+      if (onExecuteInstructionClick !== undefined) {
+        onExecuteInstructionClick();
+      }
+      return;
+    }
+    if (executeDisabled && !fetchDisabled) {
+      if (onFetchInstructionClick !== undefined) {
+        onFetchInstructionClick();
+      }
+    }
+  }, [
+    executeDisabled,
+    fetchDisabled,
+    onExecuteInstructionClick,
+    onFetchInstructionClick,
+  ]);
+
+  return (
+    <Tippy
+      singleton={tippyTarget}
+      content={
+        <>
+          {uiString("FETCH_OR_EXECUTE_AN_INSTRUCTION")}
+          <br />
+          <br />
+          {uiString("LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER")}
+          <br />
+          <br />
+          {uiString("EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER")}
+        </>
+      }
+    >
+      <Button
+        className={className}
+        disabled={fetchDisabled && executeDisabled}
+        onClick={handleClick}
+      >
+        <ButtonLabel>
+          <BsCpu size={22} />
+        </ButtonLabel>
+        <ButtonLabel
+          className={classNames({ "Toolbar-ButtonLabelDim": fetchDisabled })}
+        >
+          {uiString("FETCH")}
+        </ButtonLabel>
+        <ButtonLabel className="Toolbar-ButtonLabelDim">/</ButtonLabel>
+        <ButtonLabel
+          className={classNames({ "Toolbar-ButtonLabelDim": executeDisabled })}
+        >
+          {uiString("EXECUTE")}
+        </ButtonLabel>
+      </Button>
+    </Tippy>
+  );
 }
 
 interface RunButtonProps {

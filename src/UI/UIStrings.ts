@@ -36,6 +36,7 @@ export type UIStringKey =
   | "CLICK_TO_VIEW_THE_ERRORS"
   | "FILE_IS_OF_TYPE"
   | "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO"
+  | "FETCH_OR_EXECUTE_AN_INSTRUCTION"
   | "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER"
   | "EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER"
   | "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
@@ -82,9 +83,9 @@ export function EnglishStrings(key: UIStringKey): string {
     case "LOAD_EXAMPLE":
       return "Load Example";
     case "FETCH":
-      return "Fetch";
+      return "FE";
     case "EXECUTE":
-      return "Execute";
+      return "EX";
     case "ANIMATION_SPEED":
       return "Animation Speed";
     case "ANIMATION_OFF":
@@ -135,10 +136,12 @@ export function EnglishStrings(key: UIStringKey): string {
       return "file is of type";
     case "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO":
       return "Change the Language mode of the file to";
+    case "FETCH_OR_EXECUTE_AN_INSTRUCTION":
+      return "Fetch or Execute an instruction, depending on the current CPU state.";
     case "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER":
-      return "Load instruction from memory to the Instruction Register";
+      return "FE: Load instruction from memory to the Instruction Register.";
     case "EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER":
-      return "Execute the instruction in the Instruction Register";
+      return "EX: Execute the instruction in the Instruction Register";
     case "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT":
       return "Reset the Input, set the Program Counter to 0, and clear the Output";
     case "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT":
