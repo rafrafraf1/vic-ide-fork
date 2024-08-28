@@ -5,13 +5,4 @@
   border: 2px solid var(--vscode-notifications-border);
   color: var(--vscode-foreground);
   overflow-y: scroll;
-
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-auto-rows: max-content;
-}
-
-.Output-Arrow {
-  color: var(--vscode-editorWarning-foreground);
-  margin: 4px;
 }

@@ -2,8 +2,6 @@ import "./Input.css";
 
 import * as React from "react";
 
-import { VscArrowCircleRight } from "react-icons/vsc";
-
 import { atEndOfInput, type InputState } from "../../Computer/Input";
 import type { Value } from "../../Computer/Value";
 import { nonNull } from "../../Functional/Nullability";
@@ -118,24 +116,23 @@ export const Input = React.memo(
       return (
         <div className="Input-Root">
           {input.values.map((value, index) => (
-            <React.Fragment key={index}>
-              <InputLineElem
-                ref={(ref: InputLineElemHandle): void => {
-                  if (index === input.next) {
-                    nextInputLineElemRef.current = ref;
-                  }
-                  if (index === input.values.length - 1) {
-                    lastInputRef.current = ref;
-                  }
-                }}
-                value={value}
-                index={index}
-                next={index === input.next}
-                last={index === input.values.length - 1}
-                onValueChange={handleValueChange}
-                onDelete={handleDelete}
-              />
-            </React.Fragment>
+            <InputLineElem
+              key={index}
+              ref={(ref: InputLineElemHandle): void => {
+                if (index === input.next) {
+                  nextInputLineElemRef.current = ref;
+                }
+                if (index === input.values.length - 1) {
+                  lastInputRef.current = ref;
+                }
+              }}
+              value={value}
+              index={index}
+              next={index === input.next}
+              last={index === input.values.length - 1}
+              onValueChange={handleValueChange}
+              onDelete={handleDelete}
+            />
           ))}
           <BlankableValueCellInput
             ref={blankInputRef}
@@ -144,11 +141,6 @@ export const Input = React.memo(
             highlighted={atEndOfInput(input)}
             onValueChange={handleNewInputCellChange}
           />
-          {atEndOfInput(input) ? (
-            <VscArrowCircleRight size={24} className="Input-Arrow" />
-          ) : (
-            <div />
-          )}
         </div>
       );
     },
@@ -221,29 +213,20 @@ const InputLineElem = React.memo(
         [index, onDelete, onValueChange],
       );
 
-      return (
-        <>
-          {last ? (
-            <BlankableValueCellInput
-              ref={valueCellInputRef}
-              value={value}
-              highlighted={next}
-              onValueChange={handleLastValueChange}
-            />
-          ) : (
-            <ValueCellInput
-              ref={valueCellInputRef}
-              value={value}
-              highlighted={next}
-              onValueChange={handleValueChange}
-            />
-          )}
-          {next ? (
-            <VscArrowCircleRight size={24} className="Input-Arrow" />
-          ) : (
-            <div />
-          )}
-        </>
+      return last ? (
+        <BlankableValueCellInput
+          ref={valueCellInputRef}
+          value={value}
+          highlighted={next}
+          onValueChange={handleLastValueChange}
+        />
+      ) : (
+        <ValueCellInput
+          ref={valueCellInputRef}
+          value={value}
+          highlighted={next}
+          onValueChange={handleValueChange}
+        />
       );
     },
   ),

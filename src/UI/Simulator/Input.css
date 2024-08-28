@@ -6,12 +6,7 @@
   color: var(--vscode-foreground);
   overflow-y: scroll;
 
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-auto-rows: max-content;
-}
-
-.Input-Arrow {
-  color: var(--vscode-editorWarning-foreground);
-  margin: 4px;
+  /* display: grid; */
+  /* grid-template-columns: auto; */
+  /* grid-auto-rows: max-content; */
 }

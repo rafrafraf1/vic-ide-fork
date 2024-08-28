@@ -2,8 +2,6 @@ import "./Output.css";
 
 import * as React from "react";
 
-import { VscArrowCircleLeft } from "react-icons/vsc";
-
 import type { OutputState } from "../../Computer/Output";
 import { nonNull } from "../../Functional/Nullability";
 import { usePrevious } from "../ReactHooks/UsePrevious";
@@ -64,10 +62,7 @@ export const Output = React.memo(
       return (
         <div className="Output-Root" ref={root}>
           {output.values.map((value, index) => (
-            <React.Fragment key={index}>
-              <ValueCellInput value={value} disabled={true} />
-              <span />
-            </React.Fragment>
+            <ValueCellInput key={index} value={value} disabled={true} />
           ))}
           <BlankableValueCellInput
             ref={nextLine}
@@ -75,9 +70,6 @@ export const Output = React.memo(
             highlighted={true}
             disabled={true}
           />
-          <span>
-            <VscArrowCircleLeft size={24} className="Output-Arrow" />
-          </span>
         </div>
       );
     },
