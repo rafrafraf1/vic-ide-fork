@@ -7,7 +7,9 @@ export interface ToolbarPlaygroundProps {
   uiString: UIStrings;
 }
 
-export function ToolbarPlayground(props: ToolbarPlaygroundProps): JSX.Element {
+export function ToolbarPlayground(
+  props: ToolbarPlaygroundProps,
+): React.JSX.Element {
   const { uiString } = props;
 
   return (

@@ -20,7 +20,7 @@ const allPlaygrounds: Playground[] = [
   "ToolbarPlayground",
 ];
 
-export function PlaygroundMenu(): JSX.Element {
+export function PlaygroundMenu(): React.JSX.Element {
   const [playground, setPlayground] = React.useState<Playground>("None");
 
   return (
@@ -49,7 +49,7 @@ interface PlaygroundActivityProps {
   playground: Playground;
 }
 
-function PlaygroundActivity(props: PlaygroundActivityProps): JSX.Element {
+function PlaygroundActivity(props: PlaygroundActivityProps): React.JSX.Element {
   const { playground } = props;
 
   switch (playground) {

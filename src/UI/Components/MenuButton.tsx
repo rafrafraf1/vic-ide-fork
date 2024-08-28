@@ -25,7 +25,7 @@ export interface MenuButtonOption<T> {
   className?: string;
 }
 
-export function MenuButton<T>(props: MenuButtonProps<T>): JSX.Element {
+export function MenuButton<T>(props: MenuButtonProps<T>): React.JSX.Element {
   const { icon, label, disabled, values, onValueClick } = props;
 
   const selectRef = React.useRef<HTMLSelectElement>(null);

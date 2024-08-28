@@ -41,8 +41,11 @@ export interface ValueCellInputProps extends ValueCellInputPropsMixin {
   onValueChange?: (value: Value) => void;
 }
 
-export const ValueCellInput: React.ForwardRefExoticComponent<
-  ValueCellInputProps & React.RefAttributes<ValueCellInputHandle>
+export const ValueCellInput: React.MemoExoticComponent<
+  React.ForwardRefExoticComponent<
+    ValueCellInputTemplateProps<number> &
+      React.RefAttributes<ValueCellInputHandle>
+  >
 > = React.memo(
   ValueCellInputTemplate<number>({
     renderValue: (value: number): string => {
@@ -63,8 +66,11 @@ export interface BlankableValueCellInputProps extends ValueCellInputPropsMixin {
   onValueChange?: (value: Value | null) => void;
 }
 
-export const BlankableValueCellInput: React.ForwardRefExoticComponent<
-  BlankableValueCellInputProps & React.RefAttributes<ValueCellInputHandle>
+export const BlankableValueCellInput: React.MemoExoticComponent<
+  React.ForwardRefExoticComponent<
+    ValueCellInputTemplateProps<number | null> &
+      React.RefAttributes<ValueCellInputHandle>
+  >
 > = React.memo(
   ValueCellInputTemplate<number | null>({
     renderValue: (value: number | null): string => {
@@ -103,7 +109,7 @@ function ValueCellInputTemplate<T>(
     (
       props: ValueCellInputTemplateProps<T>,
       ref: React.ForwardedRef<ValueCellInputHandle>,
-    ): JSX.Element => {
+    ): React.JSX.Element => {
       const { value, highlighted, disabled, tooltip, onValueChange } = props;
 
       const [inputStr, setInputStr] = React.useState<string>(() =>

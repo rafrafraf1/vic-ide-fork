@@ -23,7 +23,7 @@ type IncomingMessage<T> = T & { source?: "vic-ide-ext" };
  *
  * @param onMessage This will be called whenever a new message arrives.
  */
-export function useWindowMessages<T, U>(
+export function useWindowMessages<T, U>( // eslint-disable-line @typescript-eslint/no-unnecessary-type-parameters
   extensionBridge: ExtensionBridge<U>,
   onMessage: (e: T) => void,
 ): void {
@@ -71,7 +71,7 @@ export function useWindowMessages<T, U>(
     extensionBridge.postMessage({
       kind: "Ready",
     });
-    return () => {
+    return (): void => {
       window.removeEventListener("message", handleEvent);
     };
 

@@ -14,22 +14,24 @@ export interface CpuStatusProps {
   cpuWorking: boolean;
 }
 
-export const CpuStatus = React.memo((props: CpuStatusProps): JSX.Element => {
-  const { uiString, cpuState, cpuWorking } = props;
+export const CpuStatus = React.memo(
+  (props: CpuStatusProps): React.JSX.Element => {
+    const { uiString, cpuState, cpuWorking } = props;
 
-  return (
-    <div className="CpuStatus-Root">
-      <div>{uiString("CPU_STATUS")}</div>
-      <div className="CpuStatus-Message">
-        <CpuStatusMessage
-          uiString={uiString}
-          cpuState={cpuState}
-          cpuWorking={cpuWorking}
-        />
+    return (
+      <div className="CpuStatus-Root">
+        <div>{uiString("CPU_STATUS")}</div>
+        <div className="CpuStatus-Message">
+          <CpuStatusMessage
+            uiString={uiString}
+            cpuState={cpuState}
+            cpuWorking={cpuWorking}
+          />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 interface CpuStatusMessageProps {
   uiString: UIStrings;
@@ -38,7 +40,7 @@ interface CpuStatusMessageProps {
   cpuWorking: boolean;
 }
 
-function CpuStatusMessage(props: CpuStatusMessageProps): JSX.Element {
+function CpuStatusMessage(props: CpuStatusMessageProps): React.JSX.Element {
   const { uiString, cpuState, cpuWorking } = props;
 
   switch (cpuState.kind) {

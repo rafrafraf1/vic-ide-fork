@@ -15,7 +15,7 @@ export interface AnimationSpeedSelectorProps {
 }
 
 export const AnimationSpeedSelector = React.memo(
-  (props: AnimationSpeedSelectorProps): JSX.Element => {
+  (props: AnimationSpeedSelectorProps): React.JSX.Element => {
     const { className, uiString, animationSpeed, onAnimationSpeedChange } =
       props;
 
@@ -78,7 +78,7 @@ interface OptionProps {
   labelCssClassName: string;
 }
 
-function Option(props: OptionProps): JSX.Element {
+function Option(props: OptionProps): React.JSX.Element {
   const {
     animationSpeed,
     onAnimationSpeedChange,

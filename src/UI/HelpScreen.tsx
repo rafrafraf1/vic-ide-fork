@@ -11,41 +11,43 @@ export interface HelpScreenProps {
   onPinClick?: () => void;
 }
 
-export const HelpScreen = React.memo((props: HelpScreenProps): JSX.Element => {
-  const { onCloseClick, onPinClick } = props;
+export const HelpScreen = React.memo(
+  (props: HelpScreenProps): React.JSX.Element => {
+    const { onCloseClick, onPinClick } = props;
 
-  return (
-    <div className="HelpScreen-Root">
-      <div className="HelpScreen-Background" onClick={onCloseClick} />
-      <div className="HelpScreen-Window-Cont">
-        <div className="HelpScreen-Window">
-          <div className="HelpScreen-Window-Titlebar">
-            <div className="HelpScreen-Window-Titlebar-Heading">Vic Help</div>
-            <Button
-              className="HelpScreen-Window-Titlebar-Button"
-              onClick={onPinClick}
-            >
-              <ButtonLabel>
-                <VscPinned size="24" />
-              </ButtonLabel>
-            </Button>
-            <Button
-              className="HelpScreen-Window-Titlebar-Button"
-              onClick={onCloseClick}
-            >
-              <ButtonLabel>
-                <VscClose size="24" />
-              </ButtonLabel>
-            </Button>
-          </div>
-          <div className="HelpScreen-Window-Contents">
-            <InstructionsHelp />
+    return (
+      <div className="HelpScreen-Root">
+        <div className="HelpScreen-Background" onClick={onCloseClick} />
+        <div className="HelpScreen-Window-Cont">
+          <div className="HelpScreen-Window">
+            <div className="HelpScreen-Window-Titlebar">
+              <div className="HelpScreen-Window-Titlebar-Heading">Vic Help</div>
+              <Button
+                className="HelpScreen-Window-Titlebar-Button"
+                onClick={onPinClick}
+              >
+                <ButtonLabel>
+                  <VscPinned size="24" />
+                </ButtonLabel>
+              </Button>
+              <Button
+                className="HelpScreen-Window-Titlebar-Button"
+                onClick={onCloseClick}
+              >
+                <ButtonLabel>
+                  <VscClose size="24" />
+                </ButtonLabel>
+              </Button>
+            </div>
+            <div className="HelpScreen-Window-Contents">
+              <InstructionsHelp />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 export interface HelpSidebarProps {
   onUnpinClick?: () => void;
@@ -53,7 +55,7 @@ export interface HelpSidebarProps {
 }
 
 export const HelpSidebar = React.memo(
-  (props: HelpSidebarProps): JSX.Element => {
+  (props: HelpSidebarProps): React.JSX.Element => {
     const { onUnpinClick, onCloseClick } = props;
 
     return (
@@ -85,7 +87,7 @@ export const HelpSidebar = React.memo(
   },
 );
 
-export const InstructionsHelp = React.memo((): JSX.Element => {
+export const InstructionsHelp = React.memo((): React.JSX.Element => {
   return (
     <>
       <h3>Vic Instructions</h3>
@@ -142,7 +144,9 @@ interface InstructionsRowProps {
   children?: React.ReactNode;
 }
 
-export function InstructionsRow(props: InstructionsRowProps): JSX.Element {
+export function InstructionsRow(
+  props: InstructionsRowProps,
+): React.JSX.Element {
   const { code, name, children } = props;
   return (
     <tr>

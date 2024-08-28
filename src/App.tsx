@@ -91,7 +91,7 @@ function initSimulatorState(
   }
 }
 
-function App(props: AppProps): JSX.Element {
+function App(props: AppProps): React.JSX.Element {
   const { extensionBridge } = props;
 
   const uiString = EnglishStrings;

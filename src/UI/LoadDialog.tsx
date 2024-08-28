@@ -23,38 +23,40 @@ export interface LoadDialogProps {
   onProgramLoaded?: (memory: Value[]) => void;
 }
 
-export const LoadDialog = React.memo((props: LoadDialogProps): JSX.Element => {
-  const { uiString, onCloseClick, onProgramLoaded } = props;
+export const LoadDialog = React.memo(
+  (props: LoadDialogProps): React.JSX.Element => {
+    const { uiString, onCloseClick, onProgramLoaded } = props;
 
-  return (
-    <div className="LoadDialog-Root">
-      <div className="LoadDialog-Background" onClick={onCloseClick} />
-      <div className="LoadDialog-Window-Cont">
-        <div className="LoadDialog-Window">
-          <div className="LoadDialog-Window-Titlebar">
-            <div className="LoadDialog-Window-Titlebar-Heading">
-              {uiString("OPEN_FILE")}
+    return (
+      <div className="LoadDialog-Root">
+        <div className="LoadDialog-Background" onClick={onCloseClick} />
+        <div className="LoadDialog-Window-Cont">
+          <div className="LoadDialog-Window">
+            <div className="LoadDialog-Window-Titlebar">
+              <div className="LoadDialog-Window-Titlebar-Heading">
+                {uiString("OPEN_FILE")}
+              </div>
+              <Button
+                className="LoadDialog-Window-Titlebar-Button"
+                onClick={onCloseClick}
+              >
+                <ButtonLabel>
+                  <VscClose size="24" />
+                </ButtonLabel>
+              </Button>
             </div>
-            <Button
-              className="LoadDialog-Window-Titlebar-Button"
-              onClick={onCloseClick}
-            >
-              <ButtonLabel>
-                <VscClose size="24" />
-              </ButtonLabel>
-            </Button>
-          </div>
-          <div className="LoadDialog-Window-Contents">
-            <LoadInterface
-              uiString={uiString}
-              onProgramLoaded={onProgramLoaded}
-            />
+            <div className="LoadDialog-Window-Contents">
+              <LoadInterface
+                uiString={uiString}
+                onProgramLoaded={onProgramLoaded}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 interface LoadInterfaceProps {
   uiString: UIStrings;
@@ -93,129 +95,131 @@ interface FileInfo {
 
 type VicLanguage = "VIC_ASSEMBLY" | "VIC_BINARY";
 
-const LoadInterface = React.memo((props: LoadInterfaceProps): JSX.Element => {
-  const { onProgramLoaded } = props;
+const LoadInterface = React.memo(
+  (props: LoadInterfaceProps): React.JSX.Element => {
+    const { onProgramLoaded } = props;
 
-  const [dragHover, setDragHover] = React.useState(false);
+    const [dragHover, setDragHover] = React.useState(false);
 
-  const [loadState, setLoadState] = React.useState<LoadState>({
-    kind: "Pending",
-  });
+    const [loadState, setLoadState] = React.useState<LoadState>({
+      kind: "Pending",
+    });
 
-  const handleProgram = React.useCallback(
-    (fileInfo: FileInfo, text: string): void => {
-      const fixedText = text.replaceAll("\r", "");
-      const [language, result] = compileSource(fixedText);
-      switch (result.kind) {
-        case "Error":
-          console.log(result.error);
-          setLoadState({
-            kind: "CompileError",
-            fileInfo: fileInfo,
-            detectedLanguage: language,
-            source: fixedText,
-            errors: result.error,
-          });
-          break;
-        case "Ok":
-          if (onProgramLoaded !== undefined) {
-            onProgramLoaded(result.value);
-          }
-          break;
-        default:
-          assertNever(result);
-      }
-    },
-    [onProgramLoaded],
-  );
-
-  const handleDrop = React.useCallback(
-    (acceptedFiles: File[]): void => {
-      setDragHover(false);
-      const file = acceptedFiles[0];
-      if (file === undefined) {
-        return;
-      }
-      const fileInfo: FileInfo = {
-        fileName: file.name,
-        fileSize: file.size,
-      };
-
-      const options: ReadTextFileOptions = {
-        maxFileSize: 100 * 1024,
-      };
-
-      readTextFile(file, options, (result) => {
+    const handleProgram = React.useCallback(
+      (fileInfo: FileInfo, text: string): void => {
+        const fixedText = text.replaceAll("\r", "");
+        const [language, result] = compileSource(fixedText);
         switch (result.kind) {
           case "Error":
+            console.log(result.error);
             setLoadState({
-              kind: "ReadFileError",
-              error: result.error,
+              kind: "CompileError",
               fileInfo: fileInfo,
+              detectedLanguage: language,
+              source: fixedText,
+              errors: result.error,
             });
             break;
           case "Ok":
-            handleProgram(fileInfo, result.value);
+            if (onProgramLoaded !== undefined) {
+              onProgramLoaded(result.value);
+            }
             break;
           default:
             assertNever(result);
         }
-      });
-    },
-    [handleProgram],
-  );
+      },
+      [onProgramLoaded],
+    );
 
-  const handleDragEnter = React.useCallback((): void => {
-    setDragHover(true);
-  }, []);
+    const handleDrop = React.useCallback(
+      (acceptedFiles: File[]): void => {
+        setDragHover(false);
+        const file = acceptedFiles[0];
+        if (file === undefined) {
+          return;
+        }
+        const fileInfo: FileInfo = {
+          fileName: file.name,
+          fileSize: file.size,
+        };
 
-  const handleDragLeave = React.useCallback((): void => {
-    setDragHover(false);
-  }, []);
+        const options: ReadTextFileOptions = {
+          maxFileSize: 100 * 1024,
+        };
 
-  return (
-    <>
-      <Dropzone
-        onDrop={handleDrop}
-        multiple={false}
-        maxFiles={1}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-      >
-        {({ getRootProps, getInputProps }) => (
-          <div
-            {...getRootProps({
-              className: classNames("LoadDialog-Dropzone", {
-                "LoadDialog-Dropzone-Hover": dragHover,
-              }),
-            })}
-          >
-            <input {...getInputProps()} />
-            <GrDownload size={48} />
-            <p>
-              <strong>Choose a file</strong> or drag it here.
-            </p>
-          </div>
-        )}
-      </Dropzone>
-      {loadState.kind === "ReadFileError" ? (
-        <ReadFileInfo
-          error={loadState.error}
-          fileName={loadState.fileInfo.fileName}
-          fileSize={loadState.fileInfo.fileSize}
-        />
-      ) : null}
-      {loadState.kind === "CompileError" ? (
-        <CompileErrorInfo
-          fileName={loadState.fileInfo.fileName}
-          source={loadState.source}
-          detectedLanguage={loadState.detectedLanguage}
-          errors={loadState.errors}
-        />
-      ) : null}
-    </>
-  );
-});
+        readTextFile(file, options, (result) => {
+          switch (result.kind) {
+            case "Error":
+              setLoadState({
+                kind: "ReadFileError",
+                error: result.error,
+                fileInfo: fileInfo,
+              });
+              break;
+            case "Ok":
+              handleProgram(fileInfo, result.value);
+              break;
+            default:
+              assertNever(result);
+          }
+        });
+      },
+      [handleProgram],
+    );
+
+    const handleDragEnter = React.useCallback((): void => {
+      setDragHover(true);
+    }, []);
+
+    const handleDragLeave = React.useCallback((): void => {
+      setDragHover(false);
+    }, []);
+
+    return (
+      <>
+        <Dropzone
+          onDrop={handleDrop}
+          multiple={false}
+          maxFiles={1}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+        >
+          {({ getRootProps, getInputProps }) => (
+            <div
+              {...getRootProps({
+                className: classNames("LoadDialog-Dropzone", {
+                  "LoadDialog-Dropzone-Hover": dragHover,
+                }),
+              })}
+            >
+              <input {...getInputProps()} />
+              <GrDownload size={48} />
+              <p>
+                <strong>Choose a file</strong> or drag it here.
+              </p>
+            </div>
+          )}
+        </Dropzone>
+        {loadState.kind === "ReadFileError" ? (
+          <ReadFileInfo
+            error={loadState.error}
+            fileName={loadState.fileInfo.fileName}
+            fileSize={loadState.fileInfo.fileSize}
+          />
+        ) : null}
+        {loadState.kind === "CompileError" ? (
+          <CompileErrorInfo
+            fileName={loadState.fileInfo.fileName}
+            source={loadState.source}
+            detectedLanguage={loadState.detectedLanguage}
+            errors={loadState.errors}
+          />
+        ) : null}
+      </>
+    );
+  },
+);
 
 interface ReadFileInfoProps {
   error: ReadTextFileError;
@@ -223,38 +227,40 @@ interface ReadFileInfoProps {
   fileSize: number;
 }
 
-const ReadFileInfo = React.memo((props: ReadFileInfoProps): JSX.Element => {
-  const { error, fileName, fileSize } = props;
+const ReadFileInfo = React.memo(
+  (props: ReadFileInfoProps): React.JSX.Element => {
+    const { error, fileName, fileSize } = props;
 
-  const errorString = ((): string => {
-    switch (error.kind) {
-      case "EmptyFile":
-        return "The file is empty. Please choose a different file.";
-      case "FileTooLarge":
-        return `The file is too large. The maximum file size is ${humanFileSize(
-          error.maxFileSize,
-        )}`;
-      case "InvalidBinaryFile":
-        return "The file is not a text file. Please choose a different file.";
-      case "LoadError":
-        return `There was an error loading the file: ${error.error}`;
-      default:
-        return assertNever(error);
-    }
-  })();
+    const errorString = ((): string => {
+      switch (error.kind) {
+        case "EmptyFile":
+          return "The file is empty. Please choose a different file.";
+        case "FileTooLarge":
+          return `The file is too large. The maximum file size is ${humanFileSize(
+            error.maxFileSize,
+          )}`;
+        case "InvalidBinaryFile":
+          return "The file is not a text file. Please choose a different file.";
+        case "LoadError":
+          return `There was an error loading the file: ${error.error}`;
+        default:
+          return assertNever(error);
+      }
+    })();
 
-  return (
-    <div className="LoadDialog-ErrorInfoCont">
-      <h3>Error Reading File</h3>
-      <p>
-        <strong>
-          {fileName} <em>({humanFileSize(fileSize)})</em>
-        </strong>
-      </p>
-      <p> {errorString}</p>
-    </div>
-  );
-});
+    return (
+      <div className="LoadDialog-ErrorInfoCont">
+        <h3>Error Reading File</h3>
+        <p>
+          <strong>
+            {fileName} <em>({humanFileSize(fileSize)})</em>
+          </strong>
+        </p>
+        <p> {errorString}</p>
+      </div>
+    );
+  },
+);
 
 interface CompileErrorInfoProps {
   fileName: string;
@@ -264,7 +270,7 @@ interface CompileErrorInfoProps {
 }
 
 const CompileErrorInfo = React.memo(
-  (props: CompileErrorInfoProps): JSX.Element => {
+  (props: CompileErrorInfoProps): React.JSX.Element => {
     const { fileName, source, detectedLanguage, errors } = props;
 
     return (
@@ -305,7 +311,7 @@ interface SourceCodeProps {
   errors: SrcError[];
 }
 
-const SourceCode = React.memo((props: SourceCodeProps): JSX.Element => {
+const SourceCode = React.memo((props: SourceCodeProps): React.JSX.Element => {
   const { source, errors } = props;
 
   const errorLines = new Map<number, string[]>();
@@ -458,7 +464,7 @@ function readTextFile(
     let text: string;
     try {
       text = textDecoder.decode(reader.result);
-    } catch (err) {
+    } catch {
       cb({
         kind: "Error",
         error: { kind: "InvalidBinaryFile" },

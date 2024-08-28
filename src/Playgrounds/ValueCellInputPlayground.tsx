@@ -4,7 +4,7 @@ import * as React from "react";
 import type { Value } from "../Computer/Value";
 import { BlankableValueCellInput, ValueCellInput } from "../UI/ValueCellInput";
 
-export function ValueCellInputPlayground(): JSX.Element {
+export function ValueCellInputPlayground(): React.JSX.Element {
   return (
     <>
       <div>
@@ -17,7 +17,7 @@ export function ValueCellInputPlayground(): JSX.Element {
   );
 }
 
-export function ValueCellInputTester(): JSX.Element {
+export function ValueCellInputTester(): React.JSX.Element {
   const [value, setValue] = React.useState<Value>(23);
   const [highlighted, setHighlighted] = React.useState<boolean>(false);
   const [disabled, setDisabled] = React.useState<boolean>(false);
@@ -87,7 +87,7 @@ export function ValueCellInputTester(): JSX.Element {
   );
 }
 
-export function BlankableValueCellInputTester(): JSX.Element {
+export function BlankableValueCellInputTester(): React.JSX.Element {
   const [value, setValue] = React.useState<Value | null>(null);
   const [highlighted, setHighlighted] = React.useState<boolean>(false);
   const [disabled, setDisabled] = React.useState<boolean>(false);

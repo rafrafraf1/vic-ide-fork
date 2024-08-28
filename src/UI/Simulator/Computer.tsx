@@ -571,7 +571,7 @@ interface CpuRegisterProps {
   label: string;
 }
 
-function CpuRegister(props: CpuRegisterProps): JSX.Element {
+function CpuRegister(props: CpuRegisterProps): React.JSX.Element {
   const { label, children } = props;
 
   return (

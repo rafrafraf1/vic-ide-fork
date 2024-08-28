@@ -412,7 +412,7 @@ export function genWebviewHtml(
       }
     },
     /* istanbul ignore next */
-    (err) => {
+    (err: unknown) => {
       console.error(`Error loading asset-manifest.json:\n${err as string}`);
       void vscode.window.showErrorMessage(
         `Error loading asset-manifest.json:\n${err as string}`,

@@ -139,7 +139,7 @@ export function useAnimate(): Animate {
     // without getting an invalid react-hooks lint warning.
     const activeAnimationsRef = activeAnimations;
 
-    return () => {
+    return (): void => {
       activeAnimationsRef.current.forEach(deleteActiveAnimation);
     };
   }, []);

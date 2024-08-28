@@ -118,7 +118,7 @@ export type ClearOption =
 
 export const Toolbar = React.memo(function Toolbar(
   props: ToolbarProps,
-): JSX.Element {
+): React.JSX.Element {
   const {
     className,
     uiString,
@@ -368,7 +368,7 @@ export const Toolbar = React.memo(function Toolbar(
   );
 });
 
-function Separator(): JSX.Element {
+function Separator(): React.JSX.Element {
   return <div className="Toolbar-Separator" />;
 }
 
@@ -380,7 +380,7 @@ interface SourceFileLoaderProps {
   onShowErrorsClick?: () => void;
 }
 
-function SourceFileLoader(props: SourceFileLoaderProps): JSX.Element {
+function SourceFileLoader(props: SourceFileLoaderProps): React.JSX.Element {
   const {
     uiString,
     disabled,
@@ -508,7 +508,7 @@ interface RunButtonProps {
   onClick: () => void;
 }
 
-export function RunButton(props: RunButtonProps): JSX.Element {
+export function RunButton(props: RunButtonProps): React.JSX.Element {
   const { uiString, tippyTarget, cpuState, simulationState, onClick } = props;
 
   const [label, icon] = ((): [string, IconType] => {
@@ -567,7 +567,7 @@ interface ThemeSwitcherProps {
   uiString: UIStrings;
 }
 
-export function ThemeSwitcher(props: ThemeSwitcherProps): JSX.Element {
+export function ThemeSwitcher(props: ThemeSwitcherProps): React.JSX.Element {
   const { uiString } = props;
 
   const [theme, setTheme] = React.useState<DemoTheme>(() => getCurrentTheme());
@@ -581,7 +581,7 @@ export function ThemeSwitcher(props: ThemeSwitcherProps): JSX.Element {
 
     registerThemeChangeListener(themeChangeListener);
 
-    return () => {
+    return (): void => {
       unregisterThemeChangeListener(themeChangeListener);
     };
   }, []);

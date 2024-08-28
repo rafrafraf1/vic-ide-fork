@@ -7,9 +7,10 @@
     "plugin:jest/recommended",
     "plugin:jest/style"
   ],
-  "plugins": ["react-refresh"],
+  "plugins": ["react-refresh", "@stylistic"],
   "rules": {
     "react-refresh/only-export-components": "warn",
+    "@stylistic/lines-between-class-members": "warn",
     "@typescript-eslint/consistent-type-exports": [
       "warn",
       { "fixMixedExportsWithInlineTypeSpecifier": true }
@@ -25,7 +26,6 @@
     "@typescript-eslint/default-param-last": "warn",
     "@typescript-eslint/explicit-function-return-type": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "warn",
-    "@typescript-eslint/lines-between-class-members": "warn",
     "@typescript-eslint/method-signature-style": "warn",
     "@typescript-eslint/no-confusing-void-expression": "warn",
     "@typescript-eslint/no-dupe-class-members": "warn",
@@ -56,6 +56,10 @@
     "@typescript-eslint/prefer-regexp-exec": "warn",
     "@typescript-eslint/promise-function-async": "warn",
     "@typescript-eslint/require-array-sort-compare": "warn",
+    "@typescript-eslint/restrict-template-expressions": [
+      "warn",
+      { "allowNumber": true }
+    ],
     "@typescript-eslint/return-await": ["warn", "always"],
     "@typescript-eslint/strict-boolean-expressions": [
       "warn",

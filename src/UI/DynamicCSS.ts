@@ -97,9 +97,9 @@ export function css(
 ): CSS {
   let result = "";
   for (let i = 0; i < strings.length; i++) {
-    result += strings[i];
+    result += strings[i]; // eslint-disable-line @typescript-eslint/restrict-plus-operands
     if (args.length - 1 >= i) {
-      result += args[i];
+      result += args[i]; // eslint-disable-line @typescript-eslint/restrict-plus-operands
     }
   }
   return {

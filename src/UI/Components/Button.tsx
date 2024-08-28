@@ -14,7 +14,7 @@ export interface ButtonProps {
 export const Button = React.forwardRef(function Button(
   props: ButtonProps,
   ref: React.ForwardedRef<HTMLButtonElement>,
-): JSX.Element {
+): React.JSX.Element {
   const { className, children, disabled, onClick } = props;
 
   const handleClick = React.useCallback(() => {
@@ -43,7 +43,7 @@ export interface ButtonLabelProps {
   className?: string;
 }
 
-export function ButtonLabel(props: ButtonLabelProps): JSX.Element {
+export function ButtonLabel(props: ButtonLabelProps): React.JSX.Element {
   const { children, className } = props;
 
   return (
