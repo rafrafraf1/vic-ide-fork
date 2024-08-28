@@ -2,10 +2,7 @@
   font-family: monospace;
   font-size: 124%;
 
-  background: var(--vscode-notifications-background);
   color: var(--vscode-notifications-foreground);
-  border: 2px solid var(--vscode-notifications-border);
-  border-radius: 16px;
   padding: 8px;
   text-align: center;
 

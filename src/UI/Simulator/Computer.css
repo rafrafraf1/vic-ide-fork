@@ -71,13 +71,9 @@
 }
 
 .Computer-Label {
-  background: var(--vscode-notifications-background);
   color: var(--vscode-notifications-foreground);
-  border: 2px solid var(--vscode-notifications-border);
-  border-radius: 16px;
   font-family: monospace;
   font-size: 132%;
-  margin: 4px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,10 +115,6 @@
 }
 
 .Computer-CpuRegister-Root {
-  background: var(--vscode-notifications-background);
-  color: var(--vscode-notifications-foreground);
-  border: 2px solid var(--vscode-notifications-border);
-  border-radius: 16px;
   width: 192px;
   padding: 20px;
   text-align: center;
@@ -134,4 +126,12 @@
   color: var(--vscode-foreground);
   text-align: center;
   padding-bottom: 12px;
+}
+
+.Computer-CpuRegister-Box {
+  display: inline-block;
+  background: var(--vscode-notifications-background);
+  border: 2px solid var(--vscode-notifications-border);
+  border-radius: 10px;
+  padding: 8px;
 }

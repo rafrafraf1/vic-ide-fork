@@ -577,7 +577,7 @@ function CpuRegister(props: CpuRegisterProps): React.JSX.Element {
   return (
     <div className="Computer-CpuRegister-Root">
       <header>{label}</header>
-      {children}
+      <div className="Computer-CpuRegister-Box">{children}</div>
     </div>
   );
 }
