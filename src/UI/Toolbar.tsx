@@ -237,6 +237,14 @@ export const Toolbar = React.memo(function Toolbar(
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
       {showExamples ? (
         <MenuButton<OpenFileSelection>
+          wrapperElem={(c) => (
+            <Tippy
+              singleton={tippyTarget}
+              content={uiString("LOAD_A_VIC_PROGRAM")}
+            >
+              {c}
+            </Tippy>
+          )}
           className="Toolbar-Button"
           disabled={simulationActive(simulationState)}
           icon={<PiFolderOpenDuotone size={22} />}

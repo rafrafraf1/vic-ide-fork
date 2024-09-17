@@ -6,6 +6,7 @@ import type { ChangeEvent } from "react";
 import classNames from "classnames";
 
 export interface MenuButtonProps<T> {
+  wrapperElem?: (c: React.ReactElement) => React.JSX.Element;
   className?: string;
   icon: React.ReactNode;
   label: string;
@@ -27,7 +28,15 @@ export interface MenuButtonOption<T> {
 }
 
 export function MenuButton<T>(props: MenuButtonProps<T>): React.JSX.Element {
-  const { className, icon, label, disabled, values, onValueClick } = props;
+  const {
+    wrapperElem,
+    className,
+    icon,
+    label,
+    disabled,
+    values,
+    onValueClick,
+  } = props;
 
   const selectRef = React.useRef<HTMLSelectElement>(null);
 
@@ -47,6 +56,11 @@ export function MenuButton<T>(props: MenuButtonProps<T>): React.JSX.Element {
     [onValueClick, values],
   );
 
+  const wrapperElem2 =
+    wrapperElem !== undefined
+      ? wrapperElem
+      : (c: React.ReactElement): React.JSX.Element => c;
+
   return (
     <>
       <div
@@ -56,28 +70,30 @@ export function MenuButton<T>(props: MenuButtonProps<T>): React.JSX.Element {
       >
         {icon}
       </div>
-      <select
-        ref={selectRef}
-        className={classNames(className, "MenuButton")}
-        disabled={disabled}
-        onChange={handleChange}
-        value=""
-      >
-        <option className="MenuButton-Label" value="">
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          {label}
-        </option>
-        {values.map((option, index) => (
-          <option
-            disabled={option.value === null}
-            key={index}
-            className={classNames(option.className, "MenuButton-Option")}
-            value={index}
-          >
-            {option.label}
+      {wrapperElem2(
+        <select
+          ref={selectRef}
+          className={classNames(className, "MenuButton")}
+          disabled={disabled}
+          onChange={handleChange}
+          value=""
+        >
+          <option className="MenuButton-Label" value="">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {label}
           </option>
-        ))}
-      </select>
+          {values.map((option, index) => (
+            <option
+              disabled={option.value === null}
+              key={index}
+              className={classNames(option.className, "MenuButton-Option")}
+              value={index}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>,
+      )}
     </>
   );
 }
