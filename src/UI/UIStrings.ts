@@ -4,10 +4,7 @@ import { assertNever } from "assert-never";
  * All of the available strings that appear in the user interface of the app.
  */
 export type UIStringKey =
-  | "DARK_MODE"
-  | "LIGHT_MODE"
   | "LOAD_A_VIC_PROGRAM"
-  | "FILE"
   | "OPEN_FILE"
   | "LOAD_EXAMPLE"
   | "FETCH"
@@ -17,17 +14,10 @@ export type UIStringKey =
   | "ANIMATION_SLOW"
   | "ANIMATION_MEDIUM"
   | "ANIMATION_FAST"
-  | "RESET"
-  | "SINGLE_STEP"
-  | "RUN"
-  | "STOP"
-  | "STOPPING"
-  | "CLEAR"
   | "CLEAR_IO"
   | "CLEAR_HIGH_MEMORY"
   | "CLEAR_LOW_MEMORY"
   | "CLEAR_ALL"
-  | "HELP"
   | "NO_FILE_AVAILABLE"
   | "USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE"
   | "LOAD"
@@ -38,8 +28,6 @@ export type UIStringKey =
   | "FILE_IS_OF_TYPE"
   | "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO"
   | "FETCH_OR_EXECUTE_AN_INSTRUCTION"
-  | "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER"
-  | "EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER"
   | "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
   | "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT"
   | "RUN_PROGRAM_UNTIL_IT_TERMINATES"
@@ -73,14 +61,8 @@ export type UIStrings = (key: UIStringKey) => string;
  */
 export function EnglishStrings(key: UIStringKey): string {
   switch (key) {
-    case "DARK_MODE":
-      return "Dark Mode";
-    case "LIGHT_MODE":
-      return "Light Mode";
     case "LOAD_A_VIC_PROGRAM":
       return "Load a Vic Program";
-    case "FILE":
-      return "File";
     case "OPEN_FILE":
       return "Open File";
     case "LOAD_EXAMPLE":
@@ -99,18 +81,6 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Medium";
     case "ANIMATION_FAST":
       return "Fast";
-    case "RESET":
-      return "Reset";
-    case "SINGLE_STEP":
-      return "Single Step";
-    case "RUN":
-      return "Run";
-    case "STOP":
-      return "Stop";
-    case "STOPPING":
-      return "Stopping";
-    case "CLEAR":
-      return "Clear";
     case "CLEAR_IO":
       return "I/O";
     case "CLEAR_HIGH_MEMORY":
@@ -119,8 +89,6 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Low Memory";
     case "CLEAR_ALL":
       return "All";
-    case "HELP":
-      return "Help";
     case "NO_FILE_AVAILABLE":
       return "No File Available";
     case "USE_THE_FILE_EXPLORER_TO_OPEN_A_FILE":
@@ -140,11 +108,7 @@ export function EnglishStrings(key: UIStringKey): string {
     case "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO":
       return "Change the Language mode of the file to";
     case "FETCH_OR_EXECUTE_AN_INSTRUCTION":
-      return "Fetch or Execute an instruction, depending on the current CPU state.";
-    case "LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER":
-      return "FE: Load instruction from memory to the Instruction Register.";
-    case "EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER":
-      return "EX: Execute the instruction in the Instruction Register";
+      return "Fetch instruction / Execute instruction";
     case "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT":
       return "Reset the Input, set the Program Counter to 0, and clear the Output";
     case "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT":

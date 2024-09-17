@@ -26,7 +26,7 @@ export function PlaygroundMenu(): React.JSX.Element {
   return (
     <>
       <div className="PlaygroundMenu-menu">
-        <ThemeSwitcher uiString={uiStrings} />
+        <ThemeSwitcher />
         {allPlaygrounds.map((playground, index) => (
           <Button
             key={index}

@@ -6,7 +6,7 @@ import Tippy, { useSingleton, type TippyProps } from "@tippyjs/react";
 import { assertNever } from "assert-never";
 import classNames from "classnames";
 import type { IconType } from "react-icons";
-import { BsCpu, BsHourglass } from "react-icons/bs";
+import { BsHourglass } from "react-icons/bs";
 import { FaFileUpload } from "react-icons/fa";
 import { MdErrorOutline } from "react-icons/md";
 import { PiFolderOpenDuotone } from "react-icons/pi";
@@ -245,10 +245,10 @@ export const Toolbar = React.memo(function Toolbar(
               {c}
             </Tippy>
           )}
-          className="Toolbar-Button"
+          className="Toolbar-Button Toolbar-IconOnlyMenuButton"
           disabled={simulationActive(simulationState)}
           icon={<PiFolderOpenDuotone size={22} />}
-          label={uiString("FILE")}
+          label=""
           values={exampleValues}
           onValueClick={handleOpenFileClick}
         />
@@ -284,7 +284,6 @@ export const Toolbar = React.memo(function Toolbar(
           }
           onClick={onSingleStepClick}
         >
-          <ButtonLabel>{uiString("SINGLE_STEP")}</ButtonLabel>
           <ButtonLabel>
             <VscDebugContinue />
           </ButtonLabel>
@@ -310,7 +309,6 @@ export const Toolbar = React.memo(function Toolbar(
           disabled={simulationActive(simulationState) || !resetEnabled}
           onClick={onResetClick}
         >
-          <ButtonLabel>{uiString("RESET")}</ButtonLabel>
           <ButtonLabel>
             <RiRewindMiniFill size={24} />
           </ButtonLabel>
@@ -318,9 +316,9 @@ export const Toolbar = React.memo(function Toolbar(
       </Tippy>
       <Separator />
       <MenuButton<ClearOption>
-        className="Toolbar-Button"
+        className="Toolbar-Button Toolbar-IconOnlyMenuButton"
         icon={<VscTrash size={22} />}
-        label={uiString("CLEAR")}
+        label={""}
         values={[
           { value: "CLEAR_IO", label: uiString("CLEAR_IO") },
           { value: "CLEAR_HIGH_MEMORY", label: uiString("CLEAR_HIGH_MEMORY") },
@@ -340,12 +338,11 @@ export const Toolbar = React.memo(function Toolbar(
       {showThemeSwitcher ? (
         <>
           <Separator />
-          <ThemeSwitcher className="Toolbar-Button" uiString={uiString} />
+          <ThemeSwitcher className="Toolbar-Button" />
         </>
       ) : null}
       <Separator />
       <Button className="Toolbar-Button" onClick={onHelpClick}>
-        <ButtonLabel>{uiString("HELP")}</ButtonLabel>
         <ButtonLabel>
           <VscQuestion size={24} />
         </ButtonLabel>
@@ -549,34 +546,27 @@ export function FetchExecuteButton(
   return (
     <Tippy
       singleton={tippyTarget}
-      content={
-        <>
-          {uiString("FETCH_OR_EXECUTE_AN_INSTRUCTION")}
-          <br />
-          <br />
-          {uiString("LOAD_INSTRUCTION_FROM_MEMORY_TO_INSTRUCTION_REGISTER")}
-          <br />
-          <br />
-          {uiString("EXECUTE_INSTRUCTION_IN_INSTRUCTION_REGISTER")}
-        </>
-      }
+      content={uiString("FETCH_OR_EXECUTE_AN_INSTRUCTION")}
     >
       <Button
         className={className}
         disabled={fetchDisabled && executeDisabled}
         onClick={handleClick}
       >
-        <ButtonLabel>
-          <BsCpu size={22} />
-        </ButtonLabel>
         <ButtonLabel
-          className={classNames({ "Toolbar-ButtonLabelDim": fetchDisabled })}
+          className={classNames("Toolbar-FetchExecuteLabel", {
+            "Toolbar-ButtonLabelDim": fetchDisabled,
+          })}
         >
           {uiString("FETCH")}
         </ButtonLabel>
-        <ButtonLabel className="Toolbar-ButtonLabelDim">/</ButtonLabel>
+        <ButtonLabel className="Toolbar-FetchExecuteLabel Toolbar-ButtonLabelDim">
+          /
+        </ButtonLabel>
         <ButtonLabel
-          className={classNames({ "Toolbar-ButtonLabelDim": executeDisabled })}
+          className={classNames("Toolbar-FetchExecuteLabel", {
+            "Toolbar-ButtonLabelDim": executeDisabled,
+          })}
         >
           {uiString("EXECUTE")}
         </ButtonLabel>
@@ -604,31 +594,24 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
     onClick,
   } = props;
 
-  const [label, icon] = ((): [string, IconType] => {
+  const icon = ((): IconType => {
     switch (simulationState) {
       case "IDLE":
-        return [uiString("RUN"), VscDebugStart];
+        return VscDebugStart;
       case "FETCH_INSTRUCTION":
-        return [uiString("RUN"), VscDebugStart];
+        return VscDebugStart;
       case "EXECUTE_INSTRUCTION":
-        return [uiString("RUN"), VscDebugStart];
+        return VscDebugStart;
       case "SINGLE_STEP":
-        return [uiString("RUN"), VscDebugStart];
+        return VscDebugStart;
       case "RUN":
-        return [uiString("STOP"), VscDebugStop];
+        return VscDebugStop;
       case "STOPPING":
-        return [uiString("STOPPING"), BsHourglass];
+        return BsHourglass;
       default:
         return assertNever(simulationState);
     }
   })();
-
-  // The button is always rendered with all of the possible label values
-  // inside it, that are hidden and act as spacers.
-  //
-  // This is done so that the size of the button fits the longest label (so
-  // that the button doesn't resize when the label changes).
-  const spacer = "Toolbar-RunLabel Toolbar-RunLabelSpacer";
 
   return (
     <Tippy
@@ -643,15 +626,7 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
         }
         onClick={onClick}
       >
-        <>
-          <div className="Toolbar-RunLabels">
-            <ButtonLabel className={spacer}>{uiString("RUN")}</ButtonLabel>
-            <ButtonLabel className={spacer}>{uiString("STOP")}</ButtonLabel>
-            <ButtonLabel className={spacer}>{uiString("STOPPING")}</ButtonLabel>
-            <ButtonLabel className="Toolbar-RunLabel">{label}</ButtonLabel>
-          </div>
-          <ButtonLabel>{icon({})}</ButtonLabel>
-        </>
+        <ButtonLabel>{icon({})}</ButtonLabel>
       </Button>
     </Tippy>
   );
@@ -659,11 +634,10 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
 
 interface ThemeSwitcherProps {
   className?: string;
-  uiString: UIStrings;
 }
 
 export function ThemeSwitcher(props: ThemeSwitcherProps): React.JSX.Element {
-  const { className, uiString } = props;
+  const { className } = props;
 
   const [theme, setTheme] = React.useState<DemoTheme>(() => getCurrentTheme());
 
@@ -691,18 +665,6 @@ export function ThemeSwitcher(props: ThemeSwitcherProps): React.JSX.Element {
       <ButtonLabel>
         <RiContrastFill size={22} />
       </ButtonLabel>
-      <ButtonLabel>{themeLabel(uiString, theme)}</ButtonLabel>
     </Button>
   );
-}
-
-function themeLabel(uiString: UIStrings, theme: DemoTheme): string {
-  switch (theme) {
-    case "Dark":
-      return uiString("DARK_MODE");
-    case "Light":
-      return uiString("LIGHT_MODE");
-    default:
-      return assertNever(theme);
-  }
 }
