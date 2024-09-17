@@ -294,6 +294,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
           programCounter={programCounter}
           segmentStart={0}
           segmentEnd={MEMORY_HIGH_START - 1}
+          initialScrolledToMemoryAddress={0}
           onMemoryCellChange={onMemoryCellChange}
         />
         <MemorySegment
@@ -303,6 +304,7 @@ export const MainMemory = React.forwardRef<MainMemoryHandle, MainMemoryProps>(
           programCounter={programCounter}
           segmentStart={MEMORY_HIGH_START}
           segmentEnd={MEMORY_SIZE - 1}
+          initialScrolledToMemoryAddress={MEMORY_SIZE - 1}
           onMemoryCellChange={onMemoryCellChange}
         />
       </div>
@@ -330,6 +332,7 @@ export interface MemorySegmentProps {
   programCounter: Value;
   segmentStart: Address;
   segmentEnd: Address;
+  initialScrolledToMemoryAddress: Address;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
 }
 
@@ -382,6 +385,7 @@ export const MemorySegment = React.forwardRef<
     programCounter,
     segmentStart,
     segmentEnd,
+    initialScrolledToMemoryAddress,
     onMemoryCellChange,
   } = props;
 
@@ -416,6 +420,10 @@ export const MemorySegment = React.forwardRef<
   React.useEffect(() => {
     resizeRefsArray(memoryCellRefs.current, segmentEnd - segmentStart + 1);
   }, [segmentEnd, segmentStart]);
+
+  React.useEffect(() => {
+    getMemoryCellRef(initialScrolledToMemoryAddress).scrollIntoView();
+  }, [getMemoryCellRef, initialScrolledToMemoryAddress]);
 
   const handleValueChange = React.useCallback(
     (address: Address, value: Value | null) => {
