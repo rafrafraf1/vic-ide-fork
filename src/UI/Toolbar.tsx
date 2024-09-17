@@ -264,16 +264,6 @@ export const Toolbar = React.memo(function Toolbar(
         />
       ) : null}
       <Separator />
-      <FetchExecuteButton
-        className="Toolbar-Button"
-        uiString={uiString}
-        tippyTarget={tippyTarget}
-        cpuState={cpuState}
-        simulationState={simulationState}
-        onFetchInstructionClick={onFetchInstructionClick}
-        onExecuteInstructionClick={onExecuteInstructionClick}
-      />
-      <Separator />
       <AnimationSpeedSelector
         className="Toolbar-AnimationSpeedSelector"
         uiString={uiString}
@@ -307,6 +297,15 @@ export const Toolbar = React.memo(function Toolbar(
           </ButtonLabel>
         </Button>
       </Tippy>
+      <FetchExecuteButton
+        className="Toolbar-Button"
+        uiString={uiString}
+        tippyTarget={tippyTarget}
+        cpuState={cpuState}
+        simulationState={simulationState}
+        onFetchInstructionClick={onFetchInstructionClick}
+        onExecuteInstructionClick={onExecuteInstructionClick}
+      />
       <Tippy
         singleton={tippyTarget}
         content={uiString(
