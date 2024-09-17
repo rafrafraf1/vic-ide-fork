@@ -264,13 +264,6 @@ export const Toolbar = React.memo(function Toolbar(
         />
       ) : null}
       <Separator />
-      <AnimationSpeedSelector
-        className="Toolbar-AnimationSpeedSelector"
-        uiString={uiString}
-        animationSpeed={animationSpeed}
-        onAnimationSpeedChange={onAnimationSpeedChange}
-      />
-      <Separator />
       <RunButton
         className="Toolbar-Button"
         uiString={uiString}
@@ -336,6 +329,13 @@ export const Toolbar = React.memo(function Toolbar(
         ]}
         disabled={simulationActive(simulationState)}
         onValueClick={handleClearClick}
+      />
+      <Separator />
+      <AnimationSpeedSelector
+        className="Toolbar-AnimationSpeedSelector"
+        uiString={uiString}
+        animationSpeed={animationSpeed}
+        onAnimationSpeedChange={onAnimationSpeedChange}
       />
       {showThemeSwitcher ? (
         <>
