@@ -330,6 +330,12 @@ export const Toolbar = React.memo(function Toolbar(
         disabled={simulationActive(simulationState)}
         onValueClick={handleClearClick}
       />
+      {showThemeSwitcher ? (
+        <>
+          <Separator />
+          <ThemeSwitcher className="Toolbar-Button" uiString={uiString} />
+        </>
+      ) : null}
       <Separator />
       <Button className="Toolbar-Button" onClick={onHelpClick}>
         <ButtonLabel>{uiString("HELP")}</ButtonLabel>
@@ -337,12 +343,6 @@ export const Toolbar = React.memo(function Toolbar(
           <VscQuestion size={24} />
         </ButtonLabel>
       </Button>
-      {showThemeSwitcher ? (
-        <>
-          <Separator />
-          <ThemeSwitcher className="Toolbar-Button" uiString={uiString} />
-        </>
-      ) : null}
     </div>
   );
 });
