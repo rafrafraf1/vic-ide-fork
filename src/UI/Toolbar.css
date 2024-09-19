@@ -9,10 +9,6 @@
   height: 42px;
 }
 
-.Toolbar-AnimationSpeedSelector {
-  height: 56px;
-}
-
 .Toolbar-error {
   color: var(--vscode-editorError-foreground);
 }

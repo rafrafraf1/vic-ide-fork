@@ -2,6 +2,7 @@ import "./AnimationSpeedSelector.css";
 
 import * as React from "react";
 
+import { assertNever } from "assert-never";
 import classNames from "classnames";
 
 import type { AnimationSpeed } from "../Simulator/AnimationSpeed";
@@ -15,110 +16,94 @@ export interface AnimationSpeedSelectorProps {
 }
 
 export const AnimationSpeedSelector = React.memo(
-  (props: AnimationSpeedSelectorProps): React.JSX.Element => {
+  React.forwardRef(function AnimationSpeedSelector(
+    props: AnimationSpeedSelectorProps,
+    ref: React.ForwardedRef<HTMLDivElement>,
+  ): React.JSX.Element {
     const { className, uiString, animationSpeed, onAnimationSpeedChange } =
       props;
 
+    const handleOnChange = (
+      event: React.ChangeEvent<HTMLInputElement>,
+    ): void => {
+      const newAnimationSpeed = numberToAnimationSpeed(event.target.value);
+      if (onAnimationSpeedChange !== undefined) {
+        onAnimationSpeedChange(newAnimationSpeed);
+      }
+    };
+
+    const handleOffClick = (): void => {
+      if (animationSpeed === "OFF") {
+        return;
+      }
+      if (onAnimationSpeedChange !== undefined) {
+        onAnimationSpeedChange("OFF");
+      }
+    };
+
+    const handleFastClick = (): void => {
+      if (animationSpeed === "FAST") {
+        return;
+      }
+      if (onAnimationSpeedChange !== undefined) {
+        onAnimationSpeedChange("FAST");
+      }
+    };
+
     return (
-      <div className={classNames(className, "AnimationSpeedSelector-Root")}>
-        <div className="AnimationSpeedSelector-Title">
-          <div className="AnimationSpeedSelector-Title-Line" />
-          <div>{uiString("ANIMATION_SPEED")}</div>
-          <div className="AnimationSpeedSelector-Title-Line" />
+      <div
+        ref={ref}
+        className={classNames(className, "AnimationSpeedSelector-Root")}
+      >
+        <div className="AnimationSpeedSelector-Label" onClick={handleOffClick}>
+          {uiString("ANIMATION_OFF")}
         </div>
-        <div className="AnimationSpeedSelector-ProgressionLine" />
-        <Option
-          animationSpeed={animationSpeed}
-          onAnimationSpeedChange={onAnimationSpeedChange}
-          optionAnimationSpeed="OFF"
-          label={uiString("ANIMATION_OFF")}
-          buttonCssClassName="AnimationSpeedSelector-Button-off"
-          radioCssClassName="AnimationSpeedSelector-Radio-off"
-          labelCssClassName="AnimationSpeedSelector-Label-off"
+        <input
+          type="range"
+          min={MIN_ANIMATION_SPEED_NUMBER}
+          max={MAX_ANIMATION_SPEED_NUMBER}
+          value={animationSpeedToNumber(animationSpeed)}
+          onChange={handleOnChange}
         />
-        <Option
-          animationSpeed={animationSpeed}
-          onAnimationSpeedChange={onAnimationSpeedChange}
-          optionAnimationSpeed="SLOW"
-          label={uiString("ANIMATION_SLOW")}
-          buttonCssClassName="AnimationSpeedSelector-Button-slow"
-          radioCssClassName="AnimationSpeedSelector-Radio-slow"
-          labelCssClassName="AnimationSpeedSelector-Label-slow"
-        />
-        <Option
-          animationSpeed={animationSpeed}
-          onAnimationSpeedChange={onAnimationSpeedChange}
-          optionAnimationSpeed="MEDIUM"
-          label={uiString("ANIMATION_MEDIUM")}
-          buttonCssClassName="AnimationSpeedSelector-Button-medium"
-          radioCssClassName="AnimationSpeedSelector-Radio-medium"
-          labelCssClassName="AnimationSpeedSelector-Label-medium"
-        />
-        <Option
-          animationSpeed={animationSpeed}
-          onAnimationSpeedChange={onAnimationSpeedChange}
-          optionAnimationSpeed="FAST"
-          label={uiString("ANIMATION_FAST")}
-          buttonCssClassName="AnimationSpeedSelector-Button-fast"
-          radioCssClassName="AnimationSpeedSelector-Radio-fast"
-          labelCssClassName="AnimationSpeedSelector-Label-fast"
-        />
+        <div className="AnimationSpeedSelector-Label" onClick={handleFastClick}>
+          {uiString("ANIMATION_FAST")}
+        </div>
       </div>
     );
-  },
+  }),
 );
 
-interface OptionProps {
-  animationSpeed: AnimationSpeed;
-  onAnimationSpeedChange?: (value: AnimationSpeed) => void;
-  optionAnimationSpeed: AnimationSpeed;
-  label: string;
-  buttonCssClassName: string;
-  radioCssClassName: string;
-  labelCssClassName: string;
+const MIN_ANIMATION_SPEED_NUMBER = 0;
+const MAX_ANIMATION_SPEED_NUMBER = 3;
+
+function numberToAnimationSpeed(number: string): AnimationSpeed {
+  switch (number) {
+    case "0":
+      return "OFF";
+    case "1":
+      return "SLOW";
+    case "2":
+      return "MEDIUM";
+    case "3":
+      return "FAST";
+    default:
+      // This should never happen. See the constants above
+      // "MIN_ANIMATION_SPEED_NUMBER" and "MAX_ANIMATION_SPEED_NUMBER"
+      return "OFF";
+  }
 }
 
-function Option(props: OptionProps): React.JSX.Element {
-  const {
-    animationSpeed,
-    onAnimationSpeedChange,
-    optionAnimationSpeed,
-    label,
-    buttonCssClassName,
-    radioCssClassName,
-    labelCssClassName,
-  } = props;
-
-  const handleClick = React.useCallback(() => {
-    if (onAnimationSpeedChange !== undefined) {
-      onAnimationSpeedChange(optionAnimationSpeed);
-    }
-  }, [onAnimationSpeedChange, optionAnimationSpeed]);
-
-  return (
-    <>
-      <button
-        className={classNames(
-          "AnimationSpeedSelector-Button",
-          buttonCssClassName,
-        )}
-        onClick={handleClick}
-      />
-      <input
-        className={radioCssClassName}
-        type="radio"
-        tabIndex={-1}
-        readOnly={true}
-        checked={animationSpeed === optionAnimationSpeed}
-      />
-      <label
-        className={classNames(
-          "AnimationSpeedSelector-Label",
-          labelCssClassName,
-        )}
-      >
-        {label}
-      </label>
-    </>
-  );
+function animationSpeedToNumber(animationSpeed: AnimationSpeed): number {
+  switch (animationSpeed) {
+    case "OFF":
+      return 0;
+    case "SLOW":
+      return 1;
+    case "MEDIUM":
+      return 2;
+    case "FAST":
+      return 3;
+    default:
+      return assertNever(animationSpeed);
+  }
 }

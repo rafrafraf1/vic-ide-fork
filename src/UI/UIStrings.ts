@@ -11,8 +11,6 @@ export type UIStringKey =
   | "EXECUTE"
   | "ANIMATION_SPEED"
   | "ANIMATION_OFF"
-  | "ANIMATION_SLOW"
-  | "ANIMATION_MEDIUM"
   | "ANIMATION_FAST"
   | "CLEAR_IO"
   | "CLEAR_HIGH_MEMORY"
@@ -75,10 +73,6 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Animation Speed";
     case "ANIMATION_OFF":
       return "Off";
-    case "ANIMATION_SLOW":
-      return "Slow";
-    case "ANIMATION_MEDIUM":
-      return "Medium";
     case "ANIMATION_FAST":
       return "Fast";
     case "CLEAR_IO":

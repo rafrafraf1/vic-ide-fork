@@ -329,12 +329,13 @@ export const Toolbar = React.memo(function Toolbar(
         onValueClick={handleClearClick}
       />
       <Separator />
-      <AnimationSpeedSelector
-        className="Toolbar-AnimationSpeedSelector"
-        uiString={uiString}
-        animationSpeed={animationSpeed}
-        onAnimationSpeedChange={onAnimationSpeedChange}
-      />
+      <Tippy singleton={tippyTarget} content={uiString("ANIMATION_SPEED")}>
+        <AnimationSpeedSelector
+          uiString={uiString}
+          animationSpeed={animationSpeed}
+          onAnimationSpeedChange={onAnimationSpeedChange}
+        />
+      </Tippy>
       {showThemeSwitcher ? (
         <>
           <Separator />

@@ -58,7 +58,7 @@ export function newHardwareState(): HardwareState {
 export function newSimulatorState(): SimulatorState {
   return {
     hardwareState: newHardwareState(),
-    animationSpeed: "MEDIUM",
+    animationSpeed: "SLOW",
     helpScreenState: "CLOSED",
   };
 }
