@@ -14,7 +14,7 @@ import {
   type MemoryCell,
 } from "../../Computer/Computer";
 import type { InputState } from "../../Computer/Input";
-import type { Address } from "../../Computer/Instruction";
+import { parseInstruction, type Address } from "../../Computer/Instruction";
 import type { OutputState } from "../../Computer/Output";
 import type { CpuState } from "../../Computer/SimulatorState";
 import type { Value } from "../../Computer/Value";
@@ -544,13 +544,22 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
 
     return (
       <div className="Computer-Cpu">
-        <CpuRegister label={uiString("INSTRUCTION_REGISTER")}>
-          <ValueCellInput
-            ref={instructionRegisterRef}
-            value={instructionRegister}
-            onValueChange={onInstructionRegister}
+        <div>
+          <CpuRegister
+            className="Computer-Cpu-InstructionRegister"
+            label={uiString("INSTRUCTION_REGISTER")}
+          >
+            <ValueCellInput
+              ref={instructionRegisterRef}
+              value={instructionRegister}
+              onValueChange={onInstructionRegister}
+            />
+          </CpuRegister>
+          <InstructionName
+            uiString={uiString}
+            instruction={instructionRegister}
           />
-        </CpuRegister>
+        </div>
         <CpuRegister label={uiString("DATA_REGISTER")}>
           <ValueCellInput
             ref={dataRegisterRef}
@@ -575,20 +584,39 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
 );
 
 interface CpuRegisterProps {
+  className?: string;
   children?: React.ReactNode;
   label: string;
 }
 
 function CpuRegister(props: CpuRegisterProps): React.JSX.Element {
-  const { label, children } = props;
+  const { className, label, children } = props;
 
   return (
-    <div className="Computer-CpuRegister-Root">
+    <div className={classNames(className, "Computer-CpuRegister-Root")}>
       <header>{label}</header>
       <div className="Computer-CpuRegister-Box">{children}</div>
     </div>
   );
 }
+
+interface InstructionNameProps {
+  uiString: UIStrings;
+  instruction: number;
+}
+
+const InstructionName = React.memo(function InstructionName(
+  props: InstructionNameProps,
+): React.JSX.Element {
+  const { uiString, instruction } = props;
+
+  const instr = parseInstruction(instruction);
+
+  const label =
+    instr === null ? uiString("CPU_INVALID_INSTRUCTION") : instr.kind;
+
+  return <div className="Computer-InstructionName">({label})</div>;
+});
 
 function appendInput(input: InputState, value: Value): InputState {
   const newValues = input.values.concat([value]);

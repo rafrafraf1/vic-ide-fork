@@ -136,3 +136,13 @@
   border-radius: 10px;
   padding: 8px;
 }
+
+.Computer-Cpu-InstructionRegister {
+  padding-bottom: 10px;
+}
+
+.Computer-InstructionName {
+  color: var(--vscode-foreground);
+  opacity: 0.7;
+  text-align: center;
+}
