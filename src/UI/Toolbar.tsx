@@ -274,10 +274,7 @@ export const Toolbar = React.memo(function Toolbar(
         simulationState={simulationState}
         onClick={handleRunClick}
       />
-      <Tippy
-        singleton={tippyTarget}
-        content={uiString("FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT")}
-      >
+      <Tippy singleton={tippyTarget} content={uiString("STEP")}>
         <Button
           className="Toolbar-Button"
           disabled={
