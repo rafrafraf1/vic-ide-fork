@@ -617,10 +617,7 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
   })();
 
   return (
-    <Tippy
-      singleton={tippyTarget}
-      content={uiString("RUN_PROGRAM_UNTIL_IT_TERMINATES")}
-    >
+    <Tippy singleton={tippyTarget} content={uiString("RUN")}>
       <Button
         className={className}
         disabled={

@@ -28,7 +28,7 @@ export type UIStringKey =
   | "FETCH_OR_EXECUTE_AN_INSTRUCTION"
   | "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
   | "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT"
-  | "RUN_PROGRAM_UNTIL_IT_TERMINATES"
+  | "RUN"
   | "THE_VISUAL_COMPUTER"
   | "I_O_UNITS"
   | "CPU"
@@ -107,8 +107,8 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Reset the Input, set the Program Counter to 0, and clear the Output";
     case "FETCH_NEXT_INSTRUCTION_AND_EXECUTE_IT":
       return "Fetch the next instruction and Execute it";
-    case "RUN_PROGRAM_UNTIL_IT_TERMINATES":
-      return "Run the program until it terminates";
+    case "RUN":
+      return "Run";
     case "THE_VISUAL_COMPUTER":
       return "The Visual Computer";
     case "I_O_UNITS":
