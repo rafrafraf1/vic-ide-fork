@@ -12,7 +12,6 @@ import { samplePrograms } from "./SamplePrograms";
 export interface SampleProgram {
   name: string;
   memory: (Value | null)[];
-  input: Value[];
 }
 
 /**
@@ -43,9 +42,6 @@ export function loadSampleProgram(sampleProgram: SampleProgram): HardwareState {
 
   // For ease of implementation, this code uses mutation. Because we have just
   // created the "hardware" and it is "private" to us, this is safe.
-
-  // Set the input:
-  hardware.input.values = sampleProgram.input;
 
   // Set the main memory:
   for (let i = 0; i < sampleProgram.memory.length; i++) {
