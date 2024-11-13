@@ -45,13 +45,13 @@ import {
   type SimulatorState,
 } from "./Computer/SimulatorState";
 import type { Value } from "./Computer/Value";
-import {
-  getExampleProgramNames,
-  loadExampleProgram,
-  lookupExampleProgram,
-} from "./Examples/ExampleProgram";
 import { compose } from "./Functional/Compose";
 import { nonNull } from "./Functional/Nullability";
+import {
+  getSampleProgramNames,
+  loadSampleProgram,
+  lookupSampleProgram,
+} from "./SamplePrograms/SampleProgram";
 import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import { ComputerFrame } from "./UI/ComputerFrame";
@@ -152,10 +152,10 @@ function App(props: AppProps): React.JSX.Element {
     setLoadDialogOpen(true);
   }, []);
 
-  const handleLoadExample = React.useCallback((example: string): void => {
-    const exampleProgram = lookupExampleProgram(example);
-    if (exampleProgram !== null) {
-      const hardware = loadExampleProgram(exampleProgram);
+  const handleLoadSampleProgram = React.useCallback((name: string): void => {
+    const sampleProgram = lookupSampleProgram(name);
+    if (sampleProgram !== null) {
+      const hardware = loadSampleProgram(sampleProgram);
       setComputer(hardware.computer);
       setCpuState(hardware.cpuState);
       setInput(hardware.input);
@@ -563,15 +563,15 @@ function App(props: AppProps): React.JSX.Element {
       <Toolbar
         className="App-Toolbar-Cont"
         uiString={uiString}
-        showExamples={IS_DEMO_ENVIRONMENT}
+        showSamplePrograms={IS_DEMO_ENVIRONMENT}
         showThemeSwitcher={IS_DEMO_ENVIRONMENT}
         showSourceLoader={!IS_DEMO_ENVIRONMENT}
         cpuState={cpuState}
         simulationState={simulationState}
         resetEnabled={isResetEnabled(computer, cpuState, input, output)}
-        examples={getExampleProgramNames()}
+        sampleProgramNames={getSampleProgramNames()}
         onOpenFile={handleOpenFile}
-        onLoadExample={handleLoadExample}
+        onLoadSampleProgram={handleLoadSampleProgram}
         sourceFile={sourceFile}
         onLoadSourceFileClick={handleLoadSourceFileClick}
         onShowErrorsClick={handleShowErrorsClick}

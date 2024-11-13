@@ -6,7 +6,7 @@ import { assertNever } from "assert-never";
 export type UIStringKey =
   | "LOAD_A_VIC_PROGRAM"
   | "OPEN_FILE"
-  | "LOAD_EXAMPLE"
+  | "SAMPLE_PROGRAMS"
   | "FETCH"
   | "EXECUTE"
   | "ANIMATION_SPEED"
@@ -63,8 +63,8 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Load a Vic Program";
     case "OPEN_FILE":
       return "Open File";
-    case "LOAD_EXAMPLE":
-      return "Load Example";
+    case "SAMPLE_PROGRAMS":
+      return "Sample Programs";
     case "FETCH":
       return "FE";
     case "EXECUTE":

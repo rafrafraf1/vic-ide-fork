@@ -53,10 +53,10 @@ interface ToolbarProps {
   showThemeSwitcher: boolean;
 
   /**
-   * Show the button that allows to load example programs. This is mainly
-   * useful in the web demo.
+   * Show the button that allows to load sample programs. This is mainly useful
+   * in the web demo.
    */
-  showExamples: boolean;
+  showSamplePrograms: boolean;
 
   /**
    * Show source file loader widget. This is useful only in the VS Code
@@ -72,8 +72,8 @@ interface ToolbarProps {
 
   resetEnabled: boolean;
 
-  examples: string[];
-  onLoadExample?: (example: string) => void;
+  sampleProgramNames: string[];
+  onLoadSampleProgram?: (name: string) => void;
   onOpenFile?: () => void;
 
   sourceFile: SourceFile | null;
@@ -97,16 +97,16 @@ interface ToolbarProps {
 
 type OpenFileSelection =
   | OpenFileSelection.OpenFile
-  | OpenFileSelection.LoadExample;
+  | OpenFileSelection.LoadSampleProgram;
 
 namespace OpenFileSelection {
   export interface OpenFile {
     kind: "OpenFile";
   }
 
-  export interface LoadExample {
-    kind: "LoadExample";
-    example: string;
+  export interface LoadSampleProgram {
+    kind: "LoadSampleProgram";
+    sample: string;
   }
 }
 
@@ -123,14 +123,14 @@ export const Toolbar = React.memo(function Toolbar(
     className,
     uiString,
     showThemeSwitcher,
-    showExamples,
+    showSamplePrograms,
     showSourceLoader,
     cpuState,
     simulationState,
     resetEnabled,
-    examples,
+    sampleProgramNames,
     onOpenFile,
-    onLoadExample,
+    onLoadSampleProgram,
     sourceFile,
     onLoadSourceFileClick,
     onShowErrorsClick,
@@ -146,7 +146,7 @@ export const Toolbar = React.memo(function Toolbar(
     onHelpClick,
   } = props;
 
-  const exampleValues = React.useMemo<
+  const sampleProgramValues = React.useMemo<
     MenuButtonOption<OpenFileSelection>[]
   >(() => {
     const spacer: MenuButtonOption<OpenFileSelection> = {
@@ -158,18 +158,20 @@ export const Toolbar = React.memo(function Toolbar(
       value: { kind: "OpenFile" },
       label: uiString("OPEN_FILE"),
     };
-    const loadExample: MenuButtonOption<OpenFileSelection> = {
+    const loadSampleProgram: MenuButtonOption<OpenFileSelection> = {
       value: null,
-      label: `\u2500 ${uiString("LOAD_EXAMPLE")} \u2500`,
+      label: `\u2500 ${uiString("SAMPLE_PROGRAMS")} \u2500`,
     };
-    const exampleEntries = examples.map<MenuButtonOption<OpenFileSelection>>(
-      (e) => ({
-        value: { kind: "LoadExample", example: e },
-        label: e,
-      }),
+    const sampleProgramEntries = sampleProgramNames.map<
+      MenuButtonOption<OpenFileSelection>
+    >((e) => ({
+      value: { kind: "LoadSampleProgram", sample: e },
+      label: e,
+    }));
+    return [spacer, openFile, spacer, loadSampleProgram].concat(
+      sampleProgramEntries,
     );
-    return [spacer, openFile, spacer, loadExample].concat(exampleEntries);
-  }, [examples, uiString]);
+  }, [sampleProgramNames, uiString]);
 
   const handleOpenFileClick = React.useCallback(
     (value: OpenFileSelection): void => {
@@ -179,16 +181,16 @@ export const Toolbar = React.memo(function Toolbar(
             onOpenFile();
           }
           break;
-        case "LoadExample":
-          if (onLoadExample !== undefined) {
-            onLoadExample(value.example);
+        case "LoadSampleProgram":
+          if (onLoadSampleProgram !== undefined) {
+            onLoadSampleProgram(value.sample);
           }
           break;
         default:
           assertNever(value);
       }
     },
-    [onLoadExample, onOpenFile],
+    [onLoadSampleProgram, onOpenFile],
   );
 
   const handleRunClick = React.useCallback((): void => {
@@ -235,7 +237,7 @@ export const Toolbar = React.memo(function Toolbar(
   return (
     <div className={classNames(className, "Toolbar-root")}>
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
-      {showExamples ? (
+      {showSamplePrograms ? (
         <MenuButton<OpenFileSelection>
           wrapperElem={(c) => (
             <Tippy
@@ -249,7 +251,7 @@ export const Toolbar = React.memo(function Toolbar(
           disabled={simulationActive(simulationState)}
           icon={<PiFolderOpenDuotone size={22} />}
           label=""
-          values={exampleValues}
+          values={sampleProgramValues}
           onValueClick={handleOpenFileClick}
         />
       ) : null}

@@ -1,10 +1,10 @@
-import type { ExampleProgram } from "./ExampleProgram";
+import type { SampleProgram } from "./SampleProgram";
 
 /**
- * Some example programs that can be loaded and are helpful during
+ * Some sample programs that can be loaded and are helpful during
  * development.
  */
-export const examplePrograms: ExampleProgram[] = [
+export const samplePrograms: SampleProgram[] = [
   {
     name: "Hello World",
     input: [],
