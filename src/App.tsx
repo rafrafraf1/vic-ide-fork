@@ -37,6 +37,10 @@ import {
 } from "./Computer/Output";
 import { loadProgram } from "./Computer/Program";
 import {
+  NUM_ITERATIONS_FOR_REAL_TIME,
+  runSimulatorIterations,
+} from "./Computer/SimulationUtils";
+import {
   initialCpuState,
   newSimulatorState,
   type CpuState,
@@ -250,7 +254,51 @@ function App(props: AppProps): React.JSX.Element {
     }
   });
 
+  const shouldRunInstantIterations =
+    simulationState === "RUN" && animationSpeed === "INSTANT";
+
+  const runInstantIterations = React.useCallback((): void => {
+    const hardwareState = runSimulatorIterations(
+      {
+        computer: computer,
+        cpuState: cpuState,
+        input: input,
+        output: output,
+      },
+      NUM_ITERATIONS_FOR_REAL_TIME,
+    );
+
+    setComputer(hardwareState.computer);
+    setCpuState(hardwareState.cpuState);
+    setInput(hardwareState.input);
+    setOutput(hardwareState.output);
+
+    nonNull(computerRef.current).scrollIntoView({
+      kind: "MemoryCell",
+      address: hardwareState.computer.programCounter,
+    });
+    nonNull(computerRef.current).scrollIntoView({
+      kind: "Input",
+    });
+    nonNull(computerRef.current).scrollIntoView({
+      kind: "Output",
+    });
+
+    if (hardwareState.cpuState.kind === "Stopped") {
+      setSimulationState("IDLE");
+    } else {
+      requestAnimationFrame(() => {
+        triggerStepComplete(undefined);
+      });
+    }
+  }, [computer, cpuState, input, output, triggerStepComplete]);
+
   const doFetchInstruction = React.useCallback((): void => {
+    if (shouldRunInstantIterations) {
+      runInstantIterations();
+      return;
+    }
+
     nonNull(computerRef.current).scrollIntoView({
       kind: "MemoryCell",
       address: computer.programCounter,
@@ -285,9 +333,21 @@ function App(props: AppProps): React.JSX.Element {
         triggerStepComplete(undefined);
       },
     );
-  }, [animate, animationSpeed, computer, triggerStepComplete]);
+  }, [
+    animate,
+    animationSpeed,
+    computer,
+    runInstantIterations,
+    shouldRunInstantIterations,
+    triggerStepComplete,
+  ]);
 
   const doExecuteInstruction = React.useCallback((): void => {
+    if (shouldRunInstantIterations) {
+      runInstantIterations();
+      return;
+    }
+
     const nextInput = readNextInput(input);
 
     function updateComputer(): void {
@@ -334,7 +394,15 @@ function App(props: AppProps): React.JSX.Element {
         updateComputer();
       },
     );
-  }, [animate, animationSpeed, computer, input, triggerStepComplete]);
+  }, [
+    animate,
+    animationSpeed,
+    computer,
+    input,
+    runInstantIterations,
+    shouldRunInstantIterations,
+    triggerStepComplete,
+  ]);
 
   const handleLoadSourceFileClick = React.useCallback((): void => {
     extensionBridge.postMessage({
@@ -380,6 +448,10 @@ function App(props: AppProps): React.JSX.Element {
 
   const handleRunClick = React.useCallback((): void => {
     setSimulationState("RUN");
+    if (animationSpeed === "INSTANT") {
+      runInstantIterations();
+      return;
+    }
     switch (cpuState.kind) {
       case "PendingFetch":
         doFetchInstruction();
@@ -393,7 +465,13 @@ function App(props: AppProps): React.JSX.Element {
       default:
         assertNever(cpuState);
     }
-  }, [cpuState, doExecuteInstruction, doFetchInstruction]);
+  }, [
+    animationSpeed,
+    cpuState,
+    doExecuteInstruction,
+    doFetchInstruction,
+    runInstantIterations,
+  ]);
 
   const handleStopClick = React.useCallback((): void => {
     setSimulationState("STOPPING");

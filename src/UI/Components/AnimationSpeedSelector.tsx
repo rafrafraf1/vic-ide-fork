@@ -74,7 +74,7 @@ export const AnimationSpeedSelector = React.memo(
 );
 
 const MIN_ANIMATION_SPEED_NUMBER = 0;
-const MAX_ANIMATION_SPEED_NUMBER = 3;
+const MAX_ANIMATION_SPEED_NUMBER = 4;
 
 function numberToAnimationSpeed(number: string): AnimationSpeed {
   switch (number) {
@@ -86,6 +86,8 @@ function numberToAnimationSpeed(number: string): AnimationSpeed {
       return "MEDIUM";
     case "3":
       return "FAST";
+    case "4":
+      return "INSTANT";
     default:
       // This should never happen. See the constants above
       // "MIN_ANIMATION_SPEED_NUMBER" and "MAX_ANIMATION_SPEED_NUMBER"
@@ -103,6 +105,8 @@ function animationSpeedToNumber(animationSpeed: AnimationSpeed): number {
       return 2;
     case "FAST":
       return 3;
+    case "INSTANT":
+      return 4;
     default:
       return assertNever(animationSpeed);
   }
