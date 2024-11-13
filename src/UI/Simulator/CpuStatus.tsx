@@ -20,8 +20,8 @@ export const CpuStatus = React.memo(
 
     return (
       <div className="CpuStatus-Root">
-        <div>{uiString("CPU_STATUS")}</div>
-        <div className="CpuStatus-Message">
+        <div>{uiString("CPU_STATUS")}: </div>
+        <div>
           <CpuStatusMessage
             uiString={uiString}
             cpuState={cpuState}

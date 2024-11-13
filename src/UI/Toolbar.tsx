@@ -34,6 +34,7 @@ import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import { Button, ButtonLabel } from "./Components/Button";
 import { MenuButton, type MenuButtonOption } from "./Components/MenuButton";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
+import { CpuStatus } from "./Simulator/CpuStatus";
 import {
   simulationActive,
   type SimulationState,
@@ -342,6 +343,12 @@ export const Toolbar = React.memo(function Toolbar(
           <VscQuestion size={24} />
         </ButtonLabel>
       </Button>
+      <Separator />
+      <CpuStatus
+        uiString={uiString}
+        cpuState={cpuState}
+        cpuWorking={simulationActive(simulationState)}
+      />
     </div>
   );
 });

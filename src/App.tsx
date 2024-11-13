@@ -592,8 +592,6 @@ function App(props: AppProps): React.JSX.Element {
             ref={computerRef}
             uiString={uiString}
             computer={computer}
-            cpuState={cpuState}
-            cpuWorking={simulationActive(simulationState)}
             input={input}
             output={output}
             onMemoryCellChange={handleMemoryCellChange}

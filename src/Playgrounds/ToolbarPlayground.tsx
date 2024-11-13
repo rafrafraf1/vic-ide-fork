@@ -29,6 +29,20 @@ export function ToolbarPlayground(
           animationSpeed={"MEDIUM"}
         />
       </div>
+      <div>
+        <Toolbar
+          uiString={uiString}
+          showThemeSwitcher={true}
+          showSamplePrograms={true}
+          showSourceLoader={true}
+          cpuState={{ kind: "PendingFetch" }}
+          simulationState={"EXECUTE_INSTRUCTION"}
+          resetEnabled={true}
+          sampleProgramNames={samplePrograms}
+          sourceFile={null}
+          animationSpeed={"MEDIUM"}
+        />
+      </div>
 
       <hr />
 
@@ -47,6 +61,20 @@ export function ToolbarPlayground(
           animationSpeed={"MEDIUM"}
         />
       </div>
+      <div>
+        <Toolbar
+          uiString={uiString}
+          showThemeSwitcher={true}
+          showSamplePrograms={true}
+          showSourceLoader={true}
+          cpuState={{ kind: "PendingExecute" }}
+          simulationState={"FETCH_INSTRUCTION"}
+          resetEnabled={true}
+          sampleProgramNames={samplePrograms}
+          sourceFile={null}
+          animationSpeed={"MEDIUM"}
+        />
+      </div>
 
       <hr />
 
@@ -58,6 +86,48 @@ export function ToolbarPlayground(
           showSamplePrograms={true}
           showSourceLoader={true}
           cpuState={{ kind: "Stopped", stopResult: "STOP" }}
+          simulationState={"IDLE"}
+          resetEnabled={true}
+          sampleProgramNames={samplePrograms}
+          sourceFile={null}
+          animationSpeed={"MEDIUM"}
+        />
+      </div>
+      <div>
+        <Toolbar
+          uiString={uiString}
+          showThemeSwitcher={true}
+          showSamplePrograms={true}
+          showSourceLoader={true}
+          cpuState={{ kind: "Stopped", stopResult: "NO_INPUT" }}
+          simulationState={"IDLE"}
+          resetEnabled={true}
+          sampleProgramNames={samplePrograms}
+          sourceFile={null}
+          animationSpeed={"MEDIUM"}
+        />
+      </div>
+      <div>
+        <Toolbar
+          uiString={uiString}
+          showThemeSwitcher={true}
+          showSamplePrograms={true}
+          showSourceLoader={true}
+          cpuState={{ kind: "Stopped", stopResult: "INVALID_INSTRUCTION" }}
+          simulationState={"IDLE"}
+          resetEnabled={true}
+          sampleProgramNames={samplePrograms}
+          sourceFile={null}
+          animationSpeed={"MEDIUM"}
+        />
+      </div>
+      <div>
+        <Toolbar
+          uiString={uiString}
+          showThemeSwitcher={true}
+          showSamplePrograms={true}
+          showSourceLoader={true}
+          cpuState={{ kind: "Stopped", stopResult: "INVALID_WRITE" }}
           simulationState={"IDLE"}
           resetEnabled={true}
           sampleProgramNames={samplePrograms}
