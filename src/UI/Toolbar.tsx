@@ -544,10 +544,7 @@ export function FetchExecuteButton(
   ]);
 
   return (
-    <Tippy
-      singleton={tippyTarget}
-      content={uiString("FETCH_OR_EXECUTE_AN_INSTRUCTION")}
-    >
+    <Tippy singleton={tippyTarget} content={uiString("FETCH_OR_EXECUTE")}>
       <Button
         className={className}
         disabled={fetchDisabled && executeDisabled}
