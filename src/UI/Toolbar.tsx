@@ -287,7 +287,7 @@ export const Toolbar = React.memo(function Toolbar(
           onClick={onSingleStepClick}
         >
           <ButtonLabel>
-            <VscDebugContinue />
+            <VscDebugStart />
           </ButtonLabel>
         </Button>
       </Tippy>
@@ -600,13 +600,13 @@ export function RunButton(props: RunButtonProps): React.JSX.Element {
   const icon = ((): IconType => {
     switch (simulationState) {
       case "IDLE":
-        return VscDebugStart;
+        return VscDebugContinue;
       case "FETCH_INSTRUCTION":
-        return VscDebugStart;
+        return VscDebugContinue;
       case "EXECUTE_INSTRUCTION":
-        return VscDebugStart;
+        return VscDebugContinue;
       case "SINGLE_STEP":
-        return VscDebugStart;
+        return VscDebugContinue;
       case "RUN":
         return VscDebugStop;
       case "STOPPING":
