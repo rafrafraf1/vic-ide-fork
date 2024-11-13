@@ -26,7 +26,7 @@ export type UIStringKey =
   | "FILE_IS_OF_TYPE"
   | "CHANGE_THE_LANGUAGE_MODE_OF_THE_FILE_TO"
   | "FETCH_OR_EXECUTE"
-  | "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT"
+  | "RESET"
   | "STEP"
   | "RUN"
   | "THE_VISUAL_COMPUTER"
@@ -103,8 +103,8 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Change the Language mode of the file to";
     case "FETCH_OR_EXECUTE":
       return "Fetch / Execute";
-    case "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT":
-      return "Reset the Input, set the Program Counter to 0, and clear the Output";
+    case "RESET":
+      return "Reset";
     case "STEP":
       return "Step";
     case "RUN":

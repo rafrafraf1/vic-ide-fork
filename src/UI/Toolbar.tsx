@@ -297,12 +297,7 @@ export const Toolbar = React.memo(function Toolbar(
         onFetchInstructionClick={onFetchInstructionClick}
         onExecuteInstructionClick={onExecuteInstructionClick}
       />
-      <Tippy
-        singleton={tippyTarget}
-        content={uiString(
-          "RESET_THE_INPUT_SET_THE_PROGRAM_COUNTER_TO_ZERO_CLEAR_THE_OUTPUT",
-        )}
-      >
+      <Tippy singleton={tippyTarget} content={uiString("RESET")}>
         <Button
           className="Toolbar-Button"
           disabled={simulationActive(simulationState) || !resetEnabled}
