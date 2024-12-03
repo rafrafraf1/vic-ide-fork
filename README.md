@@ -17,9 +17,7 @@ The main way to use Vic is to use the Visual Studio Code Extension:
 
 The simulator runs directly inside a panel in Visual Studio Code, and you can directly edit and load Vic source files.
 
-![vic ide blank simulator](docs/getting-started/vic_ide_blank_simulator.png)
-
-![errors panel](docs/getting-started/vic_ide_errors_panel.png)
+![vic ide simulator](docs/vic-simulator-screenshot-demo-01.png)
 
 ## Getting Started
 
