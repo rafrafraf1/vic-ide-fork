@@ -76,6 +76,7 @@ export interface ComputerProps {
   output: OutputState;
   onMemoryCellChange?: (address: Address, value: Value | null) => void;
   onInstructionRegister?: (value: Value) => void;
+  onInstructionRegisterEnterPressed?: () => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
   onInputChange?: (input: InputState) => void;
@@ -91,6 +92,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
       output,
       onMemoryCellChange,
       onInstructionRegister,
+      onInstructionRegisterEnterPressed,
       onDataRegisterChange,
       onProgramCounterChange,
       onInputChange,
@@ -194,6 +196,7 @@ export const Computer = React.forwardRef<ComputerHandle, ComputerProps>(
           dataRegister={computer.dataRegister}
           programCounter={computer.programCounter}
           onInstructionRegister={onInstructionRegister}
+          onInstructionRegisterEnterPressed={onInstructionRegisterEnterPressed}
           onDataRegisterChange={onDataRegisterChange}
           onProgramCounterChange={onProgramCounterChange}
         />
@@ -492,6 +495,7 @@ interface CpuProps {
   dataRegister: Value;
   programCounter: Value;
   onInstructionRegister?: (value: Value) => void;
+  onInstructionRegisterEnterPressed?: () => void;
   onDataRegisterChange?: (value: Value) => void;
   onProgramCounterChange?: (value: Value) => void;
 }
@@ -504,6 +508,7 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
       dataRegister,
       programCounter,
       onInstructionRegister,
+      onInstructionRegisterEnterPressed,
       onDataRegisterChange,
       onProgramCounterChange,
     } = props;
@@ -541,6 +546,8 @@ export const Cpu = React.forwardRef<CpuHandle, CpuProps>(
               ref={instructionRegisterRef}
               value={instructionRegister}
               onValueChange={onInstructionRegister}
+              enableEnterEvent={true}
+              onEnterPressed={onInstructionRegisterEnterPressed}
             />
           </CpuRegister>
           <InstructionName

@@ -34,6 +34,8 @@ interface ValueCellInputPropsMixin {
   highlighted?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  enableEnterEvent?: boolean;
+  onEnterPressed?: () => void;
 }
 
 export interface ValueCellInputProps extends ValueCellInputPropsMixin {
@@ -110,7 +112,15 @@ function ValueCellInputTemplate<T>(
       props: ValueCellInputTemplateProps<T>,
       ref: React.ForwardedRef<ValueCellInputHandle>,
     ): React.JSX.Element => {
-      const { value, highlighted, disabled, tooltip, onValueChange } = props;
+      const {
+        value,
+        highlighted,
+        disabled,
+        tooltip,
+        enableEnterEvent,
+        onEnterPressed,
+        onValueChange,
+      } = props;
 
       const [inputStr, setInputStr] = React.useState<string>(() =>
         params.renderValue(value),
@@ -172,6 +182,19 @@ function ValueCellInputTemplate<T>(
         }
       };
 
+      const updateValue = React.useCallback((): void => {
+        const value = params.parseInput(inputStr);
+
+        // If the "inputStr" has any leading zeroes then we remove them:
+        if (inputStr !== params.renderValue(value)) {
+          setInputStr(params.renderValue(value));
+        }
+
+        if (onValueChange !== undefined) {
+          onValueChange(value);
+        }
+      }, [inputStr, onValueChange]);
+
       // Key that we use in the input element's dataset that indicates if the
       // user has just pressed the "Escape" key.
       const HANDLING_ESCAPE_KEY = "HANDLING_ESCAPE";
@@ -191,17 +214,8 @@ function ValueCellInputTemplate<T>(
           }
         }
 
-        const value = params.parseInput(inputStr);
-
-        // If the "inputStr" has any leading zeroes then we remove them:
-        if (inputStr !== params.renderValue(value)) {
-          setInputStr(params.renderValue(value));
-        }
-
-        if (onValueChange !== undefined) {
-          onValueChange(value);
-        }
-      }, [inputRef, inputStr, onValueChange]);
+        updateValue();
+      }, [updateValue]);
 
       const handleKeyDown = React.useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>): void => {
@@ -239,6 +253,17 @@ function ValueCellInputTemplate<T>(
           e.preventDefault();
 
           if (inputRef.current !== null) {
+            if (enableEnterEvent !== undefined && enableEnterEvent) {
+              updateValue();
+
+              if (onEnterPressed !== undefined) {
+                onEnterPressed();
+              }
+
+              inputRef.current.select();
+              return;
+            }
+
             const nextElem = nextTabbableElement(inputRef.current);
             if (nextElem !== null) {
               nextElem.focus();
@@ -247,7 +272,7 @@ function ValueCellInputTemplate<T>(
             }
           }
         },
-        [inputRef],
+        [enableEnterEvent, onEnterPressed, updateValue],
       );
 
       const elem = (

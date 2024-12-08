@@ -531,6 +531,18 @@ function App(props: AppProps): React.JSX.Element {
     setComputer(setInstructionRegister(value));
   }, []);
 
+  const triggerExecuteInstructionRegister = useEvents<undefined>((): void => {
+    doExecuteInstruction();
+  });
+
+  const handleInstructionRegisterEnterPressed = React.useCallback((): void => {
+    if (simulationActive(simulationState)) {
+      return;
+    }
+    setSimulationState("EXECUTE_INSTRUCTION");
+    triggerExecuteInstructionRegister(undefined);
+  }, [simulationState, triggerExecuteInstructionRegister]);
+
   const handleDataRegisterChange = React.useCallback((value: Value): void => {
     setComputer(setDataRegister(value));
   }, []);
@@ -674,6 +686,9 @@ function App(props: AppProps): React.JSX.Element {
             output={output}
             onMemoryCellChange={handleMemoryCellChange}
             onInstructionRegister={handleInstructionRegister}
+            onInstructionRegisterEnterPressed={
+              handleInstructionRegisterEnterPressed
+            }
             onDataRegisterChange={handleDataRegisterChange}
             onProgramCounterChange={handleProgramCounterChange}
             onInputChange={handleInputChange}
