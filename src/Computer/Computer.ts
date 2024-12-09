@@ -1,6 +1,7 @@
 import { assertNever } from "assert-never";
 
 import { compose } from "../Functional/Compose";
+import { identity } from "../Functional/Identity";
 import { parseInstruction, type Address } from "./Instruction";
 import type { Value } from "./Value";
 
@@ -205,7 +206,12 @@ export function fetchInstruction(computer: ComputerState): ComputerState {
 export function executeInstruction(
   computer: ComputerState,
   nextInput: Value | null,
+  advanceProgramCounter: boolean,
 ): [ComputerState, ExecuteResult] {
+  const moveProgramCounter = advanceProgramCounter
+    ? incProgramCounter
+    : identity;
+
   const instruction = parseInstruction(computer.instructionRegister);
 
   if (instruction === null) {
@@ -226,7 +232,7 @@ export function executeInstruction(
       const value = add(op1, op2);
       const newComputer = compose(
         setDataRegister(value),
-        incProgramCounter,
+        moveProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -236,7 +242,7 @@ export function executeInstruction(
       const value = sub(op1, op2);
       const newComputer = compose(
         setDataRegister(value),
-        incProgramCounter,
+        moveProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -244,7 +250,7 @@ export function executeInstruction(
       const value = readMemory(computer, instruction.address);
       const newComputer = compose(
         setDataRegister(value),
-        incProgramCounter,
+        moveProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -262,7 +268,7 @@ export function executeInstruction(
 
       const newComputer = compose(
         writeMemory(instruction.address, computer.dataRegister),
-        incProgramCounter,
+        moveProgramCounter,
       )(computer);
       return [newComputer, nullExecuteResult];
     }
@@ -275,7 +281,7 @@ export function executeInstruction(
       if (computer.dataRegister === 0) {
         newComputer = setProgramCounter(instruction.address)(computer);
       } else {
-        newComputer = incProgramCounter(computer);
+        newComputer = moveProgramCounter(computer);
       }
       return [newComputer, nullExecuteResult];
     }
@@ -284,7 +290,7 @@ export function executeInstruction(
       if (computer.dataRegister > 0) {
         newComputer = setProgramCounter(instruction.address)(computer);
       } else {
-        newComputer = incProgramCounter(computer);
+        newComputer = moveProgramCounter(computer);
       }
       return [newComputer, nullExecuteResult];
     }
@@ -301,7 +307,7 @@ export function executeInstruction(
       }
       const newComputer = compose(
         setDataRegister(nextInput),
-        incProgramCounter,
+        moveProgramCounter,
       )(computer);
       return [
         newComputer,
@@ -314,7 +320,7 @@ export function executeInstruction(
     }
     case "WRITE": {
       const output = computer.dataRegister;
-      const newComputer = incProgramCounter(computer);
+      const newComputer = moveProgramCounter(computer);
       return [
         newComputer,
         {

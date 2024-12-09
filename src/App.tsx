@@ -209,7 +209,7 @@ function App(props: AppProps): React.JSX.Element {
       case "SINGLE_STEP":
         switch (cpuState.kind) {
           case "PendingExecute":
-            doExecuteInstruction();
+            doExecuteInstruction(true);
             break;
           case "PendingFetch":
           case "Stopped":
@@ -225,7 +225,7 @@ function App(props: AppProps): React.JSX.Element {
             doFetchInstruction();
             break;
           case "PendingExecute":
-            doExecuteInstruction();
+            doExecuteInstruction(true);
             break;
           case "Stopped":
             setSimulationState("IDLE");
@@ -240,7 +240,7 @@ function App(props: AppProps): React.JSX.Element {
             setSimulationState("IDLE");
             break;
           case "PendingExecute":
-            doExecuteInstruction();
+            doExecuteInstruction(true);
             break;
           case "Stopped":
             setSimulationState("IDLE");
@@ -342,67 +342,73 @@ function App(props: AppProps): React.JSX.Element {
     triggerStepComplete,
   ]);
 
-  const doExecuteInstruction = React.useCallback((): void => {
-    if (shouldRunInstantIterations) {
-      runInstantIterations();
-      return;
-    }
-
-    const nextInput = readNextInput(input);
-
-    function updateComputer(): void {
-      const [newComputer, executeResult] = executeInstruction(
-        computer,
-        nextInput,
-      );
-      setComputer(newComputer);
-      setCpuState(
-        executeResult.stop !== null
-          ? { kind: "Stopped", stopResult: executeResult.stop }
-          : { kind: "PendingFetch" },
-      );
-      if (executeResult.consumedInput) {
-        setInput(consumeInput(input));
-      }
-      if (executeResult.output !== null) {
-        setOutput(appendOutput(executeResult.output));
+  const doExecuteInstruction = React.useCallback(
+    (advanceProgramCounter: boolean): void => {
+      if (shouldRunInstantIterations) {
+        runInstantIterations();
+        return;
       }
 
-      triggerStepComplete(undefined);
-    }
+      const nextInput = readNextInput(input);
 
-    const animation = nextInstructionAnimation(computer, nextInput);
-    if (animation === null) {
-      updateComputer();
-      return;
-    }
+      function updateComputer(): void {
+        const [newComputer, executeResult] = executeInstruction(
+          computer,
+          nextInput,
+          advanceProgramCounter,
+        );
+        setComputer(newComputer);
+        setCpuState(
+          executeResult.stop !== null
+            ? { kind: "Stopped", stopResult: executeResult.stop }
+            : { kind: "PendingFetch" },
+        );
+        if (executeResult.consumedInput) {
+          setInput(consumeInput(input));
+        }
+        if (executeResult.output !== null) {
+          setOutput(appendOutput(executeResult.output));
+        }
 
-    nonNull(computerRef.current).scrollIntoView(animation.start);
-    nonNull(computerRef.current).scrollIntoView(animation.end);
+        triggerStepComplete(undefined);
+      }
 
-    animate(
-      {
-        start: nonNull(computerRef.current).getBoundingClientRect(
-          animation.start,
-        ),
-        end: nonNull(computerRef.current).getBoundingClientRect(animation.end),
-        duration: animationSpeedDuration(animationSpeed),
-        text: `${animation.value}`,
-        className: "App-CellAnimationCont",
-      },
-      () => {
+      const animation = nextInstructionAnimation(computer, nextInput);
+      if (animation === null) {
         updateComputer();
-      },
-    );
-  }, [
-    animate,
-    animationSpeed,
-    computer,
-    input,
-    runInstantIterations,
-    shouldRunInstantIterations,
-    triggerStepComplete,
-  ]);
+        return;
+      }
+
+      nonNull(computerRef.current).scrollIntoView(animation.start);
+      nonNull(computerRef.current).scrollIntoView(animation.end);
+
+      animate(
+        {
+          start: nonNull(computerRef.current).getBoundingClientRect(
+            animation.start,
+          ),
+          end: nonNull(computerRef.current).getBoundingClientRect(
+            animation.end,
+          ),
+          duration: animationSpeedDuration(animationSpeed),
+          text: `${animation.value}`,
+          className: "App-CellAnimationCont",
+        },
+        () => {
+          updateComputer();
+        },
+      );
+    },
+    [
+      animate,
+      animationSpeed,
+      computer,
+      input,
+      runInstantIterations,
+      shouldRunInstantIterations,
+      triggerStepComplete,
+    ],
+  );
 
   const handleLoadSourceFileClick = React.useCallback((): void => {
     extensionBridge.postMessage({
@@ -425,7 +431,7 @@ function App(props: AppProps): React.JSX.Element {
 
   const handleExecuteInstructionClick = React.useCallback((): void => {
     setSimulationState("EXECUTE_INSTRUCTION");
-    doExecuteInstruction();
+    doExecuteInstruction(true);
   }, [doExecuteInstruction]);
 
   const handleResetClick = React.useCallback((): void => {
@@ -457,7 +463,7 @@ function App(props: AppProps): React.JSX.Element {
         doFetchInstruction();
         break;
       case "PendingExecute":
-        doExecuteInstruction();
+        doExecuteInstruction(true);
         break;
       case "Stopped":
         // TODO This should never happen (assert)?
@@ -532,7 +538,7 @@ function App(props: AppProps): React.JSX.Element {
   }, []);
 
   const triggerExecuteInstructionRegister = useEvents<undefined>((): void => {
-    doExecuteInstruction();
+    doExecuteInstruction(false);
   });
 
   const handleInstructionRegisterEnterPressed = React.useCallback((): void => {

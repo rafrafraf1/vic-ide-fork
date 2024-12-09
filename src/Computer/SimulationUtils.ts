@@ -69,6 +69,7 @@ function doExecute(hardwareState: HardwareState): HardwareState {
   const [newComputer, executeResult] = executeInstruction(
     hardwareState.computer,
     nextInput,
+    true,
   );
   return {
     computer: newComputer,
