@@ -222,7 +222,7 @@ function App(props: AppProps): React.JSX.Element {
       case "RUN":
         switch (cpuState.kind) {
           case "PendingFetch":
-            doFetchInstruction();
+            doFetchInstruction(true);
             break;
           case "PendingExecute":
             doExecuteInstruction(true);
@@ -293,54 +293,66 @@ function App(props: AppProps): React.JSX.Element {
     }
   }, [computer, cpuState, input, output, triggerStepComplete]);
 
-  const doFetchInstruction = React.useCallback((): void => {
-    if (shouldRunInstantIterations) {
-      runInstantIterations();
-      return;
-    }
+  const doFetchInstruction = React.useCallback(
+    (animation: boolean): void => {
+      if (shouldRunInstantIterations) {
+        runInstantIterations();
+        return;
+      }
 
-    nonNull(computerRef.current).scrollIntoView({
-      kind: "MemoryCell",
-      address: computer.programCounter,
-    });
+      nonNull(computerRef.current).scrollIntoView({
+        kind: "MemoryCell",
+        address: computer.programCounter,
+      });
 
-    const startRect = nonNull(computerRef.current).getBoundingClientRect({
-      kind: "MemoryCell",
-      address: computer.programCounter,
-    });
+      const startRect = nonNull(computerRef.current).getBoundingClientRect({
+        kind: "MemoryCell",
+        address: computer.programCounter,
+      });
 
-    const newComputer = fetchInstruction(computer);
+      const newComputer = fetchInstruction(computer);
 
-    const endRect = nonNull(computerRef.current).getBoundingClientRect({
-      kind: "CpuRegister",
-      cpuRegister: "INSTRUCTION_REGISTER",
-    });
+      const endRect = nonNull(computerRef.current).getBoundingClientRect({
+        kind: "CpuRegister",
+        cpuRegister: "INSTRUCTION_REGISTER",
+      });
 
-    animate(
-      {
-        start: startRect,
-        end: endRect,
-        duration: animationSpeedDuration(animationSpeed),
-        text: `${newComputer.instructionRegister}`,
-        className: "App-CellAnimationCont",
-      },
-      (): void => {
+      function updateComputer(): void {
         setComputer(newComputer);
         setCpuState({
           kind: "PendingExecute",
         });
 
         triggerStepComplete(undefined);
-      },
-    );
-  }, [
-    animate,
-    animationSpeed,
-    computer,
-    runInstantIterations,
-    shouldRunInstantIterations,
-    triggerStepComplete,
-  ]);
+      }
+
+      if (!animation) {
+        updateComputer();
+        return;
+      }
+
+      animate(
+        {
+          start: startRect,
+          end: endRect,
+          duration: animationSpeedDuration(animationSpeed),
+          text: `${newComputer.instructionRegister}`,
+          className: "App-CellAnimationCont",
+        },
+        (): void => {
+          updateComputer();
+        },
+      );
+    },
+    [
+      animate,
+      animationSpeed,
+      computer,
+      runInstantIterations,
+      shouldRunInstantIterations,
+      triggerStepComplete,
+    ],
+  );
 
   const doExecuteInstruction = React.useCallback(
     (advanceProgramCounter: boolean): void => {
@@ -426,7 +438,7 @@ function App(props: AppProps): React.JSX.Element {
 
   const handleFetchInstructionClick = React.useCallback((): void => {
     setSimulationState("FETCH_INSTRUCTION");
-    doFetchInstruction();
+    doFetchInstruction(true);
   }, [doFetchInstruction]);
 
   const handleExecuteInstructionClick = React.useCallback((): void => {
@@ -449,7 +461,7 @@ function App(props: AppProps): React.JSX.Element {
 
   const handleSingleStepClick = React.useCallback((): void => {
     setSimulationState("SINGLE_STEP");
-    doFetchInstruction();
+    doFetchInstruction(false);
   }, [doFetchInstruction]);
 
   const handleRunClick = React.useCallback((): void => {
@@ -460,7 +472,7 @@ function App(props: AppProps): React.JSX.Element {
     }
     switch (cpuState.kind) {
       case "PendingFetch":
-        doFetchInstruction();
+        doFetchInstruction(true);
         break;
       case "PendingExecute":
         doExecuteInstruction(true);
