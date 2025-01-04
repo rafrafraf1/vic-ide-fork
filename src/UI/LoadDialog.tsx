@@ -10,6 +10,7 @@ import { VscClose } from "react-icons/vsc";
 
 import type { Result } from "../common/Functional/Result";
 import type { SrcError } from "../common/SrcError";
+import { splitSourceLines } from "../common/SrcText";
 import { parseVicBin } from "../common/VicBinParser";
 import { compileVicProgram } from "../common/VicLangFullCompiler";
 import type { Value } from "../Computer/Value";
@@ -324,7 +325,7 @@ const SourceCode = React.memo((props: SourceCodeProps): React.JSX.Element => {
     }
   }
 
-  const lines = source.split("\n");
+  const lines = splitSourceLines(source);
   return (
     <>
       {lines.map((line, index) => (

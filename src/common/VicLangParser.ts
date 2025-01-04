@@ -2,6 +2,7 @@ import { assertNever } from "assert-never";
 
 import type { SrcError } from "./SrcError";
 import type { SrcLoc } from "./SrcLoc";
+import { splitSourceLines } from "./SrcText";
 import { parseLine } from "./VicLangLineParser";
 
 /**
@@ -123,7 +124,7 @@ export interface VicParsedProgram {
  * valid statements.
  */
 export function parseVicProgram(source: string): VicParsedProgram {
-  const lines = source.split("\n");
+  const lines = splitSourceLines(source);
 
   const statements: Statement[] = [];
   let errors: SrcError[] = [];

@@ -3,6 +3,7 @@ import { assertNever } from "assert-never";
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
 import type { SrcLoc } from "./SrcLoc";
+import { splitSourceLines } from "./SrcText";
 
 /**
  * The maximum size of a program.
@@ -22,7 +23,7 @@ export function parseVicBin(source: string): Result<SrcError[], number[]> {
   const values: number[] = [];
   const errors: SrcError[] = [];
 
-  const lines = source.split("\n");
+  const lines = splitSourceLines(source);
   lines.forEach((line, i) => {
     const result = parseVicBinLine(line, i);
     switch (result.kind) {
