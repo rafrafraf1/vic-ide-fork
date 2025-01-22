@@ -144,7 +144,10 @@ function App(): React.JSX.Element {
         onHelpClick={handleHelpClick}
       />
       <div className="App-Main">
-        <WindowFrame className="App-WindowFrame-Cont" uiString={uiString}>
+        <WindowFrame
+          className="App-WindowFrame-Cont"
+          title={uiString("THE_VISUAL_COMPUTER")}
+        >
           <Computer
             ref={computerRef}
             uiString={uiString}

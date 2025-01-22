@@ -286,7 +286,7 @@ function AppWebview(props: AppProps): React.JSX.Element {
       <div className="AppWebview-Main">
         <WindowFrame
           className="AppWebview-WindowFrame-Cont"
-          uiString={uiString}
+          title={uiString("THE_VISUAL_COMPUTER")}
         >
           <Computer
             ref={computerRef}
