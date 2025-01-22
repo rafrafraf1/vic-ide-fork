@@ -1,0 +1,15 @@
+/* This is styled to match the input element from "ValueCellInput.css" */
+.Simulator-CellAnimationCont {
+  background-color: var(--vscode-editorWidget-background);
+  color: var(--vscode-editorWidget-foreground);
+  border: 1px solid var(--vscode-editorWidget-border);
+
+  font-size: 140%;
+  font-family: monospace;
+  font-weight: bold;
+
+  padding-right: 12px;
+  text-align: right;
+
+  opacity: 0.85;
+}

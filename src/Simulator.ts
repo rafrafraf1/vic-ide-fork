@@ -1,3 +1,5 @@
+import "./Simulator.css";
+
 import * as React from "react";
 
 import { assertNever } from "assert-never";
@@ -274,7 +276,7 @@ export function useSimulator(opts: SimulatorOptions): SimulatorControls {
           end: endRect,
           duration: animationSpeedDuration(animationSpeed),
           text: `${newComputer.instructionRegister}`,
-          className: "App-CellAnimationCont",
+          className: "Simulator-CellAnimationCont",
         },
         (): void => {
           updateComputer();
@@ -343,7 +345,7 @@ export function useSimulator(opts: SimulatorOptions): SimulatorControls {
           ),
           duration: animationSpeedDuration(animationSpeed),
           text: `${animation.value}`,
-          className: "App-CellAnimationCont",
+          className: "Simulator-CellAnimationCont",
         },
         () => {
           updateComputer();
