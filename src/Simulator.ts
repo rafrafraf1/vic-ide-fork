@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import assertNever from "assert-never";
+import { assertNever } from "assert-never";
 
 import {
   executeInstruction,

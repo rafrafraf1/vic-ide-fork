@@ -11,8 +11,7 @@ import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
 import type { ComputerState } from "./Computer/Computer";
 import { loadProgram } from "./Computer/Program";
 import type { HardwareState } from "./Computer/SimulatorState";
-import type { Value } from "./Computer/Value";
-import type { HelpScreenState } from "./HelpScreenState";
+import { useHelpScreen } from "./HelpScreen";
 import {
   getSampleProgramNames,
   loadSampleProgram,
@@ -22,7 +21,6 @@ import { useSimulator, type SimulatorOptions } from "./Simulator";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import { ComputerFrame } from "./UI/ComputerFrame";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
-import { LoadDialog } from "./UI/LoadDialog";
 import { useWindowMessages } from "./UI/ReactHooks/UseWindowMessages";
 import { Computer } from "./UI/Simulator/Computer";
 import { simulationActive } from "./UI/Simulator/SimulationState";
@@ -90,11 +88,13 @@ function AppWebview(props: AppProps): React.JSX.Element {
     handleInputChange,
   } = useSimulator(simulatorOptions);
 
-  const [helpScreenState, setHelpScreenState] = React.useState(
-    initialState.helpScreenState,
-  );
-
-  const [loadDialogOpen, setLoadDialogOpen] = React.useState(false);
+  const {
+    helpScreenState,
+    handleHelpClick,
+    handleHelpScreenCloseClick,
+    handleHelpScreenPinClick,
+    handleHelpScreenUnpinClick,
+  } = useHelpScreen(initialState.helpScreenState);
 
   const [sourceFile, setSourceFile] = React.useState<SourceFile | null>(null);
 
@@ -121,10 +121,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
     });
   }, [animationSpeed, extensionBridge, hardwareState, helpScreenState]);
 
-  const handleOpenFile = React.useCallback((): void => {
-    setLoadDialogOpen(true);
-  }, []);
-
   const handleLoadSampleProgram = React.useCallback(
     (name: string): void => {
       const sampleProgram = lookupSampleProgram(name);
@@ -137,36 +133,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
       }
     },
     [setComputer, setCpuState, setInput, setOutput],
-  );
-
-  const handleProgramLoaded = React.useCallback(
-    (memory: Value[]): void => {
-      const hardwareState = loadProgram(
-        {
-          computer: computer,
-          cpuState: cpuState,
-          input: input,
-          output: output,
-        },
-        memory,
-      );
-
-      setLoadDialogOpen(false);
-      setComputer(hardwareState.computer);
-      setCpuState(hardwareState.cpuState);
-      setInput(hardwareState.input);
-      setOutput(hardwareState.output);
-    },
-    [
-      computer,
-      cpuState,
-      input,
-      output,
-      setComputer,
-      setCpuState,
-      setInput,
-      setOutput,
-    ],
   );
 
   const handleLoadSourceFileClick = React.useCallback((): void => {
@@ -182,26 +148,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
       sourceFileId: getSourceFileId(sourceFile),
     });
   }, [extensionBridge, sourceFile]);
-
-  const handleHelpClick = React.useCallback((): void => {
-    setHelpScreenState(toggleHelpScreenState);
-  }, [setHelpScreenState]);
-
-  const handleLoadDialogCloseClick = React.useCallback((): void => {
-    setLoadDialogOpen(false);
-  }, []);
-
-  const handleHelpScreenCloseClick = React.useCallback((): void => {
-    setHelpScreenState("CLOSED");
-  }, [setHelpScreenState]);
-
-  const handleHelpScreenPinClick = React.useCallback((): void => {
-    setHelpScreenState("PINNED");
-  }, [setHelpScreenState]);
-
-  const handleHelpScreenUnpinClick = React.useCallback((): void => {
-    setHelpScreenState("OPEN");
-  }, [setHelpScreenState]);
 
   const handleDebugMessage = React.useCallback(
     (message: ExtensionDebugMessage): void => {
@@ -322,7 +268,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
         simulationState={simulationState}
         resetEnabled={isResetEnabled}
         sampleProgramNames={getSampleProgramNames()}
-        onOpenFile={handleOpenFile}
         onLoadSampleProgram={handleLoadSampleProgram}
         sourceFile={sourceFile}
         onLoadSourceFileClick={handleLoadSourceFileClick}
@@ -365,13 +310,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
           </div>
         ) : null}
       </div>
-      {loadDialogOpen ? (
-        <LoadDialog
-          uiString={uiString}
-          onCloseClick={handleLoadDialogCloseClick}
-          onProgramLoaded={handleProgramLoaded}
-        />
-      ) : null}
       {helpScreenState === "OPEN" ? (
         <HelpScreen
           onCloseClick={handleHelpScreenCloseClick}
@@ -398,21 +336,6 @@ function processDebugSetCpuRegisters(
       ? { programCounter: message.programCounter }
       : {}),
   };
-}
-
-function toggleHelpScreenState(
-  helpScreenState: HelpScreenState,
-): HelpScreenState {
-  switch (helpScreenState) {
-    case "CLOSED":
-      return "OPEN";
-    case "OPEN":
-      return "CLOSED";
-    case "PINNED":
-      return "CLOSED";
-    default:
-      return assertNever(helpScreenState);
-  }
 }
 
 function getSourceFileId(sourceFile: SourceFile | null): SourceFileId {

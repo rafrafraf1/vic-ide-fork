@@ -2,12 +2,10 @@ import "./App.css";
 
 import * as React from "react";
 
-import { assertNever } from "assert-never";
-
 import { loadProgram } from "./Computer/Program";
 import { newSimulatorState } from "./Computer/SimulatorState";
 import type { Value } from "./Computer/Value";
-import { newHelpScreenState, type HelpScreenState } from "./HelpScreenState";
+import { newHelpScreenState, useHelpScreen } from "./HelpScreen";
 import {
   getSampleProgramNames,
   loadSampleProgram,
@@ -58,8 +56,13 @@ function App(): React.JSX.Element {
     handleInputChange,
   } = useSimulator(simulatorOptions);
 
-  const [helpScreenState, setHelpScreenState] =
-    React.useState(newHelpScreenState());
+  const {
+    helpScreenState,
+    handleHelpClick,
+    handleHelpScreenCloseClick,
+    handleHelpScreenPinClick,
+    handleHelpScreenUnpinClick,
+  } = useHelpScreen(newHelpScreenState());
 
   const [loadDialogOpen, setLoadDialogOpen] = React.useState(false);
 
@@ -111,25 +114,9 @@ function App(): React.JSX.Element {
     ],
   );
 
-  const handleHelpClick = React.useCallback((): void => {
-    setHelpScreenState(toggleHelpScreenState);
-  }, [setHelpScreenState]);
-
   const handleLoadDialogCloseClick = React.useCallback((): void => {
     setLoadDialogOpen(false);
   }, []);
-
-  const handleHelpScreenCloseClick = React.useCallback((): void => {
-    setHelpScreenState("CLOSED");
-  }, [setHelpScreenState]);
-
-  const handleHelpScreenPinClick = React.useCallback((): void => {
-    setHelpScreenState("PINNED");
-  }, [setHelpScreenState]);
-
-  const handleHelpScreenUnpinClick = React.useCallback((): void => {
-    setHelpScreenState("OPEN");
-  }, [setHelpScreenState]);
 
   return (
     <div className="App-Root">
@@ -198,21 +185,6 @@ function App(): React.JSX.Element {
       ) : null}
     </div>
   );
-}
-
-function toggleHelpScreenState(
-  helpScreenState: HelpScreenState,
-): HelpScreenState {
-  switch (helpScreenState) {
-    case "CLOSED":
-      return "OPEN";
-    case "OPEN":
-      return "CLOSED";
-    case "PINNED":
-      return "CLOSED";
-    default:
-      return assertNever(helpScreenState);
-  }
 }
 
 export default App;

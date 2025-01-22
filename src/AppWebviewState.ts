@@ -2,7 +2,7 @@ import {
   newSimulatorState,
   type SimulatorState,
 } from "./Computer/SimulatorState";
-import { newHelpScreenState, type HelpScreenState } from "./HelpScreenState";
+import { newHelpScreenState, type HelpScreenState } from "./HelpScreen";
 
 export interface AppWebviewState {
   simulatorState: SimulatorState;
