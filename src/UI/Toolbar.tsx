@@ -77,7 +77,7 @@ interface ToolbarProps {
   onLoadSampleProgram?: (name: string) => void;
   onOpenFile?: () => void;
 
-  sourceFile: SourceFile | null;
+  sourceFile?: SourceFile | null;
   onLoadSourceFileClick?: () => void;
   onShowErrorsClick?: () => void;
 
@@ -261,7 +261,7 @@ export const Toolbar = React.memo(function Toolbar(
           className="Toolbar-Button"
           uiString={uiString}
           disabled={simulationActive(simulationState)}
-          sourceFile={sourceFile}
+          sourceFile={sourceFile !== undefined ? sourceFile : null}
           onLoadSourceFileClick={onLoadSourceFileClick}
           onShowErrorsClick={onShowErrorsClick}
         />

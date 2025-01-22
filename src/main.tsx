@@ -7,9 +7,7 @@ import * as React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./App";
-import type { AppWebviewState } from "./AppWebviewState";
 import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";
-import { getExtensionBridge } from "./System/ExtensionBridge";
 
 function getRequiredElement(elementId: string): HTMLElement {
   const rootElem = document.getElementById(elementId);
@@ -28,15 +26,9 @@ function boot(): void {
 
   const root = ReactDOM.createRoot(getRequiredElement("root"));
 
-  const extensionBridge = getExtensionBridge<AppWebviewState>();
-
   root.render(
     <React.StrictMode>
-      {devMode() ? (
-        <PlaygroundMenu />
-      ) : (
-        <App extensionBridge={extensionBridge} />
-      )}
+      {devMode() ? <PlaygroundMenu /> : <App />}
     </React.StrictMode>,
   );
 }
