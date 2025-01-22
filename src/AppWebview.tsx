@@ -1,4 +1,4 @@
-import "./App.css";
+import "./AppWebview.css";
 
 import * as React from "react";
 
@@ -257,9 +257,9 @@ function AppWebview(props: AppProps): React.JSX.Element {
   useWindowMessages(extensionBridge, handleMessage);
 
   return (
-    <div className="App-Root">
+    <div className="AppWebview-Root">
       <Toolbar
-        className="App-Toolbar-Cont"
+        className="AppWebview-Toolbar-Cont"
         uiString={uiString}
         showSamplePrograms={false}
         showThemeSwitcher={false}
@@ -283,8 +283,11 @@ function AppWebview(props: AppProps): React.JSX.Element {
         onClearClick={handleClearClick}
         onHelpClick={handleHelpClick}
       />
-      <div className="App-Main">
-        <ComputerFrame className="App-ComputerFrame-Cont" uiString={uiString}>
+      <div className="AppWebview-Main">
+        <ComputerFrame
+          className="AppWebview-ComputerFrame-Cont"
+          uiString={uiString}
+        >
           <Computer
             ref={computerRef}
             uiString={uiString}
@@ -302,7 +305,7 @@ function AppWebview(props: AppProps): React.JSX.Element {
           />
         </ComputerFrame>
         {helpScreenState === "PINNED" ? (
-          <div className="App-HelpSidebar-Cont">
+          <div className="AppWebview-HelpSidebar-Cont">
             <HelpSidebar
               onCloseClick={handleHelpScreenCloseClick}
               onUnpinClick={handleHelpScreenUnpinClick}

@@ -1,0 +1,29 @@
+.AppWebview-Root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.AppWebview-Toolbar-Cont {
+  flex: 0 0 auto;
+  align-self: stretch;
+}
+
+.AppWebview-Main {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+}
+
+.AppWebview-ComputerFrame-Cont {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.AppWebview-HelpSidebar-Cont {
+  flex: 1 2 auto;
+  margin-left: 56px;
+  display: flex;
+}
