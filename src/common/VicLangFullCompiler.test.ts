@@ -1,7 +1,10 @@
+import { assertNever } from "assert-never";
+
 import type { Result } from "./Functional/Result";
 import type { SrcError } from "./SrcError";
 import {
   compileVicProgram,
+  prettyVicCompileResult,
   type VicCompileResult,
 } from "./VicLangFullCompiler";
 
@@ -2111,5 +2114,316 @@ describe("compileVicProgram max instructions", () => {
         398, 398, 398, 398, 398, 398,
       ],
     });
+  });
+});
+
+/**
+ * Helper function used in "prettyVicBinaryWithSource" test.
+ */
+function compilePretty(source: string): string {
+  const compileResult = compileVicProgram(source);
+  switch (compileResult.program.kind) {
+    case "Error":
+      throw new Error(
+        `Unexpected errors: ${JSON.stringify(compileResult.program.error)}`,
+      );
+    case "Ok":
+      return prettyVicCompileResult(
+        compileResult.program.value,
+        compileResult.statements,
+      );
+    default:
+      return assertNever(compileResult.program);
+  }
+}
+
+describe("prettyVicBinaryWithSource", () => {
+  test("empty", () => {
+    expect(compilePretty("")).toEqual<string>("");
+  });
+
+  test("read instruction", () => {
+    expect(
+      compilePretty(
+        [
+          "read", // 0
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "800", // 0
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("add instruction", () => {
+    expect(
+      compilePretty(
+        [
+          "store x", // 0
+          "add x", // 1
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "490", // 0
+        "190", // 1
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("goto instruction", () => {
+    expect(
+      compilePretty(
+        [
+          "foo:", // 0
+          "goto foo", // 1
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "", // 0
+        "500", // 1
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("minimal program", () => {
+    expect(
+      compilePretty(
+        [
+          "start:", // 0
+          "goto loop", // 1
+          "store x", // 2
+          "loop:", // 3
+          "add y", // 4
+          "store y", //  5
+          "read", // 6
+          "gotoz start", // 7
+          "load x", // 8
+          "load y", // 9
+          "stop", // 10
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "", // 0
+        "502", // 1
+        "490", // 2
+        "", // 3
+        "191", // 4
+        "491", // 5
+        "800", // 6
+        "600", // 7
+        "390", // 8
+        "391", // 9
+        "0", // 10
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("label at end of program", () => {
+    expect(
+      compilePretty(
+        [
+          "start:", // 0
+          "read", // 1
+          "goto end", // 2
+          "write", // 3
+          "end:", // 4
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "", // 0
+        "800", // 1
+        "503", // 2
+        "900", // 3
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("blank line at beginning", () => {
+    expect(
+      compilePretty(
+        [
+          "", // 0
+          "read", // 1
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "", // 0
+        "800", // 1
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("two blank lines at beginning", () => {
+    expect(
+      compilePretty(
+        [
+          "", // 0
+          "", // 1
+          "read", // 2
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "", // 0
+        "", // 1
+        "800", // 2
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("blank line at end", () => {
+    expect(
+      compilePretty(
+        [
+          "read", // 0
+          "", // 1
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "800", // 0
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("two blank lines at end", () => {
+    expect(
+      compilePretty(
+        [
+          "read", // 0
+          "", // 1
+          "", // 2
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "800", // 0
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("blank line in middle", () => {
+    expect(
+      compilePretty(
+        [
+          "store x", // 0
+          "", // 1
+          "add x", // 2
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "490", // 0
+        "", // 1
+        "190", // 2
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("two blank lines in middle", () => {
+    expect(
+      compilePretty(
+        [
+          "store x", // 0
+          "", // 1
+          "", // 2
+          "add x", // 3
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "490", // 0
+        "", // 1
+        "", // 2
+        "190", // 3
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("comment line at beginning", () => {
+    expect(
+      compilePretty(
+        [
+          "// comment", // 0
+          "store x", // 1
+          "add x", // 2
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "", // 0
+        "490", // 1
+        "190", // 2
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("comment line at end", () => {
+    expect(
+      compilePretty(
+        [
+          "store x", // 0
+          "add x", // 1
+          "// comment", // 2
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "490", // 0
+        "190", // 1
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
+  });
+
+  test("comment line in middle", () => {
+    expect(
+      compilePretty(
+        [
+          "store x", // 0
+          "// comment", // 1
+          "add x", // 2
+        ].join("\n"),
+      ),
+    ).toEqual<string>(
+      [
+        "490", // 0
+        "", // 1
+        "190", // 2
+      ]
+        .map((l) => `${l}\n`)
+        .join(""),
+    );
   });
 });

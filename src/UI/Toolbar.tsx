@@ -9,12 +9,12 @@ import type { IconType } from "react-icons";
 import { BsHourglass } from "react-icons/bs";
 import { FaFileUpload } from "react-icons/fa";
 import { MdErrorOutline } from "react-icons/md";
-import { PiFolderOpenDuotone } from "react-icons/pi";
 import { RiContrastFill, RiRewindMiniFill } from "react-icons/ri";
 import {
   VscDebugContinue,
   VscDebugStart,
   VscDebugStop,
+  VscFileCode,
   VscQuestion,
   VscTrash,
 } from "react-icons/vsc";
@@ -32,7 +32,7 @@ import {
 } from "../System/DemoTheme";
 import { AnimationSpeedSelector } from "./Components/AnimationSpeedSelector";
 import { Button, ButtonLabel } from "./Components/Button";
-import { MenuButton, type MenuButtonOption } from "./Components/MenuButton";
+import { MenuButton } from "./Components/MenuButton";
 import type { AnimationSpeed } from "./Simulator/AnimationSpeed";
 import { CpuStatus } from "./Simulator/CpuStatus";
 import {
@@ -54,10 +54,10 @@ interface ToolbarProps {
   showThemeSwitcher: boolean;
 
   /**
-   * Show the button that allows to load sample programs. This is mainly useful
-   * in the web demo.
+   * Show the button that opens the code editor. This is mainly useful in the
+   * web demo.
    */
-  showSamplePrograms: boolean;
+  showCodeEditor: boolean;
 
   /**
    * Show source file loader widget. This is useful only in the VS Code
@@ -73,9 +73,7 @@ interface ToolbarProps {
 
   resetEnabled: boolean;
 
-  sampleProgramNames: string[];
-  onLoadSampleProgram?: (name: string) => void;
-  onOpenFile?: () => void;
+  onCodeEditorClick?: () => void;
 
   sourceFile?: SourceFile | null;
   onLoadSourceFileClick?: () => void;
@@ -96,21 +94,6 @@ interface ToolbarProps {
   onHelpClick?: () => void;
 }
 
-type OpenFileSelection =
-  | OpenFileSelection.OpenFile
-  | OpenFileSelection.LoadSampleProgram;
-
-namespace OpenFileSelection {
-  export interface OpenFile {
-    kind: "OpenFile";
-  }
-
-  export interface LoadSampleProgram {
-    kind: "LoadSampleProgram";
-    sample: string;
-  }
-}
-
 export type ClearOption =
   | "CLEAR_IO"
   | "CLEAR_HIGH_MEMORY"
@@ -124,14 +107,12 @@ export const Toolbar = React.memo(function Toolbar(
     className,
     uiString,
     showThemeSwitcher,
-    showSamplePrograms,
+    showCodeEditor,
     showSourceLoader,
     cpuState,
     simulationState,
     resetEnabled,
-    sampleProgramNames,
-    onOpenFile,
-    onLoadSampleProgram,
+    onCodeEditorClick,
     sourceFile,
     onLoadSourceFileClick,
     onShowErrorsClick,
@@ -146,53 +127,6 @@ export const Toolbar = React.memo(function Toolbar(
     onClearClick,
     onHelpClick,
   } = props;
-
-  const sampleProgramValues = React.useMemo<
-    MenuButtonOption<OpenFileSelection>[]
-  >(() => {
-    const spacer: MenuButtonOption<OpenFileSelection> = {
-      value: null,
-      label: "",
-      className: "Toolbar-MenuButton-Spacer",
-    };
-    const openFile: MenuButtonOption<OpenFileSelection> = {
-      value: { kind: "OpenFile" },
-      label: uiString("OPEN_FILE"),
-    };
-    const loadSampleProgram: MenuButtonOption<OpenFileSelection> = {
-      value: null,
-      label: `\u2500 ${uiString("SAMPLE_PROGRAMS")} \u2500`,
-    };
-    const sampleProgramEntries = sampleProgramNames.map<
-      MenuButtonOption<OpenFileSelection>
-    >((e) => ({
-      value: { kind: "LoadSampleProgram", sample: e },
-      label: e,
-    }));
-    return [spacer, openFile, spacer, loadSampleProgram].concat(
-      sampleProgramEntries,
-    );
-  }, [sampleProgramNames, uiString]);
-
-  const handleOpenFileClick = React.useCallback(
-    (value: OpenFileSelection): void => {
-      switch (value.kind) {
-        case "OpenFile":
-          if (onOpenFile !== undefined) {
-            onOpenFile();
-          }
-          break;
-        case "LoadSampleProgram":
-          if (onLoadSampleProgram !== undefined) {
-            onLoadSampleProgram(value.sample);
-          }
-          break;
-        default:
-          assertNever(value);
-      }
-    },
-    [onLoadSampleProgram, onOpenFile],
-  );
 
   const handleRunClick = React.useCallback((): void => {
     switch (simulationState) {
@@ -238,23 +172,14 @@ export const Toolbar = React.memo(function Toolbar(
   return (
     <div className={classNames(className, "Toolbar-root")}>
       <Tippy singleton={tippySource} placement="bottom" delay={[500, 100]} />
-      {showSamplePrograms ? (
-        <MenuButton<OpenFileSelection>
-          wrapperElem={(c) => (
-            <Tippy
-              singleton={tippyTarget}
-              content={uiString("LOAD_A_VIC_PROGRAM")}
-            >
-              {c}
-            </Tippy>
-          )}
-          className="Toolbar-Button Toolbar-IconOnlyMenuButton"
-          disabled={simulationActive(simulationState)}
-          icon={<PiFolderOpenDuotone size={22} />}
-          label=""
-          values={sampleProgramValues}
-          onValueClick={handleOpenFileClick}
-        />
+      {showCodeEditor ? (
+        <Tippy singleton={tippyTarget} content={uiString("CODE_EDITOR")}>
+          <Button className="Toolbar-Button" onClick={onCodeEditorClick}>
+            <ButtonLabel>
+              <VscFileCode />
+            </ButtonLabel>
+          </Button>
+        </Tippy>
       ) : null}
       {showSourceLoader ? (
         <SourceFileLoader
@@ -353,7 +278,7 @@ export const Toolbar = React.memo(function Toolbar(
   );
 });
 
-function Separator(): React.JSX.Element {
+export function Separator(): React.JSX.Element {
   return <div className="Toolbar-Separator" />;
 }
 

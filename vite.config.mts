@@ -9,6 +9,7 @@ export default defineConfig({
     outDir: "build",
     sourcemap: true,
     manifest: "asset-manifest.json",
+    chunkSizeWarningLimit: 750,
   },
   server: {
     watch: {

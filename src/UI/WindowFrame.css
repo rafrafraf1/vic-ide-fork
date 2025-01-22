@@ -18,9 +18,15 @@
 }
 
 .WindowFrame-Titlebar-Heading {
+  flex: 1 1 auto;
   align-self: center;
   font-size: 112%;
   text-align: center;
+}
+
+.WindowFrame-Titlebar-CloseButton {
+  margin: 4px;
+  padding: 2px;
 }
 
 .WindowFrame-Contents {

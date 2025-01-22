@@ -9,11 +9,6 @@ import { GrDownload } from "react-icons/gr";
 import { VscClose } from "react-icons/vsc";
 
 import type { Result } from "../common/Functional/Result";
-import type { SrcError } from "../common/SrcError";
-import { splitSourceLines } from "../common/SrcText";
-import { parseVicBin } from "../common/VicBinParser";
-import { compileVicProgram } from "../common/VicLangFullCompiler";
-import type { Value } from "../Computer/Value";
 import { Button, ButtonLabel } from "./Components/Button";
 import type { UIStrings } from "./UIStrings";
 
@@ -21,12 +16,12 @@ export interface LoadDialogProps {
   uiString: UIStrings;
 
   onCloseClick?: () => void;
-  onProgramLoaded?: (memory: Value[]) => void;
+  onFileLoaded?: (language: VicLanguage, contents: string) => void;
 }
 
 export const LoadDialog = React.memo(
   (props: LoadDialogProps): React.JSX.Element => {
-    const { uiString, onCloseClick, onProgramLoaded } = props;
+    const { uiString, onCloseClick, onFileLoaded } = props;
 
     return (
       <div className="LoadDialog-Root">
@@ -47,10 +42,7 @@ export const LoadDialog = React.memo(
               </Button>
             </div>
             <div className="LoadDialog-Window-Contents">
-              <LoadInterface
-                uiString={uiString}
-                onProgramLoaded={onProgramLoaded}
-              />
+              <LoadInterface uiString={uiString} onFileLoaded={onFileLoaded} />
             </div>
           </div>
         </div>
@@ -61,13 +53,10 @@ export const LoadDialog = React.memo(
 
 interface LoadInterfaceProps {
   uiString: UIStrings;
-  onProgramLoaded?: (memory: Value[]) => void;
+  onFileLoaded?: (language: VicLanguage, contents: string) => void;
 }
 
-type LoadState =
-  | LoadState.Pending
-  | LoadState.ReadFileError
-  | LoadState.CompileError;
+type LoadState = LoadState.Pending | LoadState.ReadFileError;
 
 namespace LoadState {
   export interface Pending {
@@ -79,14 +68,6 @@ namespace LoadState {
     error: ReadTextFileError;
     fileInfo: FileInfo;
   }
-
-  export interface CompileError {
-    kind: "CompileError";
-    fileInfo: FileInfo;
-    source: string;
-    detectedLanguage: VicLanguage;
-    errors: SrcError[];
-  }
 }
 
 interface FileInfo {
@@ -94,11 +75,11 @@ interface FileInfo {
   fileSize: number;
 }
 
-type VicLanguage = "VIC_ASSEMBLY" | "VIC_BINARY";
+export type VicLanguage = "VIC_ASSEMBLY" | "VIC_BINARY";
 
 const LoadInterface = React.memo(
   (props: LoadInterfaceProps): React.JSX.Element => {
-    const { onProgramLoaded } = props;
+    const { onFileLoaded } = props;
 
     const [dragHover, setDragHover] = React.useState(false);
 
@@ -107,30 +88,13 @@ const LoadInterface = React.memo(
     });
 
     const handleProgram = React.useCallback(
-      (fileInfo: FileInfo, text: string): void => {
+      (text: string): void => {
         const fixedText = text.replaceAll("\r", "");
-        const [language, result] = compileSource(fixedText);
-        switch (result.kind) {
-          case "Error":
-            console.log(result.error);
-            setLoadState({
-              kind: "CompileError",
-              fileInfo: fileInfo,
-              detectedLanguage: language,
-              source: fixedText,
-              errors: result.error,
-            });
-            break;
-          case "Ok":
-            if (onProgramLoaded !== undefined) {
-              onProgramLoaded(result.value);
-            }
-            break;
-          default:
-            assertNever(result);
+        if (onFileLoaded !== undefined) {
+          onFileLoaded(detectSourceLanguage(fixedText), fixedText);
         }
       },
-      [onProgramLoaded],
+      [onFileLoaded],
     );
 
     const handleDrop = React.useCallback(
@@ -159,7 +123,7 @@ const LoadInterface = React.memo(
               });
               break;
             case "Ok":
-              handleProgram(fileInfo, result.value);
+              handleProgram(result.value);
               break;
             default:
               assertNever(result);
@@ -209,14 +173,6 @@ const LoadInterface = React.memo(
             fileSize={loadState.fileInfo.fileSize}
           />
         ) : null}
-        {loadState.kind === "CompileError" ? (
-          <CompileErrorInfo
-            fileName={loadState.fileInfo.fileName}
-            source={loadState.source}
-            detectedLanguage={loadState.detectedLanguage}
-            errors={loadState.errors}
-          />
-        ) : null}
       </>
     );
   },
@@ -262,98 +218,6 @@ const ReadFileInfo = React.memo(
     );
   },
 );
-
-interface CompileErrorInfoProps {
-  fileName: string;
-  source: string;
-  detectedLanguage: VicLanguage;
-  errors: SrcError[];
-}
-
-const CompileErrorInfo = React.memo(
-  (props: CompileErrorInfoProps): React.JSX.Element => {
-    const { fileName, source, detectedLanguage, errors } = props;
-
-    return (
-      <>
-        <div className="LoadDialog-ErrorInfoCont">
-          <h3>
-            Error compiling{" "}
-            <strong>
-              {fileName}{" "}
-              <small>
-                (as <em>{prettyLanguage(detectedLanguage)}</em>)
-              </small>
-            </strong>
-          </h3>
-          <p>Please fix the errors below, and then try again.</p>
-        </div>
-        <div className="LoadDialog-CompileError-Source">
-          <SourceCode source={source} errors={errors} />
-        </div>
-      </>
-    );
-  },
-);
-
-function prettyLanguage(detectedLanguage: VicLanguage): React.ReactNode {
-  switch (detectedLanguage) {
-    case "VIC_BINARY":
-      return "Vic Binary";
-    case "VIC_ASSEMBLY":
-      return "Vic Assembly";
-    default:
-      return assertNever(detectedLanguage);
-  }
-}
-
-interface SourceCodeProps {
-  source: string;
-  errors: SrcError[];
-}
-
-const SourceCode = React.memo((props: SourceCodeProps): React.JSX.Element => {
-  const { source, errors } = props;
-
-  const errorLines = new Map<number, string[]>();
-  for (const error of errors) {
-    const existing = errorLines.get(error.srcLoc.line);
-    if (existing !== undefined) {
-      existing.push(error.message);
-    } else {
-      errorLines.set(error.srcLoc.line, [error.message]);
-    }
-  }
-
-  const lines = splitSourceLines(source);
-  return (
-    <>
-      {lines.map((line, index) => (
-        <div key={index}>
-          <span className="LoadDialog-CompileError-Source-LineNumber">
-            {index + 1}
-          </span>
-          <span
-            className={classNames({
-              "LoadDialog-CompileError-Source-ErrorUnderline":
-                errorLines.has(index),
-            })}
-          >
-            {line}
-          </span>
-          {errorLines.get(index)?.map((msg, index) => (
-            <span
-              key={index}
-              className="LoadDialog-CompileError-Source-ErrorBubble"
-            >
-              {msg}
-            </span>
-          ))}
-        </div>
-      ))}
-    </>
-  );
-});
 
 type ReadTextFileError =
   | ReadTextFileError.LoadError
@@ -519,26 +383,4 @@ function detectSourceLanguage(source: string): VicLanguage {
   } else {
     return "VIC_ASSEMBLY";
   }
-}
-
-function compileSource(
-  source: string,
-): [VicLanguage, Result<SrcError[], Value[]>] {
-  const language = detectSourceLanguage(source);
-
-  const result = ((): Result<SrcError[], Value[]> => {
-    switch (language) {
-      case "VIC_BINARY": {
-        return parseVicBin(source);
-      }
-      case "VIC_ASSEMBLY": {
-        const result = compileVicProgram(source);
-        return result.program;
-      }
-      default:
-        return assertNever(language);
-    }
-  })();
-
-  return [language, result];
 }

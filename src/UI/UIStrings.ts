@@ -5,8 +5,10 @@ import { assertNever } from "assert-never";
  */
 export type UIStringKey =
   | "LOAD_A_VIC_PROGRAM"
+  | "CODE_EDITOR"
   | "OPEN_FILE"
   | "SAMPLE_PROGRAMS"
+  | "ASSEMBLE"
   | "FETCH"
   | "EXECUTE"
   | "ANIMATION_SPEED"
@@ -61,10 +63,14 @@ export function EnglishStrings(key: UIStringKey): string {
   switch (key) {
     case "LOAD_A_VIC_PROGRAM":
       return "Load a Vic Program";
+    case "CODE_EDITOR":
+      return "Code Editor";
     case "OPEN_FILE":
       return "Open File";
     case "SAMPLE_PROGRAMS":
       return "Sample Programs";
+    case "ASSEMBLE":
+      return "Assemble";
     case "FETCH":
       return "FE";
     case "EXECUTE":

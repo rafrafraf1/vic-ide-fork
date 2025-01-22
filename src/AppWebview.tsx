@@ -12,11 +12,6 @@ import type { ComputerState } from "./Computer/Computer";
 import { loadProgram } from "./Computer/Program";
 import type { HardwareState } from "./Computer/SimulatorState";
 import { useHelpScreen } from "./HelpScreen";
-import {
-  getSampleProgramNames,
-  loadSampleProgram,
-  lookupSampleProgram,
-} from "./SamplePrograms/SampleProgram";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
@@ -120,20 +115,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
       helpScreenState: helpScreenState,
     });
   }, [animationSpeed, extensionBridge, hardwareState, helpScreenState]);
-
-  const handleLoadSampleProgram = React.useCallback(
-    (name: string): void => {
-      const sampleProgram = lookupSampleProgram(name);
-      if (sampleProgram !== null) {
-        const hardware = loadSampleProgram(sampleProgram);
-        setComputer(hardware.computer);
-        setCpuState(hardware.cpuState);
-        setInput(hardware.input);
-        setOutput(hardware.output);
-      }
-    },
-    [setComputer, setCpuState, setInput, setOutput],
-  );
 
   const handleLoadSourceFileClick = React.useCallback((): void => {
     extensionBridge.postMessage({
@@ -261,14 +242,12 @@ function AppWebview(props: AppProps): React.JSX.Element {
       <Toolbar
         className="AppWebview-Toolbar-Cont"
         uiString={uiString}
-        showSamplePrograms={false}
+        showCodeEditor={false}
         showThemeSwitcher={false}
         showSourceLoader={true}
         cpuState={cpuState}
         simulationState={simulationState}
         resetEnabled={isResetEnabled}
-        sampleProgramNames={getSampleProgramNames()}
-        onLoadSampleProgram={handleLoadSampleProgram}
         sourceFile={sourceFile}
         onLoadSourceFileClick={handleLoadSourceFileClick}
         onShowErrorsClick={handleShowErrorsClick}

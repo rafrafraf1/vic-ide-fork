@@ -1,0 +1,56 @@
+.CodeEditor-Root {
+  width: 100%;
+  height: 100%;
+  font-size: 112%;
+  display: flex;
+  min-height: 0;
+}
+
+.CodeEditor-AsmEditor {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.CodeEditor-AsmEditor .cm-editor {
+  height: 100%;
+}
+
+.CodeEditor-AsmEditor .cm-focused {
+  outline: none;
+}
+
+.CodeEditor-BinEditor {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 120px;
+}
+
+.CodeEditor-BinEditor .cm-editor {
+  height: 100%;
+}
+
+.CodeEditor-BinEditor .cm-focused {
+  outline: none;
+}
+
+.CodeEditor-Pulse-Success {
+  animation-duration: 0.5s;
+  animation-name: CodeEditor-Pulse-Success-anim;
+}
+
+.CodeEditor-Pulse-Error {
+  animation-duration: 0.5s;
+  animation-name: CodeEditor-Pulse-Error-anim;
+}
+
+@keyframes CodeEditor-Pulse-Success-anim {
+  25% {
+    background: rgba(0, 255, 0, 0.5);
+  }
+}
+
+@keyframes CodeEditor-Pulse-Error-anim {
+  25% {
+    background: rgba(255, 0, 0, 0.5);
+  }
+}

@@ -1,8 +1,3 @@
-import {
-  newHardwareState,
-  type HardwareState,
-} from "../Computer/SimulatorState";
-import type { Value } from "../Computer/Value";
 import { samplePrograms } from "./SamplePrograms";
 
 /**
@@ -11,7 +6,7 @@ import { samplePrograms } from "./SamplePrograms";
  */
 export interface SampleProgram {
   name: string;
-  memory: (Value | null)[];
+  code: string;
 }
 
 /**
@@ -32,24 +27,4 @@ export function lookupSampleProgram(name: string): SampleProgram | null {
   }
 
   return null;
-}
-
-/**
- * Loads the given SampleProgram into a new HardwareState.
- */
-export function loadSampleProgram(sampleProgram: SampleProgram): HardwareState {
-  const hardware = newHardwareState();
-
-  // For ease of implementation, this code uses mutation. Because we have just
-  // created the "hardware" and it is "private" to us, this is safe.
-
-  // Set the main memory:
-  for (let i = 0; i < sampleProgram.memory.length; i++) {
-    const val = sampleProgram.memory[i];
-    if (typeof val === "number") {
-      hardware.computer.memory[i] = val;
-    }
-  }
-
-  return hardware;
 }

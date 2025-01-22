@@ -1,8 +1,6 @@
 import { Toolbar } from "../UI/Toolbar";
 import type { UIStrings } from "../UI/UIStrings";
 
-const samplePrograms: string[] = ["SampleProgram1", "SampleProgram2"];
-
 export interface ToolbarPlaygroundProps {
   uiString: UIStrings;
 }
@@ -19,12 +17,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -33,12 +30,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"EXECUTE_INSTRUCTION"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -51,12 +47,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingExecute" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -65,12 +60,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingExecute" }}
           simulationState={"FETCH_INSTRUCTION"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -83,12 +77,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "Stopped", stopResult: "STOP" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -97,12 +90,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "Stopped", stopResult: "NO_INPUT" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -111,12 +103,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "Stopped", stopResult: "INVALID_INSTRUCTION" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -125,12 +116,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "Stopped", stopResult: "INVALID_WRITE" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -143,12 +133,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingExecute" }}
           simulationState={"EXECUTE_INSTRUCTION"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -158,12 +147,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"FETCH_INSTRUCTION"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -173,12 +161,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"SINGLE_STEP"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -188,12 +175,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"RUN"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -203,12 +189,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={true}
-          showSamplePrograms={true}
+          showCodeEditor={true}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"STOPPING"}
           resetEnabled={true}
-          sampleProgramNames={samplePrograms}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -221,12 +206,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={false}
-          showSamplePrograms={false}
+          showCodeEditor={false}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={[]}
           sourceFile={null}
           animationSpeed={"MEDIUM"}
         />
@@ -236,12 +220,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={false}
-          showSamplePrograms={false}
+          showCodeEditor={false}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={[]}
           sourceFile={{
             filename: "example.asm",
             info: {
@@ -258,12 +241,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={false}
-          showSamplePrograms={false}
+          showCodeEditor={false}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={[]}
           sourceFile={{
             filename: "example.asm",
             info: {
@@ -280,12 +262,11 @@ export function ToolbarPlayground(
         <Toolbar
           uiString={uiString}
           showThemeSwitcher={false}
-          showSamplePrograms={false}
+          showCodeEditor={false}
           showSourceLoader={true}
           cpuState={{ kind: "PendingFetch" }}
           simulationState={"IDLE"}
           resetEnabled={true}
-          sampleProgramNames={[]}
           sourceFile={{
             filename: "example.py",
             info: {

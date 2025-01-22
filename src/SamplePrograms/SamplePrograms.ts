@@ -7,34 +7,45 @@ import type { SampleProgram } from "./SampleProgram";
 export const samplePrograms: SampleProgram[] = [
   {
     name: "Hello World",
-    memory: [303, 900, 0, 42],
+    code: `// Hello World
+LOAD one
+WRITE
+STOP
+`,
   },
   {
     name: "Double",
-    memory: [800, 490, 190, 900, 0],
+    code: `// Double
+READ
+STORE x
+ADD x
+WRITE
+STOP
+`,
   },
   {
     name: "Multiply",
-    memory: [
-      800,
-      490,
-      800,
-      491,
-      398,
-      492,
-      391,
-      712,
-      392,
-      900,
-      0,
-      null,
-      392,
-      190,
-      492,
-      391,
-      299,
-      491,
-      506,
-    ],
+    code: `// Multiply
+    READ
+    STORE step
+    READ
+    STORE count
+    LOAD zero
+    STORE result
+loop:
+    LOAD count
+    GOTOP done
+    LOAD result
+    WRITE
+    STOP
+done:
+    LOAD result
+    ADD step
+    STORE result
+    LOAD count
+    SUB one
+    STORE count
+    GOTO loop
+`,
   },
 ];

@@ -1,0 +1,17 @@
+.CodeEditorPanel-Root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.CodeEditorPanel-Toolbar-Root {
+  display: flex;
+  padding: 4px;
+  align-items: center;
+  height: 64px;
+}
+
+.CodeEditorPanel-LoadButton {
+  margin-left: auto;
+}

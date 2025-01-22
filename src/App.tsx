@@ -2,18 +2,27 @@ import "./App.css";
 
 import * as React from "react";
 
+import { assertNever } from "assert-never";
+
+import { parseVicBin } from "./common/VicBinParser";
+import {
+  compileVicProgram,
+  prettyVicCompileResult,
+} from "./common/VicLangFullCompiler";
 import { loadProgram } from "./Computer/Program";
 import { newSimulatorState } from "./Computer/SimulatorState";
-import type { Value } from "./Computer/Value";
 import { newHelpScreenState, useHelpScreen } from "./HelpScreen";
 import {
   getSampleProgramNames,
-  loadSampleProgram,
   lookupSampleProgram,
 } from "./SamplePrograms/SampleProgram";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
+import {
+  CodeEditorPanel,
+  type CodeEditorPanelHandle,
+} from "./UI/CodeEditor/CodeEditorPanel";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
-import { LoadDialog } from "./UI/LoadDialog";
+import { LoadDialog, type VicLanguage } from "./UI/LoadDialog";
 import { Computer } from "./UI/Simulator/Computer";
 import { Toolbar } from "./UI/Toolbar";
 import { EnglishStrings } from "./UI/UIStrings";
@@ -65,54 +74,122 @@ function App(): React.JSX.Element {
   } = useHelpScreen(newHelpScreenState());
 
   const [loadDialogOpen, setLoadDialogOpen] = React.useState(false);
+  const [codeEditorOpen, setCodeEditorOpen] = React.useState(false);
+
+  const [asmText, setAsmText] = React.useState("");
+  const [binText, setBinText] = React.useState("");
+
+  const [asmBinSynced, setAsmBinSynced] = React.useState(false);
+
+  const codeEditorPanelRef = React.useRef<CodeEditorPanelHandle>(null);
+
+  const handleCodeEditorClick = React.useCallback((): void => {
+    setCodeEditorOpen((open: boolean): boolean => !open);
+  }, []);
+
+  const handleCodeEditorClose = React.useCallback((): void => {
+    setCodeEditorOpen(false);
+  }, []);
+
+  const handleAsmTextChange = React.useCallback((value: string): void => {
+    setAsmText(value);
+    setAsmBinSynced(false);
+  }, []);
+
+  const handleBinTextChange = React.useCallback((value: string): void => {
+    setBinText(value);
+    setAsmBinSynced(false);
+  }, []);
+
+  const handleCompileClick = React.useCallback((): void => {
+    const binSource = compileAsmToBinary(asmText);
+    if (binSource === null) {
+      if (codeEditorPanelRef.current !== null) {
+        codeEditorPanelRef.current.pulseAsmEditor("ERROR");
+      }
+    } else {
+      setBinText(binSource);
+      setAsmBinSynced(true);
+      if (codeEditorPanelRef.current !== null) {
+        codeEditorPanelRef.current.pulseBinEditor("SUCCESS");
+      }
+    }
+  }, [asmText]);
 
   const handleOpenFile = React.useCallback((): void => {
     setLoadDialogOpen(true);
   }, []);
 
-  const handleLoadSampleProgram = React.useCallback(
-    (name: string): void => {
-      const sampleProgram = lookupSampleProgram(name);
-      if (sampleProgram !== null) {
-        const hardware = loadSampleProgram(sampleProgram);
-        setComputer(hardware.computer);
-        setCpuState(hardware.cpuState);
-        setInput(hardware.input);
-        setOutput(hardware.output);
+  const handleFileLoaded = React.useCallback(
+    (language: VicLanguage, contents: string): void => {
+      switch (language) {
+        case "VIC_ASSEMBLY":
+          setAsmText(contents);
+          setBinText("");
+          setAsmBinSynced(false);
+          break;
+        case "VIC_BINARY":
+          setAsmText("");
+          setBinText(contents);
+          setAsmBinSynced(false);
+          break;
+        default:
+          return assertNever(language);
       }
-    },
-    [setComputer, setCpuState, setInput, setOutput],
-  );
-
-  const handleProgramLoaded = React.useCallback(
-    (memory: Value[]): void => {
-      const hardwareState = loadProgram(
-        {
-          computer: computer,
-          cpuState: cpuState,
-          input: input,
-          output: output,
-        },
-        memory,
-      );
-
       setLoadDialogOpen(false);
-      setComputer(hardwareState.computer);
-      setCpuState(hardwareState.cpuState);
-      setInput(hardwareState.input);
-      setOutput(hardwareState.output);
     },
-    [
-      computer,
-      cpuState,
-      input,
-      output,
-      setComputer,
-      setCpuState,
-      setInput,
-      setOutput,
-    ],
+    [],
   );
+
+  const handleLoadSampleProgram = React.useCallback((name: string): void => {
+    const sampleProgram = lookupSampleProgram(name);
+    if (sampleProgram !== null) {
+      setAsmText(sampleProgram.code);
+      setBinText("");
+      setAsmBinSynced(false);
+    }
+  }, []);
+
+  const handleLoadClick = React.useCallback((): void => {
+    const result = parseVicBin(binText);
+    switch (result.kind) {
+      case "Error":
+        if (codeEditorPanelRef.current !== null) {
+          codeEditorPanelRef.current.pulseBinEditor("ERROR");
+        }
+        break;
+      case "Ok": {
+        const memory = result.value;
+        const hardwareState = loadProgram(
+          {
+            computer: computer,
+            cpuState: cpuState,
+            input: input,
+            output: output,
+          },
+          memory,
+        );
+
+        setComputer(hardwareState.computer);
+        setCpuState(hardwareState.cpuState);
+        setInput(hardwareState.input);
+        setOutput(hardwareState.output);
+        break;
+      }
+      default:
+        return assertNever(result);
+    }
+  }, [
+    binText,
+    computer,
+    cpuState,
+    input,
+    output,
+    setComputer,
+    setCpuState,
+    setInput,
+    setOutput,
+  ]);
 
   const handleLoadDialogCloseClick = React.useCallback((): void => {
     setLoadDialogOpen(false);
@@ -123,15 +200,13 @@ function App(): React.JSX.Element {
       <Toolbar
         className="App-Toolbar-Cont"
         uiString={uiString}
-        showSamplePrograms={true}
+        showCodeEditor={true}
         showThemeSwitcher={true}
         showSourceLoader={false}
         cpuState={cpuState}
         simulationState={simulationState}
         resetEnabled={isResetEnabled}
-        sampleProgramNames={getSampleProgramNames()}
-        onOpenFile={handleOpenFile}
-        onLoadSampleProgram={handleLoadSampleProgram}
+        onCodeEditorClick={handleCodeEditorClick}
         animationSpeed={animationSpeed}
         onAnimationSpeedChange={handleAnimationSpeedChange}
         onFetchInstructionClick={handleFetchInstructionClick}
@@ -144,6 +219,30 @@ function App(): React.JSX.Element {
         onHelpClick={handleHelpClick}
       />
       <div className="App-Main">
+        {codeEditorOpen ? (
+          <WindowFrame
+            className="App-CodeEditor"
+            title={uiString("CODE_EDITOR")}
+            showCloseButton={true}
+            onCloseClick={handleCodeEditorClose}
+          >
+            <CodeEditorPanel
+              ref={codeEditorPanelRef}
+              uiString={uiString}
+              simulationState={simulationState}
+              sampleProgramNames={getSampleProgramNames()}
+              onOpenFile={handleOpenFile}
+              onLoadSampleProgram={handleLoadSampleProgram}
+              asmText={asmText}
+              binText={binText}
+              asmBinSynced={asmBinSynced}
+              onAsmTextChange={handleAsmTextChange}
+              onBinTextChange={handleBinTextChange}
+              onCompileClick={handleCompileClick}
+              onLoadClick={handleLoadClick}
+            />
+          </WindowFrame>
+        ) : null}
         <WindowFrame
           className="App-Computer-WindowFrame"
           title={uiString("THE_VISUAL_COMPUTER")}
@@ -178,7 +277,7 @@ function App(): React.JSX.Element {
         <LoadDialog
           uiString={uiString}
           onCloseClick={handleLoadDialogCloseClick}
-          onProgramLoaded={handleProgramLoaded}
+          onFileLoaded={handleFileLoaded}
         />
       ) : null}
       {helpScreenState === "OPEN" ? (
@@ -189,6 +288,36 @@ function App(): React.JSX.Element {
       ) : null}
     </div>
   );
+}
+
+function compileAsmToBinary(source: string): string | null {
+  const compileResult = compileVicProgram(source);
+
+  switch (compileResult.program.kind) {
+    case "Error":
+      return null;
+    case "Ok": {
+      const output = prettyVicCompileResult(
+        compileResult.program.value,
+        compileResult.statements,
+      );
+      let numExtraLines = numLines(source) - numLines(output);
+      if (numExtraLines < 0) {
+        numExtraLines = 0;
+      }
+      return output + "\n".repeat(numExtraLines);
+    }
+    default:
+      return assertNever(compileResult.program);
+  }
+}
+
+function numLines(str: string): number {
+  const m = str.match(/\n/g);
+  if (m === null) {
+    return 0;
+  }
+  return m.length;
 }
 
 export default App;
