@@ -20,7 +20,7 @@ import {
   getTextDocumentHasErrors,
   type DiagnosticsService,
 } from "../VicLanguageFeatures/VicDiagnostics";
-import type { AppState, SimulatorState } from "./AppState";
+import type { AppState } from "./AppState";
 import { loadAssetManifest } from "./AssetManifest";
 import { generateSecureNonce, renderPageHtml } from "./PanelHtml";
 import {
@@ -376,7 +376,7 @@ function renderVicPanel(
 export function genWebviewHtml(
   extensionUri: vscode.Uri,
   webview: vscode.Webview,
-  appState: SimulatorState | null,
+  appState: AppState | null,
   callback: (pageHtml: string) => void,
 ): void {
   const assetMannifestPath = vscode.Uri.joinPath(

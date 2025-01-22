@@ -7,7 +7,7 @@ import * as React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./App";
-import type { SimulatorState } from "./Computer/SimulatorState";
+import type { AppWebviewState } from "./AppWebviewState";
 import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";
 import { getExtensionBridge } from "./System/ExtensionBridge";
 
@@ -28,7 +28,7 @@ function boot(): void {
 
   const root = ReactDOM.createRoot(getRequiredElement("root"));
 
-  const extensionBridge = getExtensionBridge<SimulatorState>();
+  const extensionBridge = getExtensionBridge<AppWebviewState>();
 
   root.render(
     <React.StrictMode>

@@ -5,7 +5,7 @@ import type {
   SimulatorDebugMessage,
 } from "../../src/common/Vic/MessagesDebug";
 import type { SourceFile } from "../../src/common/Vic/SourceFile";
-import type { AppState, SimulatorState } from "./AppState";
+import type { AppState } from "./AppState";
 import { webviewPostMessage, type SimulatorManager } from "./VicSimulator";
 
 export interface DebugState {
@@ -198,7 +198,7 @@ function callbackWithTimeout<T>(
 
 export function handleDebugMessage(
   simulatorManager: SimulatorManager,
-  message: SimulatorDebugMessage<SimulatorState>,
+  message: SimulatorDebugMessage<AppState>,
 ): void {
   switch (message.kind) {
     case "RequestStateResponse":

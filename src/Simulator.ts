@@ -37,7 +37,6 @@ import {
 import {
   initialCpuState,
   type CpuState,
-  type HelpScreenState,
   type SimulatorState,
 } from "./Computer/SimulatorState";
 import type { Value } from "./Computer/Value";
@@ -79,9 +78,6 @@ export interface SimulatorControls {
 
   animationSpeed: AnimationSpeed;
 
-  helpScreenState: HelpScreenState;
-  setHelpScreenState: React.Dispatch<React.SetStateAction<HelpScreenState>>;
-
   simulationState: SimulationState;
 
   isResetEnabled: boolean;
@@ -117,11 +113,6 @@ export function useSimulator(opts: SimulatorOptions): SimulatorControls {
   const [output, setOutput] = React.useState(initialState.hardwareState.output);
   const [animationSpeed, setAnimationSpeed] = React.useState(
     initialState.animationSpeed,
-  );
-
-  // TODO Move helpScreenState out of here
-  const [helpScreenState, setHelpScreenState] = React.useState(
-    initialState.helpScreenState,
   );
 
   const [simulationState, setSimulationState] =
@@ -523,8 +514,6 @@ export function useSimulator(opts: SimulatorOptions): SimulatorControls {
     output,
     setOutput,
     animationSpeed,
-    helpScreenState,
-    setHelpScreenState,
     simulationState,
     isResetEnabled: getIsResetEnabled(computer, cpuState, input, output),
     computerRef,

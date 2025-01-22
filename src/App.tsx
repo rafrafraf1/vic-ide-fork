@@ -4,18 +4,15 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 
+import { newAppWebviewState, type AppWebviewState } from "./AppWebviewState";
 import type { ExtensionMessage } from "./common/Vic/Messages";
 import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
 import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
 import type { ComputerState } from "./Computer/Computer";
 import { loadProgram } from "./Computer/Program";
-import {
-  newSimulatorState,
-  type HardwareState,
-  type HelpScreenState,
-  type SimulatorState,
-} from "./Computer/SimulatorState";
+import type { HardwareState } from "./Computer/SimulatorState";
 import type { Value } from "./Computer/Value";
+import type { HelpScreenState } from "./HelpScreenState";
 import {
   getSampleProgramNames,
   loadSampleProgram,
@@ -34,21 +31,21 @@ import { Toolbar } from "./UI/Toolbar";
 import { EnglishStrings } from "./UI/UIStrings";
 
 export interface AppProps {
-  extensionBridge: ExtensionBridge<SimulatorState>;
+  extensionBridge: ExtensionBridge<AppWebviewState>;
 }
 
 /**
  * Initializes an initial state, by either loading a saved state from the
  * ExtensionBridge, or if there is no saved state, creating a new empty state.
  */
-function initSimulatorState(
-  extensionBridge: ExtensionBridge<SimulatorState>,
-): SimulatorState {
+function initAppWebviewState(
+  extensionBridge: ExtensionBridge<AppWebviewState>,
+): AppWebviewState {
   const savedState = extensionBridge.getState();
   if (savedState !== null) {
     return savedState;
   } else {
-    return newSimulatorState();
+    return newAppWebviewState();
   }
 }
 
@@ -57,11 +54,13 @@ function App(props: AppProps): React.JSX.Element {
 
   const uiString = EnglishStrings;
 
+  const initialState = React.useMemo(
+    () => initAppWebviewState(extensionBridge),
+    [extensionBridge],
+  );
+
   const simulatorOptions: SimulatorOptions = {
-    initialState: React.useMemo(
-      () => initSimulatorState(extensionBridge),
-      [extensionBridge],
-    ),
+    initialState: initialState.simulatorState,
   };
   const {
     computer,
@@ -73,8 +72,6 @@ function App(props: AppProps): React.JSX.Element {
     output,
     setOutput,
     animationSpeed,
-    helpScreenState,
-    setHelpScreenState,
     simulationState,
     isResetEnabled,
     computerRef,
@@ -93,6 +90,10 @@ function App(props: AppProps): React.JSX.Element {
     handleProgramCounterChange,
     handleInputChange,
   } = useSimulator(simulatorOptions);
+
+  const [helpScreenState, setHelpScreenState] = React.useState(
+    initialState.helpScreenState,
+  );
 
   const [loadDialogOpen, setLoadDialogOpen] = React.useState(false);
 
@@ -113,8 +114,10 @@ function App(props: AppProps): React.JSX.Element {
   // `extensionBridge` to persist the updated state.
   React.useEffect(() => {
     extensionBridge.setState({
-      hardwareState: hardwareState,
-      animationSpeed: animationSpeed,
+      simulatorState: {
+        hardwareState: hardwareState,
+        animationSpeed: animationSpeed,
+      },
       helpScreenState: helpScreenState,
     });
   }, [animationSpeed, extensionBridge, hardwareState, helpScreenState]);
@@ -210,8 +213,10 @@ function App(props: AppProps): React.JSX.Element {
             message: {
               kind: "RequestStateResponse",
               state: {
-                hardwareState: hardwareState,
-                animationSpeed: animationSpeed,
+                simulatorState: {
+                  hardwareState: hardwareState,
+                  animationSpeed: animationSpeed,
+                },
                 helpScreenState: helpScreenState,
               },
             },

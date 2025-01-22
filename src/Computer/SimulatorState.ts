@@ -38,12 +38,9 @@ export function initialCpuState(): CpuState {
   return { kind: "PendingFetch" };
 }
 
-export type HelpScreenState = "CLOSED" | "OPEN" | "PINNED";
-
 export interface SimulatorState {
   hardwareState: HardwareState;
   animationSpeed: AnimationSpeed;
-  helpScreenState: HelpScreenState;
 }
 
 export function newHardwareState(): HardwareState {
@@ -59,6 +56,5 @@ export function newSimulatorState(): SimulatorState {
   return {
     hardwareState: newHardwareState(),
     animationSpeed: "SLOW",
-    helpScreenState: "CLOSED",
   };
 }

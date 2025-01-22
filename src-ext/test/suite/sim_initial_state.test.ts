@@ -27,9 +27,9 @@ export const run = testCase(async (): Promise<void> => {
 
   assert.deepStrictEqual(
     [
-      state.hardwareState.computer.instructionRegister,
-      state.hardwareState.computer.dataRegister,
-      state.hardwareState.computer.programCounter,
+      state.simulatorState.hardwareState.computer.instructionRegister,
+      state.simulatorState.hardwareState.computer.dataRegister,
+      state.simulatorState.hardwareState.computer.programCounter,
     ],
     [0, 0, 0],
   );
