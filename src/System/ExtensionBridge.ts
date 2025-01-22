@@ -7,8 +7,8 @@ import type { SimulatorMessage } from "../common/Vic/Messages";
  * Webview.
  *
  * It provides state management, which is needed in the VS Code extension,
- * because the app may be destroyed/recreated at any time (when the user
- * changes tab).
+ * because the app may be destroyed/recreated at any time (when the user changes
+ * tab).
  *
  * You should call `getState` when the app starts up to initialize from the
  * current state, and call `setState` anytime the state changes.
@@ -20,45 +20,7 @@ import type { SimulatorMessage } from "../common/Vic/Messages";
  * <https://code.visualstudio.com/api/extension-guides/webview#persistence>
  * <https://code.visualstudio.com/api/extension-guides/webview#passing-messages-from-an-extension-to-a-webview>
  */
-export interface ExtensionBridge<StateType> {
-  getState: () => StateType | null;
-  setState: (newState: StateType) => void;
-  postMessage: (message: SimulatorMessage<StateType>) => void;
-}
-
-let getExtensionBridgeCalled = false;
-
-/**
- * For the VSCode extension, this will return an instance of
- * VSCodeExtensionBridge.
- *
- * For the Browser version, this currently returns a DummyExtensionBridge.
- *
- * The ExtensionBridge is a global service and there is only one of it. To
- * ensure that only one component is responsible for managing it, this
- * function can only be called once. If it is called a second time it will
- * throw an Error.
- */
-export function getExtensionBridge<StateType>(): ExtensionBridge<StateType> {
-  if (getExtensionBridgeCalled) {
-    throw new Error("getExtensionBridge already called");
-  }
-  getExtensionBridgeCalled = true;
-
-  if ("acquireVsCodeApi" in window) {
-    const vscode = acquireVsCodeApi<StateType>();
-    console.log("getExtensionBridge: VSCode");
-    return new VSCodeExtensionBridge<StateType>(vscode);
-  } else {
-    console.log("getExtensionBridge: Browser");
-    // TODO For browsers return an instance of BrowserExtensionBridge
-    return new DummyExtensionBridge<StateType>();
-  }
-}
-
-export class VSCodeExtensionBridge<StateType>
-  implements ExtensionBridge<StateType>
-{
+export class ExtensionBridge<StateType> {
   constructor(private vscode: WebviewApi<StateType>) {
     // Do Nothing
   }
@@ -90,36 +52,20 @@ export class VSCodeExtensionBridge<StateType>
   }
 }
 
-export class DummyExtensionBridge<StateType>
-  implements ExtensionBridge<StateType>
-{
-  getState(): StateType | null {
-    return null;
-  }
+let getExtensionBridgeCalled = false;
 
-  setState(newState: StateType): void {
-    // Do Nothing
+/**
+ * The ExtensionBridge is a global service and there is only one of it. To
+ * ensure that only one component is responsible for managing it, this function
+ * can only be called once. If it is called a second time it will throw an
+ * Error.
+ */
+export function getExtensionBridge<StateType>(): ExtensionBridge<StateType> {
+  if (getExtensionBridgeCalled) {
+    throw new Error("getExtensionBridge already called");
   }
+  getExtensionBridgeCalled = true;
 
-  postMessage(message: SimulatorMessage<StateType>): void {
-    // Do Nothing
-  }
-}
-
-export class BrowserExtensionBridge<StateType>
-  implements ExtensionBridge<StateType>
-{
-  getState(): StateType | null {
-    // TODO Implement this using Browser LocalStorage API
-    throw new Error("TODO");
-  }
-
-  setState(newState: StateType): void {
-    // TODO Implement this using Browser LocalStorage API
-    throw new Error("TODO");
-  }
-
-  postMessage(message: SimulatorMessage<StateType>): void {
-    // Do Nothing
-  }
+  const vscode = acquireVsCodeApi<StateType>();
+  return new ExtensionBridge<StateType>(vscode);
 }
