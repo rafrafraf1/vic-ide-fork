@@ -19,7 +19,6 @@ import {
   lookupSampleProgram,
 } from "./SamplePrograms/SampleProgram";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
-import { IS_DEMO_ENVIRONMENT } from "./System/Environment";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
 import { ComputerFrame } from "./UI/ComputerFrame";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
@@ -316,9 +315,9 @@ function AppWebview(props: AppProps): React.JSX.Element {
       <Toolbar
         className="App-Toolbar-Cont"
         uiString={uiString}
-        showSamplePrograms={IS_DEMO_ENVIRONMENT}
-        showThemeSwitcher={IS_DEMO_ENVIRONMENT}
-        showSourceLoader={!IS_DEMO_ENVIRONMENT}
+        showSamplePrograms={false}
+        showThemeSwitcher={false}
+        showSourceLoader={true}
         cpuState={cpuState}
         simulationState={simulationState}
         resetEnabled={isResetEnabled}

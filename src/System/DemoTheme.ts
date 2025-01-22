@@ -1,7 +1,5 @@
 import { assertNever } from "assert-never";
 
-import { IS_DEMO_ENVIRONMENT } from "./Environment";
-
 /**
  * The color themes that are available in demo mode (Dark mode / Light mode).
  */
@@ -119,10 +117,6 @@ export function unregisterThemeChangeListener(
  * @returns the current theme of the page.
  */
 export function getCurrentTheme(): DemoTheme {
-  if (!IS_DEMO_ENVIRONMENT) {
-    throw new Error("getCurrentTheme: only available in IS_DEMO_ENVIRONMENT");
-  }
-
   const linkTag = document.getElementById(themeStyleId);
   if (linkTag === null) {
     throw new Error(
@@ -153,10 +147,6 @@ export function getCurrentTheme(): DemoTheme {
  * Sets the current theme of the page to the given value.
  */
 export function setCurrentTheme(theme: DemoTheme): void {
-  if (!IS_DEMO_ENVIRONMENT) {
-    throw new Error("setCurrentTheme: only available in IS_DEMO_ENVIRONMENT");
-  }
-
   const linkTag = document.getElementById(themeStyleId);
   if (linkTag === null) {
     throw new Error(
