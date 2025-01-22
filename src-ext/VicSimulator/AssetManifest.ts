@@ -164,14 +164,14 @@ export function loadViteAssetManifest(
     };
   }
 
-  if (!("index.html" in json)) {
+  if (!("index-webview.html" in json)) {
     return {
       kind: "Error",
-      error: 'Missing key: "index.html"',
+      error: 'Missing key: "index-webview.html"',
     };
   }
 
-  const index = json["index.html"];
+  const index = json["index-webview.html"];
 
   if (index === null || typeof index !== "object" || Array.isArray(index)) {
     return {

@@ -24,7 +24,7 @@ function devMode(): boolean {
 }
 
 function boot(): void {
-  console.log("vic-ide webapp boot");
+  console.log("vic-ide webview boot");
 
   const root = ReactDOM.createRoot(getRequiredElement("root"));
 

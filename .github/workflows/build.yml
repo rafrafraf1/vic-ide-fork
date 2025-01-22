@@ -24,6 +24,21 @@ jobs:
           npm install
           npm run build
 
+  build-webview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - name: build-webview
+        run: |
+          npm install
+          npm run build-webview
+
   format:
     runs-on: ubuntu-latest
     steps:
@@ -82,5 +97,5 @@ jobs:
       - name: test-ext
         run: |
           npm install
-          npm run build
+          npm run build-webview
           COVERAGE=true xvfb-run -a npm run test-ext

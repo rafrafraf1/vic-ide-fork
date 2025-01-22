@@ -22,7 +22,6 @@ export const vicWebviewPanelType = "vic-ide";
 export const vicOpenSimulatorCommand = "vic-ide.openSimulator";
 
 /**
- * The "build" directory of the create-react-app that is loaded into the
- * webview.
+ * The build directory of the create-react-app that is loaded into the webview.
  */
-export const webviewBuildDir = "build";
+export const webviewBuildDir = "build-webview";

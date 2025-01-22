@@ -3,5 +3,6 @@
 /coverage/
 /.vscode-test/
 /build/
+/build-webview/
 /build-ext/
 /tsconfig.tsbuildinfo
