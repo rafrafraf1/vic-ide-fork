@@ -6,7 +6,7 @@ import * as React from "react";
 
 import ReactDOM from "react-dom/client";
 
-import App from "./App";
+import AppWebview from "./AppWebview";
 import type { AppWebviewState } from "./AppWebviewState";
 import { getExtensionBridge } from "./System/ExtensionBridge";
 
@@ -27,7 +27,7 @@ function boot(): void {
 
   root.render(
     <React.StrictMode>
-      <App extensionBridge={extensionBridge} />
+      <AppWebview extensionBridge={extensionBridge} />
     </React.StrictMode>,
   );
 }
