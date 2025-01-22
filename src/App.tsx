@@ -12,12 +12,12 @@ import {
   lookupSampleProgram,
 } from "./SamplePrograms/SampleProgram";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
-import { ComputerFrame } from "./UI/ComputerFrame";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
 import { LoadDialog } from "./UI/LoadDialog";
 import { Computer } from "./UI/Simulator/Computer";
 import { Toolbar } from "./UI/Toolbar";
 import { EnglishStrings } from "./UI/UIStrings";
+import { WindowFrame } from "./UI/WindowFrame";
 
 function App(): React.JSX.Element {
   const uiString = EnglishStrings;
@@ -144,7 +144,7 @@ function App(): React.JSX.Element {
         onHelpClick={handleHelpClick}
       />
       <div className="App-Main">
-        <ComputerFrame className="App-ComputerFrame-Cont" uiString={uiString}>
+        <WindowFrame className="App-WindowFrame-Cont" uiString={uiString}>
           <Computer
             ref={computerRef}
             uiString={uiString}
@@ -160,7 +160,7 @@ function App(): React.JSX.Element {
             onProgramCounterChange={handleProgramCounterChange}
             onInputChange={handleInputChange}
           />
-        </ComputerFrame>
+        </WindowFrame>
         {helpScreenState === "PINNED" ? (
           <div className="App-HelpSidebar-Cont">
             <HelpSidebar

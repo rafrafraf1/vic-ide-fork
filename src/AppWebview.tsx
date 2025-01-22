@@ -19,13 +19,13 @@ import {
 } from "./SamplePrograms/SampleProgram";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
 import type { ExtensionBridge } from "./System/ExtensionBridge";
-import { ComputerFrame } from "./UI/ComputerFrame";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
 import { useWindowMessages } from "./UI/ReactHooks/UseWindowMessages";
 import { Computer } from "./UI/Simulator/Computer";
 import { simulationActive } from "./UI/Simulator/SimulationState";
 import { Toolbar } from "./UI/Toolbar";
 import { EnglishStrings } from "./UI/UIStrings";
+import { WindowFrame } from "./UI/WindowFrame";
 
 export interface AppProps {
   extensionBridge: ExtensionBridge<AppWebviewState>;
@@ -284,8 +284,8 @@ function AppWebview(props: AppProps): React.JSX.Element {
         onHelpClick={handleHelpClick}
       />
       <div className="AppWebview-Main">
-        <ComputerFrame
-          className="AppWebview-ComputerFrame-Cont"
+        <WindowFrame
+          className="AppWebview-WindowFrame-Cont"
           uiString={uiString}
         >
           <Computer
@@ -303,7 +303,7 @@ function AppWebview(props: AppProps): React.JSX.Element {
             onProgramCounterChange={handleProgramCounterChange}
             onInputChange={handleInputChange}
           />
-        </ComputerFrame>
+        </WindowFrame>
         {helpScreenState === "PINNED" ? (
           <div className="AppWebview-HelpSidebar-Cont">
             <HelpSidebar

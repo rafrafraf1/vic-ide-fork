@@ -1,11 +1,11 @@
-.ComputerFrame-Root {
+.WindowFrame-Root {
   display: flex;
   flex-direction: column;
   border: 2px solid var(--vscode-inputOption-hoverBackground);
   border-radius: 8px;
 }
 
-.ComputerFrame-Titlebar {
+.WindowFrame-Titlebar {
   flex: 0 0 auto;
   align-self: stretch;
   height: 32px;
@@ -17,13 +17,13 @@
   border-top-right-radius: 6px;
 }
 
-.ComputerFrame-Titlebar-Heading {
+.WindowFrame-Titlebar-Heading {
   align-self: center;
   font-size: 112%;
   text-align: center;
 }
 
-.ComputerFrame-Contents {
+.WindowFrame-Contents {
   flex: 1 1 auto;
   min-height: 0;
   align-self: stretch;
