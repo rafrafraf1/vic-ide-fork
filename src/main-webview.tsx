@@ -8,7 +8,6 @@ import ReactDOM from "react-dom/client";
 
 import App from "./App";
 import type { SimulatorState } from "./Computer/SimulatorState";
-import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";
 import { getExtensionBridge } from "./System/ExtensionBridge";
 
 function getRequiredElement(elementId: string): HTMLElement {
@@ -17,10 +16,6 @@ function getRequiredElement(elementId: string): HTMLElement {
     throw new Error(`Element "${elementId}" not found`);
   }
   return rootElem;
-}
-
-function devMode(): boolean {
-  return window.location.hash === "#dev";
 }
 
 function boot(): void {
@@ -32,11 +27,7 @@ function boot(): void {
 
   root.render(
     <React.StrictMode>
-      {devMode() ? (
-        <PlaygroundMenu />
-      ) : (
-        <App extensionBridge={extensionBridge} />
-      )}
+      <App extensionBridge={extensionBridge} />
     </React.StrictMode>,
   );
 }
