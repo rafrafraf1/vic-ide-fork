@@ -17,9 +17,15 @@
   justify-content: center;
 }
 
-.AppWebview-WindowFrame-Cont {
+.AppWebview-Computer-WindowFrame {
   margin-top: 4px;
   margin-bottom: 4px;
+}
+
+.AppWebview-Computer {
+  margin-top: 6px;
+  margin-left: 6px;
+  margin-right: 6px;
 }
 
 .AppWebview-HelpSidebar-Cont {

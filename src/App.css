@@ -17,9 +17,15 @@
   justify-content: center;
 }
 
-.App-WindowFrame-Cont {
+.App-Computer-WindowFrame {
   margin-top: 4px;
   margin-bottom: 4px;
+}
+
+.App-Computer {
+  margin-top: 6px;
+  margin-left: 6px;
+  margin-right: 6px;
 }
 
 .App-HelpSidebar-Cont {

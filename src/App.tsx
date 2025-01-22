@@ -145,10 +145,11 @@ function App(): React.JSX.Element {
       />
       <div className="App-Main">
         <WindowFrame
-          className="App-WindowFrame-Cont"
+          className="App-Computer-WindowFrame"
           title={uiString("THE_VISUAL_COMPUTER")}
         >
           <Computer
+            className="App-Computer"
             ref={computerRef}
             uiString={uiString}
             computer={computer}
