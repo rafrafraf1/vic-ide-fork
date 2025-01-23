@@ -3,6 +3,7 @@ import "./FileDialog.css";
 import * as React from "react";
 
 import { assertNever } from "assert-never";
+import { useHotkeys, type Options } from "react-hotkeys-hook";
 import { VscClose } from "react-icons/vsc";
 
 import { Button, ButtonLabel } from "./Components/Button";
@@ -20,6 +21,23 @@ export interface FileDialogProps {
 export const FileDialog = React.memo(
   (props: FileDialogProps): React.JSX.Element => {
     const { title, children, onCloseClick } = props;
+
+    const hotKeyOptions: Options = {
+      enableOnFormTags: true,
+      enableOnContentEditable: true,
+      preventDefault: true,
+    };
+
+    useHotkeys(
+      "escape",
+      () => {
+        if (onCloseClick !== undefined) {
+          onCloseClick();
+        }
+      },
+      hotKeyOptions,
+      [onCloseClick],
+    );
 
     return (
       <div className="FileDialog-Root">

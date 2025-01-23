@@ -3,10 +3,12 @@ import "./CodeEditorPanel.css";
 import * as React from "react";
 
 import Tippy, { useSingleton } from "@tippyjs/react";
+import { useHotkeys, type Options } from "react-hotkeys-hook";
 import { FaHammer } from "react-icons/fa";
 import { PiFolderOpenDuotone } from "react-icons/pi";
 import { RiFileTransferLine, RiSave3Fill } from "react-icons/ri";
 import { VscArrowCircleRight } from "react-icons/vsc";
+import { UAParser } from "ua-parser-js";
 
 import { Button, ButtonLabel } from "../Components/Button";
 import { MenuButton, type MenuButtonOption } from "../Components/MenuButton";
@@ -39,6 +41,11 @@ export interface CodeEditorPanelHandle {
    */
   pulseBinEditor: (pulseColor: PulseColor) => void;
 }
+
+// See: <https://github.com/JohannesKlauss/react-hotkeys-hook/issues/1181>
+const IS_MAC_OS = new UAParser().getOS().is("macOS");
+const MOD_KEY = IS_MAC_OS ? "meta" : "ctrl";
+const MOD_KEY_STRING = IS_MAC_OS ? "\u2318" : "Ctrl";
 
 export interface CodeEditorPanelProps {
   uiString: UIStrings;
@@ -126,6 +133,36 @@ export const CodeEditorPanel = React.memo(
           },
         }),
         [],
+      );
+
+      const hotKeyOptions: Options = {
+        enableOnFormTags: true,
+        enableOnContentEditable: true,
+        preventDefault: true,
+      };
+
+      useHotkeys(
+        `${MOD_KEY}+o`,
+        () => {
+          if (onOpenFileRequest !== undefined) {
+            onOpenFileRequest({
+              kind: "OpenFile",
+            });
+          }
+        },
+        hotKeyOptions,
+        [onOpenFileRequest],
+      );
+
+      useHotkeys(
+        `${MOD_KEY}+s`,
+        () => {
+          if (onSaveClick !== undefined && !fileSaved) {
+            onSaveClick();
+          }
+        },
+        hotKeyOptions,
+        [fileSaved, onSaveClick],
       );
 
       return (
@@ -235,7 +272,10 @@ const CodeEditorToolbar = React.memo(
           onValueClick={handleOpenFileClick}
         />
         {fileName !== null ? (
-          <Tippy singleton={tippyTarget} content={uiString("SAVE")}>
+          <Tippy
+            singleton={tippyTarget}
+            content={`${uiString("SAVE")} (${MOD_KEY_STRING}+s)`}
+          >
             <Button
               className="Toolbar-Button"
               onClick={onSaveClick}
@@ -297,7 +337,7 @@ function buildSampleProgramValues(
   };
   const openFile: MenuButtonOption<OpenFileSelection> = {
     value: { kind: "OpenFile" },
-    label: uiString("OPEN_FILE"),
+    label: `${uiString("OPEN_FILE")} (${MOD_KEY_STRING}+o)`,
   };
   const closeFile: MenuButtonOption<OpenFileSelection> = {
     value: { kind: "CloseFile" },
