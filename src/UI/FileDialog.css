@@ -1,10 +1,10 @@
-.LoadDialog-Root {
+.FileDialog-Root {
   position: absolute;
   top: 0;
   left: 0;
 }
 
-.LoadDialog-Background {
+.FileDialog-Background {
   background: #000;
   opacity: 0.5;
   z-index: 1000;
@@ -13,20 +13,23 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.LoadDialog-Window-Cont {
+.FileDialog-Window-Cont {
   position: absolute;
+  left: 50vw;
+  top: 50vh;
+  transform: translate(-50%, -50%);
   z-index: 1000;
-  top: 96px;
-  left: 32px;
-  width: calc(100vw - 64px);
-  height: calc(100vh - 96px - 32px);
 }
 
-.LoadDialog-Window {
-  width: 100%;
-  height: 100%;
+.FileDialog-Window {
+  min-width: 400px;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   border: 1px solid green;
@@ -37,7 +40,7 @@
   border: 2px solid var(--vscode-quickInput-foreground);
 }
 
-.LoadDialog-Window-Titlebar {
+.FileDialog-Window-Titlebar {
   display: flex;
   flex: 0 0 auto;
   height: 42px;
@@ -45,7 +48,7 @@
   background: var(--vscode-inputOption-hoverBackground);
 }
 
-.LoadDialog-Window-Titlebar-Heading {
+.FileDialog-Window-Titlebar-Heading {
   flex: 1 0 auto;
   text-align: center;
   font-size: 144%;
@@ -53,12 +56,13 @@
   align-self: center;
 }
 
-.LoadDialog-Window-Titlebar-Button {
+.FileDialog-Window-Titlebar-Button {
   border-left: 2px solid var(--vscode-quickInput-foreground);
   margin: 0;
 }
 
-.LoadDialog-Window-Contents {
+.FileDialog-Window-Contents {
+  overflow: auto;
   padding: 18px;
   height: 100%;
   display: flex;
@@ -66,47 +70,24 @@
   min-height: 0;
 }
 
-.LoadDialog-Dropzone {
-  width: 50%;
-  margin: 0 auto;
-  padding: 20px 50px;
-  text-align: center;
-  user-select: none;
-  background-color: rgba(64, 64, 64, 0.15);
-  border: 2px dashed var(--vscode-tab-unfocusedInactiveModifiedBorder);
-  flex: 0 0 auto;
-}
-
-.LoadDialog-Dropzone p {
-  margin-top: 12px;
-}
-
-.LoadDialog-Dropzone-Hover {
-  padding: 19px 49px;
-  border-color: var(--vscode-inputValidation-infoBorder);
-  border-width: 3px;
-}
-
-.LoadDialog-ErrorInfoCont {
+.FileDialog-ErrorInfoCont {
   margin: 24px auto;
-  width: 40%;
   padding: 14px;
   background-color: var(--vscode-inputValidation-errorBackground);
   border: 1px solid var(--vscode-inputValidation-errorBorder);
   text-align: center;
 }
 
-.LoadDialog-ErrorInfoCont h3 {
+.FileDialog-ErrorInfoCont h3 {
   font-size: 150%;
   font-weight: normal;
 }
 
-.LoadDialog-CompileErrorInfoCont {
-  margin: 0 auto;
-  margin-top: 32px;
-  width: 100%;
-  padding: 14px;
-  background-color: var(--vscode-inputValidation-errorBackground);
-  border: 1px solid var(--vscode-inputValidation-errorBorder);
-  text-align: center;
+.FileDialog-ActionButtons-Root {
+  margin-top: 24px;
+  display: flex;
+  padding: 4px;
+  align-items: stretch;
+  justify-content: center;
+  height: 56px;
 }

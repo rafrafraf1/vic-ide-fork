@@ -3,10 +3,10 @@ import "./CodeEditorPanel.css";
 import * as React from "react";
 
 import Tippy, { useSingleton } from "@tippyjs/react";
-import { assertNever } from "assert-never";
 import { FaHammer } from "react-icons/fa";
 import { PiFolderOpenDuotone } from "react-icons/pi";
-import { RiFileTransferLine } from "react-icons/ri";
+import { RiFileTransferLine, RiSave3Fill } from "react-icons/ri";
+import { VscArrowCircleRight } from "react-icons/vsc";
 
 import { Button, ButtonLabel } from "../Components/Button";
 import { MenuButton, type MenuButtonOption } from "../Components/MenuButton";
@@ -46,8 +46,12 @@ export interface CodeEditorPanelProps {
   simulationState: SimulationState;
 
   sampleProgramNames: string[];
-  onLoadSampleProgram?: (name: string) => void;
-  onOpenFile?: () => void;
+  onOpenFileRequest?: (selection: OpenFileSelection) => void;
+  onSaveClick?: () => void;
+  onSaveAsClick?: () => void;
+
+  fileName: string | null;
+  fileSaved: boolean;
 
   asmText: string;
   binText: string;
@@ -61,13 +65,18 @@ export interface CodeEditorPanelProps {
   onLoadClick?: () => void;
 }
 
-type OpenFileSelection =
+export type OpenFileSelection =
   | OpenFileSelection.OpenFile
+  | OpenFileSelection.CloseFile
   | OpenFileSelection.LoadSampleProgram;
 
-namespace OpenFileSelection {
+export namespace OpenFileSelection {
   export interface OpenFile {
     kind: "OpenFile";
+  }
+
+  export interface CloseFile {
+    kind: "CloseFile";
   }
 
   export interface LoadSampleProgram {
@@ -75,6 +84,7 @@ namespace OpenFileSelection {
     sample: string;
   }
 }
+
 export const CodeEditorPanel = React.memo(
   React.forwardRef(
     (
@@ -85,8 +95,11 @@ export const CodeEditorPanel = React.memo(
         uiString,
         simulationState,
         sampleProgramNames,
-        onLoadSampleProgram,
-        onOpenFile,
+        onOpenFileRequest,
+        onSaveClick,
+        onSaveAsClick,
+        fileName,
+        fileSaved,
         asmText,
         binText,
         asmBinSynced,
@@ -121,8 +134,11 @@ export const CodeEditorPanel = React.memo(
             uiString={uiString}
             simulationState={simulationState}
             sampleProgramNames={sampleProgramNames}
-            onLoadSampleProgram={onLoadSampleProgram}
-            onOpenFile={onOpenFile}
+            fileName={fileName}
+            fileSaved={fileSaved}
+            onOpenFileRequest={onOpenFileRequest}
+            onSaveClick={onSaveClick}
+            onSaveAsClick={onSaveAsClick}
             onCompileClick={onCompileClick}
             onLoadProgramClick={onLoadClick}
           />
@@ -144,8 +160,12 @@ interface CodeEditorToolbarProps {
   uiString: UIStrings;
   simulationState: SimulationState;
   sampleProgramNames: string[];
-  onLoadSampleProgram?: (name: string) => void;
-  onOpenFile?: () => void;
+  fileName: string | null;
+  fileSaved: boolean;
+
+  onOpenFileRequest?: (selection: OpenFileSelection) => void;
+  onSaveClick?: () => void;
+  onSaveAsClick?: () => void;
   onCompileClick?: () => void;
   onLoadProgramClick?: () => void;
 }
@@ -156,57 +176,34 @@ const CodeEditorToolbar = React.memo(
       uiString,
       simulationState,
       sampleProgramNames,
-      onLoadSampleProgram,
-      onOpenFile,
+      fileName,
+      fileSaved,
+      onOpenFileRequest,
+      onSaveClick,
+      onSaveAsClick,
       onCompileClick,
       onLoadProgramClick,
     } = props;
 
     const sampleProgramValues = React.useMemo<
       MenuButtonOption<OpenFileSelection>[]
-    >(() => {
-      const spacer: MenuButtonOption<OpenFileSelection> = {
-        value: null,
-        label: "",
-        className: "Toolbar-MenuButton-Spacer",
-      };
-      const openFile: MenuButtonOption<OpenFileSelection> = {
-        value: { kind: "OpenFile" },
-        label: uiString("OPEN_FILE"),
-      };
-      const loadSampleProgram: MenuButtonOption<OpenFileSelection> = {
-        value: null,
-        label: `\u2500 ${uiString("SAMPLE_PROGRAMS")} \u2500`,
-      };
-      const sampleProgramEntries = sampleProgramNames.map<
-        MenuButtonOption<OpenFileSelection>
-      >((e) => ({
-        value: { kind: "LoadSampleProgram", sample: e },
-        label: e,
-      }));
-      return [spacer, openFile, spacer, loadSampleProgram].concat(
-        sampleProgramEntries,
-      );
-    }, [sampleProgramNames, uiString]);
+    >(
+      () =>
+        buildSampleProgramValues(
+          uiString,
+          sampleProgramNames,
+          fileName !== null,
+        ),
+      [fileName, sampleProgramNames, uiString],
+    );
 
     const handleOpenFileClick = React.useCallback(
       (value: OpenFileSelection): void => {
-        switch (value.kind) {
-          case "OpenFile":
-            if (onOpenFile !== undefined) {
-              onOpenFile();
-            }
-            break;
-          case "LoadSampleProgram":
-            if (onLoadSampleProgram !== undefined) {
-              onLoadSampleProgram(value.sample);
-            }
-            break;
-          default:
-            assertNever(value);
+        if (onOpenFileRequest !== undefined) {
+          onOpenFileRequest(value);
         }
       },
-      [onLoadSampleProgram, onOpenFile],
+      [onOpenFileRequest],
     );
 
     // Reference: <https://github.com/atomiks/tippyjs-react#-usesingleton>
@@ -231,6 +228,29 @@ const CodeEditorToolbar = React.memo(
           values={sampleProgramValues}
           onValueClick={handleOpenFileClick}
         />
+        {fileName !== null ? (
+          <Tippy singleton={tippyTarget} content={uiString("SAVE")}>
+            <Button
+              className="Toolbar-Button"
+              onClick={onSaveClick}
+              disabled={fileSaved}
+            >
+              <ButtonLabel>
+                <RiSave3Fill size={22} />
+                &nbsp;&nbsp;
+                {fileName}
+              </ButtonLabel>
+            </Button>
+          </Tippy>
+        ) : null}
+        <Tippy singleton={tippyTarget} content={uiString("SAVE_AS")}>
+          <Button className="Toolbar-Button" onClick={onSaveAsClick}>
+            <ButtonLabel>
+              <RiSave3Fill size={22} />
+              <VscArrowCircleRight size={22} />
+            </ButtonLabel>
+          </Button>
+        </Tippy>
         <Separator />
         <Tippy singleton={tippyTarget} content={uiString("ASSEMBLE")}>
           <Button className="Toolbar-Button" onClick={onCompileClick}>
@@ -254,3 +274,37 @@ const CodeEditorToolbar = React.memo(
     );
   },
 );
+
+function buildSampleProgramValues(
+  uiString: UIStrings,
+  sampleProgramNames: string[],
+  showCloseFile: boolean,
+): MenuButtonOption<OpenFileSelection>[] {
+  const spacer: MenuButtonOption<OpenFileSelection> = {
+    value: null,
+    label: "",
+    className: "Toolbar-MenuButton-Spacer",
+  };
+  const openFile: MenuButtonOption<OpenFileSelection> = {
+    value: { kind: "OpenFile" },
+    label: uiString("OPEN_FILE"),
+  };
+  const closeFile: MenuButtonOption<OpenFileSelection> = {
+    value: { kind: "CloseFile" },
+    label: uiString("CLOSE_FILE"),
+  };
+  const loadSampleProgram: MenuButtonOption<OpenFileSelection> = {
+    value: null,
+    label: `\u2500 ${uiString("SAMPLE_PROGRAMS")} \u2500`,
+  };
+  const sampleProgramEntries = sampleProgramNames.map<
+    MenuButtonOption<OpenFileSelection>
+  >((e) => ({
+    value: { kind: "LoadSampleProgram", sample: e },
+    label: e,
+  }));
+  return [spacer, openFile]
+    .concat(showCloseFile ? closeFile : [])
+    .concat([spacer, loadSampleProgram])
+    .concat(sampleProgramEntries);
+}

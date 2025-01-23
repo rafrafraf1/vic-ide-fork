@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 
+import type { Result } from "./common/Functional/Result";
 import { parseVicBin } from "./common/VicBinParser";
 import {
   compileVicProgram,
@@ -20,9 +21,22 @@ import { useSimulator, type SimulatorOptions } from "./Simulator";
 import {
   CodeEditorPanel,
   type CodeEditorPanelHandle,
+  type OpenFileSelection,
 } from "./UI/CodeEditor/CodeEditorPanel";
+import {
+  ConfirmDiscardUnsavedFile,
+  FileDialog,
+  FileOpenError,
+  FileSaveError,
+} from "./UI/FileDialog";
+import {
+  loadFile,
+  saveExistingFile,
+  saveFileAs,
+  type LoadedFile,
+  type LoadedFileError,
+} from "./UI/Files";
 import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
-import { LoadDialog, type VicLanguage } from "./UI/LoadDialog";
 import { Computer } from "./UI/Simulator/Computer";
 import { Toolbar } from "./UI/Toolbar";
 import { EnglishStrings } from "./UI/UIStrings";
@@ -73,8 +87,17 @@ function App(): React.JSX.Element {
     handleHelpScreenUnpinClick,
   } = useHelpScreen(newHelpScreenState());
 
-  const [loadDialogOpen, setLoadDialogOpen] = React.useState(false);
   const [codeEditorOpen, setCodeEditorOpen] = React.useState(false);
+  const [loadedFileError, setLoadedFileError] =
+    React.useState<LoadedFileError | null>(null);
+  const [saveFileError, setSaveFileError] = React.useState<string | null>(null);
+  const [loadedFileName, setLoadedFileName] = React.useState<string | null>(
+    null,
+  );
+  const [fileSaved, setFileSaved] = React.useState<boolean>(true);
+  const [pendingOpenFileSelection, setPendingOpenFileSelection] =
+    React.useState<OpenFileSelection | null>(null);
+  const loadedFileHandleRef = React.useRef<FileSystemFileHandle | null>(null);
 
   const [asmText, setAsmText] = React.useState("");
   const [binText, setBinText] = React.useState("");
@@ -94,6 +117,7 @@ function App(): React.JSX.Element {
   const handleAsmTextChange = React.useCallback((value: string): void => {
     setAsmText(value);
     setAsmBinSynced(false);
+    setFileSaved(false);
   }, []);
 
   const handleBinTextChange = React.useCallback((value: string): void => {
@@ -116,39 +140,146 @@ function App(): React.JSX.Element {
     }
   }, [asmText]);
 
-  const handleOpenFile = React.useCallback((): void => {
-    setLoadDialogOpen(true);
-  }, []);
-
-  const handleFileLoaded = React.useCallback(
-    (language: VicLanguage, contents: string): void => {
-      switch (language) {
-        case "VIC_ASSEMBLY":
-          setAsmText(contents);
-          setBinText("");
-          setAsmBinSynced(false);
+  const fileOpenChooser = React.useCallback(() => {
+    loadFile((result: Result<LoadedFileError, LoadedFile>): void => {
+      switch (result.kind) {
+        case "Error":
+          setLoadedFileError(result.error);
           break;
-        case "VIC_BINARY":
-          setAsmText("");
-          setBinText(contents);
+        case "Ok":
+          loadedFileHandleRef.current = result.value.handle;
+          if (loadedFileHandleRef.current !== null) {
+            setLoadedFileName(result.value.fileName);
+          } else {
+            // This can happen in browsers that don't fully support the
+            // FileSystem API.
+            setLoadedFileName(null);
+          }
+          setFileSaved(true);
+          switch (result.value.language) {
+            case "VIC_ASSEMBLY":
+              setAsmText(result.value.contents);
+              setBinText("");
+              break;
+            case "VIC_BINARY":
+              setAsmText("");
+              setBinText(result.value.contents);
+              break;
+            default:
+              return assertNever(result.value.language);
+          }
           setAsmBinSynced(false);
           break;
         default:
-          return assertNever(language);
+          return assertNever(result);
       }
-      setLoadDialogOpen(false);
-    },
-    [],
-  );
+    });
+  }, []);
 
-  const handleLoadSampleProgram = React.useCallback((name: string): void => {
+  const loadSampleProgram = React.useCallback((name: string): void => {
     const sampleProgram = lookupSampleProgram(name);
     if (sampleProgram !== null) {
+      loadedFileHandleRef.current = null;
+      setLoadedFileName(null);
+      setFileSaved(true);
       setAsmText(sampleProgram.code);
       setBinText("");
       setAsmBinSynced(false);
     }
   }, []);
+
+  const doOpenFileRequest = React.useCallback(
+    (selection: OpenFileSelection): void => {
+      switch (selection.kind) {
+        case "OpenFile":
+          fileOpenChooser();
+          break;
+        case "CloseFile":
+          loadedFileHandleRef.current = null;
+          setLoadedFileName(null);
+          setFileSaved(true);
+          setAsmText("");
+          setBinText("");
+          setAsmBinSynced(false);
+          break;
+        case "LoadSampleProgram":
+          loadSampleProgram(selection.sample);
+          break;
+        default:
+          assertNever(selection);
+      }
+    },
+    [fileOpenChooser, loadSampleProgram],
+  );
+
+  const handleOpenFileRequest = React.useCallback(
+    (selection: OpenFileSelection): void => {
+      if (fileSaved) {
+        doOpenFileRequest(selection);
+      } else {
+        setPendingOpenFileSelection(selection);
+      }
+    },
+    [doOpenFileRequest, fileSaved],
+  );
+
+  const handleCancelPendingOpenFile = React.useCallback(() => {
+    setPendingOpenFileSelection(null);
+  }, []);
+
+  const handleContinuePendingOpenFile = React.useCallback(() => {
+    if (pendingOpenFileSelection !== null) {
+      doOpenFileRequest(pendingOpenFileSelection);
+    }
+    setPendingOpenFileSelection(null);
+  }, [doOpenFileRequest, pendingOpenFileSelection]);
+
+  const handleCloseLoadedFileError = React.useCallback((): void => {
+    setLoadedFileError(null);
+  }, []);
+
+  const handleCloseSaveFileError = React.useCallback((): void => {
+    setSaveFileError(null);
+  }, []);
+
+  const handleSaveClick = React.useCallback((): void => {
+    if (loadedFileHandleRef.current !== null) {
+      saveExistingFile(
+        loadedFileHandleRef.current,
+        asmText,
+        (maybeError: string | null) => {
+          if (maybeError !== null) {
+            setSaveFileError(maybeError);
+          } else {
+            setFileSaved(true);
+          }
+        },
+      );
+    }
+  }, [asmText]);
+
+  const handleSaveAsClick = React.useCallback((): void => {
+    saveFileAs(
+      asmText,
+      (
+        handle: FileSystemFileHandle | null,
+        maybeError: string | null,
+      ): void => {
+        if (maybeError !== null) {
+          setSaveFileError(maybeError);
+        } else {
+          if (handle === null) {
+            loadedFileHandleRef.current = null;
+            setLoadedFileName(null);
+          } else {
+            loadedFileHandleRef.current = handle;
+            setLoadedFileName(handle.name);
+          }
+          setFileSaved(true);
+        }
+      },
+    );
+  }, [asmText]);
 
   const handleLoadClick = React.useCallback((): void => {
     const result = parseVicBin(binText);
@@ -191,9 +322,10 @@ function App(): React.JSX.Element {
     setOutput,
   ]);
 
-  const handleLoadDialogCloseClick = React.useCallback((): void => {
-    setLoadDialogOpen(false);
-  }, []);
+  const sampleProgramNames = React.useMemo<string[]>(
+    () => getSampleProgramNames(),
+    [],
+  );
 
   return (
     <div className="App-Root">
@@ -230,9 +362,12 @@ function App(): React.JSX.Element {
               ref={codeEditorPanelRef}
               uiString={uiString}
               simulationState={simulationState}
-              sampleProgramNames={getSampleProgramNames()}
-              onOpenFile={handleOpenFile}
-              onLoadSampleProgram={handleLoadSampleProgram}
+              sampleProgramNames={sampleProgramNames}
+              fileName={loadedFileName}
+              fileSaved={fileSaved}
+              onOpenFileRequest={handleOpenFileRequest}
+              onSaveClick={handleSaveClick}
+              onSaveAsClick={handleSaveAsClick}
               asmText={asmText}
               binText={binText}
               asmBinSynced={asmBinSynced}
@@ -273,12 +408,43 @@ function App(): React.JSX.Element {
           </div>
         ) : null}
       </div>
-      {loadDialogOpen ? (
-        <LoadDialog
-          uiString={uiString}
-          onCloseClick={handleLoadDialogCloseClick}
-          onFileLoaded={handleFileLoaded}
-        />
+      {loadedFileError !== null ? (
+        <FileDialog
+          title={uiString("ERROR")}
+          onCloseClick={handleCloseLoadedFileError}
+        >
+          <FileOpenError
+            fileName={loadedFileError.fileName}
+            fileSize={loadedFileError.fileSize}
+            error={loadedFileError.error}
+            onCloseClick={handleCloseLoadedFileError}
+          />
+        </FileDialog>
+      ) : null}
+      {saveFileError !== null ? (
+        <FileDialog
+          title={uiString("ERROR")}
+          onCloseClick={handleCloseSaveFileError}
+        >
+          <FileSaveError
+            fileName={loadedFileName}
+            error={saveFileError}
+            onCloseClick={handleCloseSaveFileError}
+          />
+        </FileDialog>
+      ) : null}
+      {pendingOpenFileSelection !== null ? (
+        <FileDialog
+          title={uiString("WARNING")}
+          onCloseClick={handleCancelPendingOpenFile}
+        >
+          <ConfirmDiscardUnsavedFile
+            uiString={uiString}
+            fileName={loadedFileName !== null ? loadedFileName : ""}
+            onCancelClick={handleCancelPendingOpenFile}
+            onContinueClick={handleContinuePendingOpenFile}
+          />
+        </FileDialog>
       ) : null}
       {helpScreenState === "OPEN" ? (
         <HelpScreen

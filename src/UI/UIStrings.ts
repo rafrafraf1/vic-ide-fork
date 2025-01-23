@@ -7,6 +7,13 @@ export type UIStringKey =
   | "LOAD_A_VIC_PROGRAM"
   | "CODE_EDITOR"
   | "OPEN_FILE"
+  | "CLOSE_FILE"
+  | "SAVE"
+  | "SAVE_AS"
+  | "CANCEL"
+  | "CONTINUE"
+  | "ERROR"
+  | "WARNING"
   | "SAMPLE_PROGRAMS"
   | "ASSEMBLE"
   | "FETCH"
@@ -67,6 +74,20 @@ export function EnglishStrings(key: UIStringKey): string {
       return "Code Editor";
     case "OPEN_FILE":
       return "Open File";
+    case "CLOSE_FILE":
+      return "Close File";
+    case "SAVE":
+      return "Save";
+    case "SAVE_AS":
+      return "Save As";
+    case "CANCEL":
+      return "Cancel";
+    case "CONTINUE":
+      return "Continue";
+    case "ERROR":
+      return "Error";
+    case "WARNING":
+      return "Warning";
     case "SAMPLE_PROGRAMS":
       return "Sample Programs";
     case "ASSEMBLE":
