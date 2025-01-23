@@ -1,5 +1,27 @@
 import { assertNever } from "assert-never";
 
+const STORAGE_KEY = "theme";
+
+function init(): void {
+  const savedTheme = localStorage.getItem(STORAGE_KEY);
+  if (savedTheme === null) {
+    return;
+  }
+  if (themeCssFiles.find(([name]) => savedTheme === name) === undefined) {
+    console.warn("Invalid theme:", savedTheme);
+    return;
+  }
+  applyTheme(savedTheme as DemoTheme);
+}
+
+/**
+ * Sets the current theme of the page to the given value.
+ */
+export function setCurrentTheme(theme: DemoTheme): void {
+  localStorage.setItem(STORAGE_KEY, theme);
+  applyTheme(theme);
+}
+
 /**
  * The color themes that are available in demo mode (Dark mode / Light mode).
  */
@@ -143,10 +165,7 @@ export function getCurrentTheme(): DemoTheme {
   return theme;
 }
 
-/**
- * Sets the current theme of the page to the given value.
- */
-export function setCurrentTheme(theme: DemoTheme): void {
+function applyTheme(theme: DemoTheme): void {
   const linkTag = document.getElementById(themeStyleId);
   if (linkTag === null) {
     throw new Error(
@@ -203,3 +222,5 @@ function splitHref(value: string): [string, string] {
   }
   return [value.substring(0, i + 1), value.substring(i + 1)];
 }
+
+init();
