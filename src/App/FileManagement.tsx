@@ -22,13 +22,8 @@ import type { UIStringKey } from "../UI/UIStrings";
 
 export interface FileManagementInput {
   uiString: (key: UIStringKey) => string;
-
   asmText: string;
-  setAsmText: React.Dispatch<React.SetStateAction<string>>;
-
-  setBinText: React.Dispatch<React.SetStateAction<string>>;
-
-  setAsmBinSynced: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditorCode: (asmText: string, binText: string) => void;
 }
 
 export interface FileManagementControls {
@@ -44,7 +39,7 @@ export interface FileManagementControls {
 export function useFileManagement(
   input: FileManagementInput,
 ): FileManagementControls {
-  const { uiString, asmText, setAsmText, setBinText, setAsmBinSynced } = input;
+  const { uiString, asmText, setEditorCode } = input;
 
   const [loadedFileError, setLoadedFileError] =
     React.useState<LoadedFileError | null>(null);
@@ -75,23 +70,20 @@ export function useFileManagement(
           setFileSaved(true);
           switch (result.value.language) {
             case "VIC_ASSEMBLY":
-              setAsmText(result.value.contents);
-              setBinText("");
+              setEditorCode(result.value.contents, "");
               break;
             case "VIC_BINARY":
-              setAsmText("");
-              setBinText(result.value.contents);
+              setEditorCode("", result.value.contents);
               break;
             default:
               return assertNever(result.value.language);
           }
-          setAsmBinSynced(false);
           break;
         default:
           return assertNever(result);
       }
     });
-  }, [setAsmBinSynced, setAsmText, setBinText]);
+  }, [setEditorCode]);
 
   const loadSampleProgram = React.useCallback(
     (name: string): void => {
@@ -100,12 +92,10 @@ export function useFileManagement(
         loadedFileHandleRef.current = null;
         setLoadedFileName(null);
         setFileSaved(true);
-        setAsmText(sampleProgram.code);
-        setBinText("");
-        setAsmBinSynced(false);
+        setEditorCode(sampleProgram.code, "");
       }
     },
-    [setAsmBinSynced, setAsmText, setBinText],
+    [setEditorCode],
   );
 
   const doOpenFileRequest = React.useCallback(
@@ -118,9 +108,7 @@ export function useFileManagement(
           loadedFileHandleRef.current = null;
           setLoadedFileName(null);
           setFileSaved(true);
-          setAsmText("");
-          setBinText("");
-          setAsmBinSynced(false);
+          setEditorCode("", "");
           break;
         case "LoadSampleProgram":
           loadSampleProgram(selection.sample);
@@ -129,13 +117,7 @@ export function useFileManagement(
           assertNever(selection);
       }
     },
-    [
-      fileOpenChooser,
-      loadSampleProgram,
-      setAsmBinSynced,
-      setAsmText,
-      setBinText,
-    ],
+    [fileOpenChooser, loadSampleProgram, setEditorCode],
   );
 
   const handleOpenFileRequest = React.useCallback(

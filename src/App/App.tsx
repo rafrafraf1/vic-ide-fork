@@ -79,6 +79,15 @@ function App(): React.JSX.Element {
 
   const codeEditorPanelRef = React.useRef<CodeEditorPanelHandle>(null);
 
+  const setEditorCode = React.useCallback(
+    (asmText: string, binText: string): void => {
+      setAsmText(asmText);
+      setBinText(binText);
+      setAsmBinSynced(false);
+    },
+    [],
+  );
+
   const {
     loadedFileName,
     fileSaved,
@@ -90,9 +99,7 @@ function App(): React.JSX.Element {
   } = useFileManagement({
     uiString,
     asmText,
-    setAsmText,
-    setBinText,
-    setAsmBinSynced,
+    setEditorCode,
   });
 
   const handleCodeEditorClick = React.useCallback((): void => {
