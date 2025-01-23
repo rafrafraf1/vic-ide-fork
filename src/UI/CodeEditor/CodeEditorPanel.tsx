@@ -136,6 +136,8 @@ export const CodeEditorPanel = React.memo(
             sampleProgramNames={sampleProgramNames}
             fileName={fileName}
             fileSaved={fileSaved}
+            assembleButtonEnabled={asmText !== ""}
+            loadButtonEnabled={binText !== ""}
             onOpenFileRequest={onOpenFileRequest}
             onSaveClick={onSaveClick}
             onSaveAsClick={onSaveAsClick}
@@ -162,6 +164,8 @@ interface CodeEditorToolbarProps {
   sampleProgramNames: string[];
   fileName: string | null;
   fileSaved: boolean;
+  assembleButtonEnabled: boolean;
+  loadButtonEnabled: boolean;
 
   onOpenFileRequest?: (selection: OpenFileSelection) => void;
   onSaveClick?: () => void;
@@ -178,6 +182,8 @@ const CodeEditorToolbar = React.memo(
       sampleProgramNames,
       fileName,
       fileSaved,
+      assembleButtonEnabled,
+      loadButtonEnabled,
       onOpenFileRequest,
       onSaveClick,
       onSaveAsClick,
@@ -253,7 +259,11 @@ const CodeEditorToolbar = React.memo(
         </Tippy>
         <Separator />
         <Tippy singleton={tippyTarget} content={uiString("ASSEMBLE")}>
-          <Button className="Toolbar-Button" onClick={onCompileClick}>
+          <Button
+            className="Toolbar-Button"
+            disabled={!assembleButtonEnabled}
+            onClick={onCompileClick}
+          >
             <ButtonLabel>
               <FaHammer size={20} />
             </ButtonLabel>
@@ -262,7 +272,7 @@ const CodeEditorToolbar = React.memo(
         <Tippy singleton={tippyTarget} content={uiString("LOAD")}>
           <Button
             className="Toolbar-Button CodeEditorPanel-LoadButton"
-            disabled={simulationActive(simulationState)}
+            disabled={!loadButtonEnabled || simulationActive(simulationState)}
             onClick={onLoadProgramClick}
           >
             <ButtonLabel>
