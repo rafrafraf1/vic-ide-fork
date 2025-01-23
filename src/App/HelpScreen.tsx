@@ -2,6 +2,8 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 
+import { HelpScreen, HelpSidebar } from "../UI/HelpScreen";
+
 export type HelpScreenState = "CLOSED" | "OPEN" | "PINNED";
 
 export function newHelpScreenState(): HelpScreenState {
@@ -11,9 +13,8 @@ export function newHelpScreenState(): HelpScreenState {
 export interface HelpScreenControls {
   helpScreenState: HelpScreenState;
   handleHelpClick: () => void;
-  handleHelpScreenCloseClick: () => void;
-  handleHelpScreenPinClick: () => void;
-  handleHelpScreenUnpinClick: () => void;
+  helpScreenSidebarElem: React.JSX.Element;
+  helpScreenWindowElem: React.JSX.Element;
 }
 
 export function useHelpScreen(
@@ -37,12 +38,35 @@ export function useHelpScreen(
     setHelpScreenState("OPEN");
   }, [setHelpScreenState]);
 
+  const helpScreenSidebarElem = (
+    <>
+      {helpScreenState === "PINNED" ? (
+        <div className="App-HelpSidebar-Cont">
+          <HelpSidebar
+            onCloseClick={handleHelpScreenCloseClick}
+            onUnpinClick={handleHelpScreenUnpinClick}
+          />
+        </div>
+      ) : null}
+    </>
+  );
+
+  const helpScreenWindowElem = (
+    <>
+      {helpScreenState === "OPEN" ? (
+        <HelpScreen
+          onCloseClick={handleHelpScreenCloseClick}
+          onPinClick={handleHelpScreenPinClick}
+        />
+      ) : null}
+    </>
+  );
+
   return {
     helpScreenState,
     handleHelpClick,
-    handleHelpScreenCloseClick,
-    handleHelpScreenPinClick,
-    handleHelpScreenUnpinClick,
+    helpScreenSidebarElem,
+    helpScreenWindowElem,
   };
 }
 

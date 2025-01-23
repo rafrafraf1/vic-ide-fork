@@ -11,7 +11,6 @@ import type { ComputerState } from "../Computer/Computer";
 import { loadProgram } from "../Computer/Program";
 import type { HardwareState } from "../Computer/SimulatorState";
 import type { ExtensionBridge } from "../System/ExtensionBridge";
-import { HelpScreen, HelpSidebar } from "../UI/HelpScreen";
 import { useWindowMessages } from "../UI/ReactHooks/UseWindowMessages";
 import { Computer } from "../UI/Simulator/Computer";
 import { simulationActive } from "../UI/Simulator/SimulationState";
@@ -86,9 +85,8 @@ function AppWebview(props: AppProps): React.JSX.Element {
   const {
     helpScreenState,
     handleHelpClick,
-    handleHelpScreenCloseClick,
-    handleHelpScreenPinClick,
-    handleHelpScreenUnpinClick,
+    helpScreenSidebarElem,
+    helpScreenWindowElem,
   } = useHelpScreen(initialState.helpScreenState);
 
   const [sourceFile, setSourceFile] = React.useState<SourceFile | null>(null);
@@ -284,21 +282,9 @@ function AppWebview(props: AppProps): React.JSX.Element {
             onInputChange={handleInputChange}
           />
         </WindowFrame>
-        {helpScreenState === "PINNED" ? (
-          <div className="AppWebview-HelpSidebar-Cont">
-            <HelpSidebar
-              onCloseClick={handleHelpScreenCloseClick}
-              onUnpinClick={handleHelpScreenUnpinClick}
-            />
-          </div>
-        ) : null}
+        {helpScreenSidebarElem}
       </div>
-      {helpScreenState === "OPEN" ? (
-        <HelpScreen
-          onCloseClick={handleHelpScreenCloseClick}
-          onPinClick={handleHelpScreenPinClick}
-        />
-      ) : null}
+      {helpScreenWindowElem}
     </div>
   );
 }

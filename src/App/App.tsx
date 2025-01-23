@@ -16,7 +16,6 @@ import {
   CodeEditorPanel,
   type CodeEditorPanelHandle,
 } from "../UI/CodeEditor/CodeEditorPanel";
-import { HelpScreen, HelpSidebar } from "../UI/HelpScreen";
 import { Computer } from "../UI/Simulator/Computer";
 import { Toolbar } from "../UI/Toolbar";
 import { EnglishStrings } from "../UI/UIStrings";
@@ -62,13 +61,8 @@ function App(): React.JSX.Element {
     handleInputChange,
   } = useSimulator(simulatorOptions);
 
-  const {
-    helpScreenState,
-    handleHelpClick,
-    handleHelpScreenCloseClick,
-    handleHelpScreenPinClick,
-    handleHelpScreenUnpinClick,
-  } = useHelpScreen(newHelpScreenState());
+  const { handleHelpClick, helpScreenSidebarElem, helpScreenWindowElem } =
+    useHelpScreen(newHelpScreenState());
 
   const [codeEditorOpen, setCodeEditorOpen] = React.useState(false);
 
@@ -257,22 +251,10 @@ function App(): React.JSX.Element {
             onInputChange={handleInputChange}
           />
         </WindowFrame>
-        {helpScreenState === "PINNED" ? (
-          <div className="App-HelpSidebar-Cont">
-            <HelpSidebar
-              onCloseClick={handleHelpScreenCloseClick}
-              onUnpinClick={handleHelpScreenUnpinClick}
-            />
-          </div>
-        ) : null}
+        {helpScreenSidebarElem}
       </div>
       {fileDialogElems}
-      {helpScreenState === "OPEN" ? (
-        <HelpScreen
-          onCloseClick={handleHelpScreenCloseClick}
-          onPinClick={handleHelpScreenPinClick}
-        />
-      ) : null}
+      {helpScreenWindowElem}
     </div>
   );
 }
