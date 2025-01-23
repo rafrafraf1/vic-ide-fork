@@ -4,23 +4,23 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 
+import type { ExtensionMessage } from "../common/Vic/Messages";
+import type { ExtensionDebugMessage } from "../common/Vic/MessagesDebug";
+import type { SourceFile, SourceFileId } from "../common/Vic/SourceFile";
+import type { ComputerState } from "../Computer/Computer";
+import { loadProgram } from "../Computer/Program";
+import type { HardwareState } from "../Computer/SimulatorState";
+import type { ExtensionBridge } from "../System/ExtensionBridge";
+import { HelpScreen, HelpSidebar } from "../UI/HelpScreen";
+import { useWindowMessages } from "../UI/ReactHooks/UseWindowMessages";
+import { Computer } from "../UI/Simulator/Computer";
+import { simulationActive } from "../UI/Simulator/SimulationState";
+import { Toolbar } from "../UI/Toolbar";
+import { EnglishStrings } from "../UI/UIStrings";
+import { WindowFrame } from "../UI/WindowFrame";
 import { newAppWebviewState, type AppWebviewState } from "./AppWebviewState";
-import type { ExtensionMessage } from "./common/Vic/Messages";
-import type { ExtensionDebugMessage } from "./common/Vic/MessagesDebug";
-import type { SourceFile, SourceFileId } from "./common/Vic/SourceFile";
-import type { ComputerState } from "./Computer/Computer";
-import { loadProgram } from "./Computer/Program";
-import type { HardwareState } from "./Computer/SimulatorState";
 import { useHelpScreen } from "./HelpScreen";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
-import type { ExtensionBridge } from "./System/ExtensionBridge";
-import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
-import { useWindowMessages } from "./UI/ReactHooks/UseWindowMessages";
-import { Computer } from "./UI/Simulator/Computer";
-import { simulationActive } from "./UI/Simulator/SimulationState";
-import { Toolbar } from "./UI/Toolbar";
-import { EnglishStrings } from "./UI/UIStrings";
-import { WindowFrame } from "./UI/WindowFrame";
 
 export interface AppProps {
   extensionBridge: ExtensionBridge<AppWebviewState>;

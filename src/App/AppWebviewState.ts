@@ -1,7 +1,7 @@
 import {
   newSimulatorState,
   type SimulatorState,
-} from "./Computer/SimulatorState";
+} from "../Computer/SimulatorState";
 import { newHelpScreenState, type HelpScreenState } from "./HelpScreen";
 
 export interface AppWebviewState {

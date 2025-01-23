@@ -4,43 +4,43 @@ import * as React from "react";
 
 import { assertNever } from "assert-never";
 
-import type { Result } from "./common/Functional/Result";
-import { parseVicBin } from "./common/VicBinParser";
+import type { Result } from "../common/Functional/Result";
+import { parseVicBin } from "../common/VicBinParser";
 import {
   compileVicProgram,
   prettyVicCompileResult,
-} from "./common/VicLangFullCompiler";
-import { loadProgram } from "./Computer/Program";
-import { newSimulatorState } from "./Computer/SimulatorState";
-import { newHelpScreenState, useHelpScreen } from "./HelpScreen";
+} from "../common/VicLangFullCompiler";
+import { loadProgram } from "../Computer/Program";
+import { newSimulatorState } from "../Computer/SimulatorState";
 import {
   getSampleProgramNames,
   lookupSampleProgram,
-} from "./SamplePrograms/SampleProgram";
-import { useSimulator, type SimulatorOptions } from "./Simulator";
+} from "../SamplePrograms/SampleProgram";
 import {
   CodeEditorPanel,
   type CodeEditorPanelHandle,
   type OpenFileSelection,
-} from "./UI/CodeEditor/CodeEditorPanel";
+} from "../UI/CodeEditor/CodeEditorPanel";
 import {
   ConfirmDiscardUnsavedFile,
   FileDialog,
   FileOpenError,
   FileSaveError,
-} from "./UI/FileDialog";
+} from "../UI/FileDialog";
 import {
   loadFile,
   saveExistingFile,
   saveFileAs,
   type LoadedFile,
   type LoadedFileError,
-} from "./UI/Files";
-import { HelpScreen, HelpSidebar } from "./UI/HelpScreen";
-import { Computer } from "./UI/Simulator/Computer";
-import { Toolbar } from "./UI/Toolbar";
-import { EnglishStrings } from "./UI/UIStrings";
-import { WindowFrame } from "./UI/WindowFrame";
+} from "../UI/Files";
+import { HelpScreen, HelpSidebar } from "../UI/HelpScreen";
+import { Computer } from "../UI/Simulator/Computer";
+import { Toolbar } from "../UI/Toolbar";
+import { EnglishStrings } from "../UI/UIStrings";
+import { WindowFrame } from "../UI/WindowFrame";
+import { newHelpScreenState, useHelpScreen } from "./HelpScreen";
+import { useSimulator, type SimulatorOptions } from "./Simulator";
 
 function App(): React.JSX.Element {
   const uiString = EnglishStrings;

@@ -12,11 +12,11 @@ import {
   setProgramCounter,
   writeMemory,
   type ComputerState,
-} from "./Computer/Computer";
+} from "../Computer/Computer";
 import {
   clearComputerHighMemory,
   clearComputerLowMemory,
-} from "./Computer/ComputerUtils";
+} from "../Computer/ComputerUtils";
 import {
   atBeginningOfInput,
   consumeInput,
@@ -24,39 +24,39 @@ import {
   readNextInput,
   rewindInput,
   type InputState,
-} from "./Computer/Input";
-import type { Address } from "./Computer/Instruction";
+} from "../Computer/Input";
+import type { Address } from "../Computer/Instruction";
 import {
   appendOutput,
   emptyOutput,
   isOutputEmpty,
   type OutputState,
-} from "./Computer/Output";
+} from "../Computer/Output";
 import {
   NUM_ITERATIONS_FOR_REAL_TIME,
   runSimulatorIterations,
-} from "./Computer/SimulationUtils";
+} from "../Computer/SimulationUtils";
 import {
   initialCpuState,
   type CpuState,
   type SimulatorState,
-} from "./Computer/SimulatorState";
-import type { Value } from "./Computer/Value";
-import { compose } from "./Functional/Compose";
-import { nonNull } from "./Functional/Nullability";
-import { useEvents } from "./UI/ReactHooks/UseEvents";
-import { nextInstructionAnimation } from "./UI/Simulator/Animations";
+} from "../Computer/SimulatorState";
+import type { Value } from "../Computer/Value";
+import { compose } from "../Functional/Compose";
+import { nonNull } from "../Functional/Nullability";
+import { useEvents } from "../UI/ReactHooks/UseEvents";
+import { nextInstructionAnimation } from "../UI/Simulator/Animations";
 import {
   animationSpeedDuration,
   type AnimationSpeed,
-} from "./UI/Simulator/AnimationSpeed";
-import type { ComputerHandle } from "./UI/Simulator/Computer";
+} from "../UI/Simulator/AnimationSpeed";
+import type { ComputerHandle } from "../UI/Simulator/Computer";
 import {
   simulationActive,
   type SimulationState,
-} from "./UI/Simulator/SimulationState";
-import type { ClearOption } from "./UI/Toolbar";
-import { useAnimate } from "./UI/UseAnimate";
+} from "../UI/Simulator/SimulationState";
+import type { ClearOption } from "../UI/Toolbar";
+import { useAnimate } from "../UI/UseAnimate";
 
 export interface SimulatorOptions {
   /**

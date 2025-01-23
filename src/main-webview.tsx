@@ -6,8 +6,8 @@ import * as React from "react";
 
 import ReactDOM from "react-dom/client";
 
-import AppWebview from "./AppWebview";
-import type { AppWebviewState } from "./AppWebviewState";
+import AppWebview from "./App/AppWebview";
+import type { AppWebviewState } from "./App/AppWebviewState";
 import { getExtensionBridge } from "./System/ExtensionBridge";
 
 function getRequiredElement(elementId: string): HTMLElement {
