@@ -30,6 +30,7 @@ import {
   appendOutput,
   emptyOutput,
   isOutputEmpty,
+  isOutputFull,
   type OutputState,
 } from "../Computer/Output";
 import {
@@ -308,6 +309,7 @@ export function useSimulator(opts: SimulatorOptions): SimulatorControls {
         const [newComputer, executeResult] = executeInstruction(
           computer,
           nextInput,
+          isOutputFull(output),
           advanceProgramCounter,
         );
         setComputer(newComputer);
@@ -357,11 +359,8 @@ export function useSimulator(opts: SimulatorOptions): SimulatorControls {
       animationSpeed,
       computer,
       input,
+      output,
       runInstantIterations,
-      setComputer,
-      setCpuState,
-      setInput,
-      setOutput,
       shouldRunInstantIterations,
       triggerStepComplete,
     ],

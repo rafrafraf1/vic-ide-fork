@@ -54,6 +54,12 @@ function CpuStatusMessage(props: CpuStatusMessageProps): React.JSX.Element {
               {uiString("CPU_NO_INPUT")}
             </span>
           );
+        case "OUTPUT_FULL":
+          return (
+            <span className="CpuStatus-OutputFull">
+              {uiString("CPU_OUTPUT_FULL")}
+            </span>
+          );
         case "INVALID_INSTRUCTION":
           return (
             <span className="CpuStatus-InvalidInstruction">

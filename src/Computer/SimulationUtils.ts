@@ -2,7 +2,7 @@ import { assertNever } from "assert-never";
 
 import { executeInstruction, fetchInstruction } from "./Computer";
 import { consumeInput, readNextInput } from "./Input";
-import { appendOutput } from "./Output";
+import { appendOutput, isOutputFull } from "./Output";
 import type { HardwareState } from "./SimulatorState";
 
 /**
@@ -69,6 +69,7 @@ function doExecute(hardwareState: HardwareState): HardwareState {
   const [newComputer, executeResult] = executeInstruction(
     hardwareState.computer,
     nextInput,
+    isOutputFull(hardwareState.output),
     true,
   );
   return {

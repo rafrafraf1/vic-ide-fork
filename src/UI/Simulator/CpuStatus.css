@@ -21,6 +21,10 @@
   color: var(--vscode-testing-iconErrored);
 }
 
+.CpuStatus-OutputFull {
+  color: var(--vscode-testing-iconErrored);
+}
+
 .CpuStatus-InvalidInstruction {
   color: var(--vscode-testing-iconErrored);
 }

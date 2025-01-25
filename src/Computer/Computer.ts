@@ -171,6 +171,7 @@ export function newBlankMemory(): MemoryCell[] {
 export type StopResult =
   | "STOP"
   | "NO_INPUT"
+  | "OUTPUT_FULL"
   | "INVALID_INSTRUCTION"
   | "INVALID_WRITE";
 
@@ -206,6 +207,7 @@ export function fetchInstruction(computer: ComputerState): ComputerState {
 export function executeInstruction(
   computer: ComputerState,
   nextInput: Value | null,
+  outputFull: boolean,
   advanceProgramCounter: boolean,
 ): [ComputerState, ExecuteResult] {
   const moveProgramCounter = advanceProgramCounter
@@ -319,6 +321,16 @@ export function executeInstruction(
       ];
     }
     case "WRITE": {
+      if (outputFull) {
+        return [
+          computer,
+          {
+            consumedInput: false,
+            output: null,
+            stop: "OUTPUT_FULL",
+          },
+        ];
+      }
       const output = computer.dataRegister;
       const newComputer = moveProgramCounter(computer);
       return [

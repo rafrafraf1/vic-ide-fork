@@ -54,6 +54,7 @@ export type UIStringKey =
   | "CPU_EXECUTING"
   | "CPU_STOP"
   | "CPU_NO_INPUT"
+  | "CPU_OUTPUT_FULL"
   | "CPU_INVALID_INSTRUCTION"
   | "CPU_INVALID_WRITE"
   | "READONLY_MEMORY_ADDRESS";
@@ -168,6 +169,8 @@ export function EnglishStrings(key: UIStringKey): string {
       return "STOP";
     case "CPU_NO_INPUT":
       return "No Input";
+    case "CPU_OUTPUT_FULL":
+      return "Output Buffer Full";
     case "CPU_INVALID_INSTRUCTION":
       return "Invalid instruction";
     case "CPU_INVALID_WRITE":
