@@ -1,18 +1,14 @@
 import { assertNever } from "assert-never";
-import {
-  fileOpen,
-  fileSave,
-  type FileWithHandle,
-  type FirstFileSaveOptions,
-} from "browser-fs-access";
 
 import type { Result } from "../common/Functional/Result";
 
 export type VicLanguage = "VIC_ASSEMBLY" | "VIC_BINARY";
 
+export type FileHandle = FileSystemFileHandle & FileSystemHandle;
+
 export interface LoadedFile {
   fileName: string;
-  handle: FileSystemFileHandle | null;
+  handle: FileHandle | null;
   language: VicLanguage;
   contents: string;
 }
@@ -23,44 +19,41 @@ export interface LoadedFileError {
   fileSize: number | null;
 }
 
+const FILE_SYSTEM_ACCESS_API = "showOpenFilePicker" in self;
+
 export function loadFile(
   cb: (result: Result<LoadedFileError, LoadedFile>) => void,
 ): void {
-  fileOpen().then(
-    (file: FileWithHandle): void => {
-      const options: ReadTextFileOptions = {
-        maxFileSize: 100 * 1024,
-      };
-      readTextFile(file, options, (result) => {
-        switch (result.kind) {
-          case "Error":
-            cb({
-              kind: "Error",
+  if (FILE_SYSTEM_ACCESS_API) {
+    loadFile_FileSystemAccessApi(cb);
+  } else {
+    loadFile_Legacy(cb);
+  }
+}
+
+function loadFile_FileSystemAccessApi(
+  cb: (result: Result<LoadedFileError, LoadedFile>) => void,
+): void {
+  showOpenFilePicker().then(
+    ([handle]) => {
+      handle.getFile().then(
+        (file) => {
+          processFile(file, handle, cb);
+        },
+        (err: unknown) => {
+          cb({
+            kind: "Error",
+            error: {
               error: {
-                error: result.error,
-                fileName: file.name,
-                fileSize: file.size,
+                kind: "LoadError",
+                error: String(err),
               },
-            });
-            break;
-          case "Ok": {
-            const handle = file.handle !== undefined ? file.handle : null;
-            const contents = result.value;
-            cb({
-              kind: "Ok",
-              value: {
-                fileName: file.name,
-                handle: handle,
-                language: detectSourceLanguage(contents),
-                contents: contents,
-              },
-            });
-            break;
-          }
-          default:
-            return assertNever(result);
-        }
-      });
+              fileName: null,
+              fileSize: null,
+            },
+          });
+        },
+      );
     },
     (err: unknown) => {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -82,36 +75,175 @@ export function loadFile(
   );
 }
 
+function loadFile_Legacy(
+  cb: (result: Result<LoadedFileError, LoadedFile>) => void,
+): void {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.multiple = false;
+  input.accept = "";
+  // Append to the DOM, else Safari on iOS won't fire the `change` event
+  // reliably.
+  input.style.display = "none";
+  document.body.append(input);
+  input.addEventListener("change", () => {
+    if (input.files === null) {
+      cb({
+        kind: "Error",
+        error: {
+          error: {
+            kind: "LoadError",
+            error: "Unexpected Error: No chosen file detected",
+          },
+          fileName: null,
+          fileSize: null,
+        },
+      });
+      return;
+    }
+    const file = input.files[0];
+    if (file === undefined) {
+      cb({
+        kind: "Error",
+        error: {
+          error: {
+            kind: "LoadError",
+            error: "Unexpected Error: No chosen file detected",
+          },
+          fileName: null,
+          fileSize: null,
+        },
+      });
+      return;
+    }
+    processFile(file, null, cb);
+  });
+  if ("showPicker" in HTMLInputElement.prototype) {
+    input.showPicker();
+  } else {
+    input.click();
+  }
+}
+
+function processFile(
+  file: File,
+  handle: FileSystemFileHandle | null,
+  cb: (result: Result<LoadedFileError, LoadedFile>) => void,
+): void {
+  const options: ReadTextFileOptions = {
+    maxFileSize: 100 * 1024,
+  };
+  readTextFile(file, options, (result) => {
+    switch (result.kind) {
+      case "Error":
+        cb({
+          kind: "Error",
+          error: {
+            error: result.error,
+            fileName: file.name,
+            fileSize: file.size,
+          },
+        });
+        break;
+      case "Ok": {
+        const contents = result.value;
+        cb({
+          kind: "Ok",
+          value: {
+            fileName: file.name,
+            handle: handle,
+            language: detectSourceLanguage(contents),
+            contents: contents,
+          },
+        });
+        break;
+      }
+      default:
+        return assertNever(result);
+    }
+  });
+}
+
 export function saveExistingFile(
-  fileHandle: FileSystemFileHandle,
+  handle: FileHandle,
   contents: string,
   cb: (maybeError: string | null) => void,
 ): void {
   const blob = new Blob([contents]);
-  const options: FirstFileSaveOptions = {};
-  fileSave(blob, options, fileHandle).then(
+
+  handle.getFile().then(
     () => {
-      const noError = null;
-      cb(noError);
+      handle.createWritable().then(
+        (writable) => {
+          writable.write(blob).then(
+            () => {
+              writable.close().then(
+                () => {
+                  cb(null);
+                },
+                (err: unknown) => {
+                  cb(String(err));
+                },
+              );
+            },
+            (err: unknown) => {
+              cb(String(err));
+            },
+          );
+        },
+        (err: unknown) => {
+          cb(String(err));
+        },
+      );
     },
     (err: unknown) => {
-      cb(String(err));
+      cb(`File doesn't exist: ${String(err)}`);
     },
   );
 }
 
 export function saveFileAs(
   contents: string,
-  cb: (handle: FileSystemFileHandle | null, maybeError: string | null) => void,
+  cb: (handle: FileHandle | null, maybeError: string | null) => void,
 ): void {
   const blob = new Blob([contents]);
-  const options: FirstFileSaveOptions = {
-    extensions: [".asm"],
-    fileName: "vic-program.asm",
-  };
-  fileSave(blob, options).then(
+  if (FILE_SYSTEM_ACCESS_API) {
+    saveFileAs_FileSystemAccessApi(blob, cb);
+  } else {
+    saveFileAs_Legacy(blob, cb);
+  }
+}
+
+function saveFileAs_FileSystemAccessApi(
+  blob: Blob,
+  cb: (handle: FileHandle | null, maybeError: string | null) => void,
+): void {
+  showSaveFilePicker({
+    suggestedName: "vic-program.asm",
+  }).then(
     (handle) => {
-      cb(handle, null);
+      handle.createWritable().then(
+        (writable) => {
+          writable.write(blob).then(
+            () => {
+              writable.close().then(
+                () => {
+                  cb(handle, null);
+                },
+                (err: unknown) => {
+                  cb(null, String(err));
+                },
+              );
+            },
+            (err: unknown) => {
+              cb(null, String(err));
+            },
+          );
+        },
+        (err: unknown) => {
+          cb(null, String(err));
+        },
+      );
     },
     (err: unknown) => {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -121,6 +253,25 @@ export function saveFileAs(
       cb(null, String(err));
     },
   );
+}
+
+function saveFileAs_Legacy(
+  blob: Blob,
+  cb: (handle: FileHandle | null, maybeError: string | null) => void,
+): void {
+  const a = document.createElement("a");
+  a.download = "vic-program.asm";
+  a.href = URL.createObjectURL(blob);
+
+  a.addEventListener("click", () => {
+    // `setTimeout()` due to
+    // https://github.com/LLK/scratch-gui/issues/1783#issuecomment-426286393
+    setTimeout(() => {
+      URL.revokeObjectURL(a.href);
+    }, 30 * 1000);
+  });
+  a.click();
+  cb(null, null);
 }
 
 export type ReadTextFileError =
