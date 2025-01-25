@@ -171,15 +171,22 @@ export function saveExistingFile(
 ): void {
   const blob = new Blob([contents]);
 
-  handle.getFile().then(
+  handle.requestPermission({ mode: "readwrite" }).then(
     () => {
-      handle.createWritable().then(
-        (writable) => {
-          writable.write(blob).then(
-            () => {
-              writable.close().then(
+      handle.getFile().then(
+        () => {
+          handle.createWritable().then(
+            (writable) => {
+              writable.write(blob).then(
                 () => {
-                  cb(null);
+                  writable.close().then(
+                    () => {
+                      cb(null);
+                    },
+                    (err: unknown) => {
+                      cb(String(err));
+                    },
+                  );
                 },
                 (err: unknown) => {
                   cb(String(err));
@@ -197,7 +204,7 @@ export function saveExistingFile(
       );
     },
     (err: unknown) => {
-      cb(`File doesn't exist: ${String(err)}`);
+      cb(String(err));
     },
   );
 }

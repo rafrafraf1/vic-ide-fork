@@ -10,8 +10,9 @@ import {
   prettyVicCompileResult,
 } from "../common/VicLangFullCompiler";
 import { loadProgram } from "../Computer/Program";
-import { newSimulatorState } from "../Computer/SimulatorState";
+import type { HardwareState } from "../Computer/SimulatorState";
 import { getSampleProgramNames } from "../SamplePrograms/SampleProgram";
+import type { BrowserStorage } from "../System/BrowserStorage";
 import {
   CodeEditorPanel,
   type CodeEditorPanelHandle,
@@ -20,17 +21,40 @@ import { Computer } from "../UI/Simulator/Computer";
 import { Toolbar } from "../UI/Toolbar";
 import { EnglishStrings } from "../UI/UIStrings";
 import { WindowFrame } from "../UI/WindowFrame";
+import { newAppState, type AppState, type CodeEditorState } from "./AppState";
 import { useFileManagement } from "./FileManagement";
-import { newHelpScreenState, useHelpScreen } from "./HelpScreen";
+import { useHelpScreen } from "./HelpScreen";
 import { useSimulator, type SimulatorOptions } from "./Simulator";
 
-function App(): React.JSX.Element {
+export interface AppProps {
+  browserStorage?: BrowserStorage<AppState>;
+  savedState: AppState | null;
+}
+
+/**
+ * Initializes an initial state, by either loading a saved state from the
+ * BrowserStorage, or if there is no saved state, creating a new empty state.
+ */
+function initAppWebviewState(savedState: AppState | null): AppState {
+  if (savedState !== null) {
+    return savedState;
+  } else {
+    return newAppState();
+  }
+}
+
+function App(props: AppProps): React.JSX.Element {
+  const { browserStorage, savedState } = props;
+
   const uiString = EnglishStrings;
 
-  const initialState = React.useMemo(() => newSimulatorState(), []);
+  const initialState = React.useMemo(
+    () => initAppWebviewState(savedState),
+    [savedState],
+  );
 
   const simulatorOptions: SimulatorOptions = {
-    initialState: initialState,
+    initialState: initialState.simulatorState,
   };
   const {
     computer,
@@ -61,15 +85,27 @@ function App(): React.JSX.Element {
     handleInputChange,
   } = useSimulator(simulatorOptions);
 
-  const { handleHelpClick, helpScreenSidebarElem, helpScreenWindowElem } =
-    useHelpScreen(newHelpScreenState());
+  const {
+    helpScreenState,
+    handleHelpClick,
+    helpScreenSidebarElem,
+    helpScreenWindowElem,
+  } = useHelpScreen(initialState.helpScreenState);
 
-  const [codeEditorOpen, setCodeEditorOpen] = React.useState(false);
+  const [codeEditorOpen, setCodeEditorOpen] = React.useState(
+    initialState.codeEditorState.open,
+  );
 
-  const [asmText, setAsmText] = React.useState("");
-  const [binText, setBinText] = React.useState("");
+  const [asmText, setAsmText] = React.useState(
+    initialState.codeEditorState.asmText,
+  );
+  const [binText, setBinText] = React.useState(
+    initialState.codeEditorState.binText,
+  );
 
-  const [asmBinSynced, setAsmBinSynced] = React.useState(false);
+  const [asmBinSynced, setAsmBinSynced] = React.useState(
+    initialState.codeEditorState.asmBinSynced,
+  );
 
   const codeEditorPanelRef = React.useRef<CodeEditorPanelHandle>(null);
 
@@ -85,6 +121,7 @@ function App(): React.JSX.Element {
   const {
     loadedFileName,
     fileSaved,
+    loadedFileHandleRef,
     handleOpenFileRequest,
     handleSaveClick,
     handleSaveAsClick,
@@ -92,9 +129,57 @@ function App(): React.JSX.Element {
     fileDialogElems,
   } = useFileManagement({
     uiString,
+    initialLoadedFileName: initialState.codeEditorState.loadedFileName,
+    initialLoadedFileHandle: initialState.loadedFileHandle,
+    initialFileSaved: initialState.codeEditorState.fileSaved,
     asmText,
     setEditorCode,
   });
+
+  const hardwareState = React.useMemo<HardwareState>(
+    () => ({
+      computer: computer,
+      cpuState: cpuState,
+      input: input,
+      output: output,
+    }),
+    [computer, cpuState, input, output],
+  );
+
+  const codeEditorState = React.useMemo<CodeEditorState>(
+    () => ({
+      open: codeEditorOpen,
+      asmText: asmText,
+      binText: binText,
+      asmBinSynced: asmBinSynced,
+      loadedFileName: loadedFileName,
+      fileSaved: fileSaved,
+    }),
+    [asmBinSynced, asmText, binText, codeEditorOpen, fileSaved, loadedFileName],
+  );
+
+  // Whenever any part of the `AppState` changes, we send a message to the
+  // `browserStorage` to persist the updated state.
+  React.useEffect(() => {
+    if (browserStorage !== undefined) {
+      browserStorage.setState({
+        simulatorState: {
+          hardwareState: hardwareState,
+          animationSpeed: animationSpeed,
+        },
+        helpScreenState: helpScreenState,
+        codeEditorState: codeEditorState,
+        loadedFileHandle: loadedFileHandleRef.current,
+      });
+    }
+  }, [
+    animationSpeed,
+    browserStorage,
+    codeEditorState,
+    hardwareState,
+    helpScreenState,
+    loadedFileHandleRef,
+  ]);
 
   const handleCodeEditorClick = React.useCallback((): void => {
     setCodeEditorOpen((open: boolean): boolean => !open);

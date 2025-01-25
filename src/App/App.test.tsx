@@ -24,5 +24,5 @@ test("renders app", () => {
 
   initTheme();
 
-  render(<App />);
+  render(<App savedState={null} />);
 });

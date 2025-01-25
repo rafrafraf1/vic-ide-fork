@@ -7,6 +7,7 @@ import * as React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./App/App";
+import { getBrowserStorage } from "./App/AppState";
 import { PlaygroundMenu } from "./Playgrounds/PlaygroundMenu";
 
 function getRequiredElement(elementId: string): HTMLElement {
@@ -24,13 +25,20 @@ function devMode(): boolean {
 function boot(): void {
   console.log("vic-ide webapp boot");
 
-  const root = ReactDOM.createRoot(getRequiredElement("root"));
+  const browserStorage = getBrowserStorage();
+  void browserStorage.getState().then((state) => {
+    const root = ReactDOM.createRoot(getRequiredElement("root"));
 
-  root.render(
-    <React.StrictMode>
-      {devMode() ? <PlaygroundMenu /> : <App />}
-    </React.StrictMode>,
-  );
+    root.render(
+      <React.StrictMode>
+        {devMode() ? (
+          <PlaygroundMenu />
+        ) : (
+          <App browserStorage={browserStorage} savedState={state} />
+        )}
+      </React.StrictMode>,
+    );
+  });
 }
 
 boot();

@@ -15,6 +15,7 @@ import {
   loadFile,
   saveExistingFile,
   saveFileAs,
+  type FileHandle,
   type LoadedFile,
   type LoadedFileError,
 } from "../UI/Files";
@@ -22,6 +23,9 @@ import type { UIStringKey } from "../UI/UIStrings";
 
 export interface FileManagementInput {
   uiString: (key: UIStringKey) => string;
+  initialLoadedFileName: string | null;
+  initialLoadedFileHandle: FileHandle | null;
+  initialFileSaved: boolean;
   asmText: string;
   setEditorCode: (asmText: string, binText: string) => void;
 }
@@ -29,6 +33,7 @@ export interface FileManagementInput {
 export interface FileManagementControls {
   loadedFileName: string | null;
   fileSaved: boolean;
+  loadedFileHandleRef: React.MutableRefObject<FileHandle | null>;
   handleOpenFileRequest: (selection: OpenFileSelection) => void;
   handleSaveClick: () => void;
   handleSaveAsClick: () => void;
@@ -39,18 +44,50 @@ export interface FileManagementControls {
 export function useFileManagement(
   input: FileManagementInput,
 ): FileManagementControls {
-  const { uiString, asmText, setEditorCode } = input;
+  const {
+    uiString,
+    initialLoadedFileName,
+    initialLoadedFileHandle,
+    initialFileSaved,
+    asmText,
+    setEditorCode,
+  } = input;
 
   const [loadedFileError, setLoadedFileError] =
     React.useState<LoadedFileError | null>(null);
   const [saveFileError, setSaveFileError] = React.useState<string | null>(null);
   const [loadedFileName, setLoadedFileName] = React.useState<string | null>(
-    null,
+    initialLoadedFileName,
   );
-  const [fileSaved, setFileSaved] = React.useState<boolean>(true);
+  const [fileSaved, setFileSaved] = React.useState<boolean>(initialFileSaved);
   const [pendingOpenFileSelection, setPendingOpenFileSelection] =
     React.useState<OpenFileSelection | null>(null);
-  const loadedFileHandleRef = React.useRef<FileSystemFileHandle | null>(null);
+  const loadedFileHandleRef = React.useRef<FileHandle | null>(
+    initialLoadedFileHandle,
+  );
+
+  const setLoadedFile = React.useCallback(
+    (fileName: string, handle: FileHandle): void => {
+      // It is important that "loadedFileHandleRef" is always set before
+      // "setLoadedFileName".
+      //
+      // The app has a "useEffect" that serializes and saves both of these
+      // values, but it only listens to changes to state.
+      loadedFileHandleRef.current = handle;
+      setLoadedFileName(fileName);
+    },
+    [],
+  );
+
+  const clearLoadedFile = React.useCallback(() => {
+    // It is important that "loadedFileHandleRef" is always set before
+    // "setLoadedFileName".
+    //
+    // The app has a "useEffect" that serializes and saves both of these
+    // values, but it only listens to changes to state.
+    loadedFileHandleRef.current = null;
+    setLoadedFileName(null);
+  }, []);
 
   const fileOpenChooser = React.useCallback(() => {
     loadFile((result: Result<LoadedFileError, LoadedFile>): void => {
@@ -59,13 +96,12 @@ export function useFileManagement(
           setLoadedFileError(result.error);
           break;
         case "Ok":
-          loadedFileHandleRef.current = result.value.handle;
-          if (loadedFileHandleRef.current !== null) {
-            setLoadedFileName(result.value.fileName);
+          if (result.value.handle !== null) {
+            setLoadedFile(result.value.fileName, result.value.handle);
           } else {
             // This can happen in browsers that don't fully support the
             // FileSystem API.
-            setLoadedFileName(null);
+            clearLoadedFile();
           }
           setFileSaved(true);
           switch (result.value.language) {
@@ -83,19 +119,18 @@ export function useFileManagement(
           return assertNever(result);
       }
     });
-  }, [setEditorCode]);
+  }, [clearLoadedFile, setEditorCode, setLoadedFile]);
 
   const loadSampleProgram = React.useCallback(
     (name: string): void => {
       const sampleProgram = lookupSampleProgram(name);
       if (sampleProgram !== null) {
-        loadedFileHandleRef.current = null;
-        setLoadedFileName(null);
+        clearLoadedFile();
         setFileSaved(true);
         setEditorCode(sampleProgram.code, "");
       }
     },
-    [setEditorCode],
+    [clearLoadedFile, setEditorCode],
   );
 
   const doOpenFileRequest = React.useCallback(
@@ -105,8 +140,7 @@ export function useFileManagement(
           fileOpenChooser();
           break;
         case "CloseFile":
-          loadedFileHandleRef.current = null;
-          setLoadedFileName(null);
+          clearLoadedFile();
           setFileSaved(true);
           setEditorCode("", "");
           break;
@@ -117,7 +151,7 @@ export function useFileManagement(
           assertNever(selection);
       }
     },
-    [fileOpenChooser, loadSampleProgram, setEditorCode],
+    [clearLoadedFile, fileOpenChooser, loadSampleProgram, setEditorCode],
   );
 
   const handleOpenFileRequest = React.useCallback(
@@ -169,25 +203,20 @@ export function useFileManagement(
   const handleSaveAsClick = React.useCallback((): void => {
     saveFileAs(
       asmText,
-      (
-        handle: FileSystemFileHandle | null,
-        maybeError: string | null,
-      ): void => {
+      (handle: FileHandle | null, maybeError: string | null): void => {
         if (maybeError !== null) {
           setSaveFileError(maybeError);
         } else {
           if (handle === null) {
-            loadedFileHandleRef.current = null;
-            setLoadedFileName(null);
+            clearLoadedFile();
           } else {
-            loadedFileHandleRef.current = handle;
-            setLoadedFileName(handle.name);
+            setLoadedFile(handle.name, handle);
           }
           setFileSaved(true);
         }
       },
     );
-  }, [asmText]);
+  }, [asmText, clearLoadedFile, setLoadedFile]);
 
   const fileDialogElems = (
     <>
@@ -235,6 +264,7 @@ export function useFileManagement(
   return {
     loadedFileName,
     fileSaved,
+    loadedFileHandleRef,
     handleOpenFileRequest,
     handleSaveClick,
     handleSaveAsClick,
