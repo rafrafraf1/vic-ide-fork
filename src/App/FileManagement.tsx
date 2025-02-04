@@ -21,15 +21,6 @@ import {
 } from "../UI/Files";
 import type { UIStringKey } from "../UI/UIStrings";
 
-export interface FileManagementInput {
-  uiString: (key: UIStringKey) => string;
-  initialLoadedFileName: string | null;
-  initialLoadedFileHandle: FileHandle | null;
-  initialFileSaved: boolean;
-  asmText: string;
-  setEditorCode: (asmText: string, binText: string) => void;
-}
-
 export interface FileManagementControls {
   loadedFileName: string | null;
   fileSaved: boolean;
@@ -41,29 +32,45 @@ export interface FileManagementControls {
   fileDialogElems: React.JSX.Element;
 }
 
+export interface FileManagementState {
+  loadedFileName: string | null;
+  loadedFileHandle: FileHandle | null;
+  fileSaved: boolean;
+}
+export interface FileManagementInput {
+  uiString: (key: UIStringKey) => string;
+  asmText: string;
+  setEditorCode: (asmText: string, binText: string) => void;
+}
+
+export interface FileManagementOptions {
+  /**
+   * This should be set using React.useMemo
+   */
+  initialState: FileManagementState;
+
+  input: FileManagementInput;
+}
+
 export function useFileManagement(
-  input: FileManagementInput,
+  opts: FileManagementOptions,
 ): FileManagementControls {
-  const {
-    uiString,
-    initialLoadedFileName,
-    initialLoadedFileHandle,
-    initialFileSaved,
-    asmText,
-    setEditorCode,
-  } = input;
+  const initialState = opts.initialState;
+  const { uiString, asmText, setEditorCode } = opts.input;
 
   const [loadedFileError, setLoadedFileError] =
     React.useState<LoadedFileError | null>(null);
   const [saveFileError, setSaveFileError] = React.useState<string | null>(null);
   const [loadedFileName, setLoadedFileName] = React.useState<string | null>(
-    initialLoadedFileName,
+    initialState.loadedFileName,
   );
-  const [fileSaved, setFileSaved] = React.useState<boolean>(initialFileSaved);
+  const [fileSaved, setFileSaved] = React.useState<boolean>(
+    initialState.fileSaved,
+  );
   const [pendingOpenFileSelection, setPendingOpenFileSelection] =
     React.useState<OpenFileSelection | null>(null);
   const loadedFileHandleRef = React.useRef<FileHandle | null>(
-    initialLoadedFileHandle,
+    initialState.loadedFileHandle,
   );
 
   const setLoadedFile = React.useCallback(

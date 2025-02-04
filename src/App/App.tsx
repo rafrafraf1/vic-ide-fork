@@ -12,7 +12,7 @@ import { newAppState, type AppState, type CodeEditorState } from "./AppState";
 import { useCodeEditor, useCodeEditorState } from "./CodeEditor";
 import { useFileManagement } from "./FileManagement";
 import { useHelpScreen } from "./HelpScreen";
-import { useSimulator, type SimulatorOptions } from "./Simulator";
+import { useSimulator } from "./Simulator";
 
 export interface AppProps {
   browserStorage?: BrowserStorage<AppState>;
@@ -41,9 +41,6 @@ function App(props: AppProps): React.JSX.Element {
     [savedState],
   );
 
-  const simulatorOptions: SimulatorOptions = {
-    initialState: initialState.simulatorState,
-  };
   const {
     computer,
     setComputer,
@@ -71,14 +68,18 @@ function App(props: AppProps): React.JSX.Element {
     handleDataRegisterChange,
     handleProgramCounterChange,
     handleInputChange,
-  } = useSimulator(simulatorOptions);
+  } = useSimulator({
+    initialState: initialState.simulatorState,
+  });
 
   const {
     helpScreenState,
     handleHelpClick,
     helpScreenSidebarElem,
     helpScreenWindowElem,
-  } = useHelpScreen(initialState.helpScreenState);
+  } = useHelpScreen({
+    initialState: initialState.helpScreenState,
+  });
 
   const {
     asmText,
@@ -106,12 +107,16 @@ function App(props: AppProps): React.JSX.Element {
     setFileSaved,
     fileDialogElems,
   } = useFileManagement({
-    uiString,
-    initialLoadedFileName: initialState.codeEditorState.loadedFileName,
-    initialLoadedFileHandle: initialState.loadedFileHandle,
-    initialFileSaved: initialState.codeEditorState.fileSaved,
-    asmText,
-    setEditorCode,
+    initialState: {
+      loadedFileName: initialState.codeEditorState.loadedFileName,
+      loadedFileHandle: initialState.loadedFileHandle,
+      fileSaved: initialState.codeEditorState.fileSaved,
+    },
+    input: {
+      uiString,
+      asmText,
+      setEditorCode,
+    },
   });
 
   const { codeEditorOpen, handleCodeEditorClick, codeEditorElems } =

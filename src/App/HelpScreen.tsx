@@ -17,9 +17,13 @@ export interface HelpScreenControls {
   helpScreenWindowElem: React.JSX.Element;
 }
 
-export function useHelpScreen(
-  initialState: HelpScreenState,
-): HelpScreenControls {
+export interface HelpScreenOptions {
+  initialState: HelpScreenState;
+}
+
+export function useHelpScreen(opts: HelpScreenOptions): HelpScreenControls {
+  const initialState = opts.initialState;
+
   const [helpScreenState, setHelpScreenState] = React.useState(initialState);
 
   const handleHelpClick = React.useCallback((): void => {

@@ -19,7 +19,7 @@ import { EnglishStrings } from "../UI/UIStrings";
 import { WindowFrame } from "../UI/WindowFrame";
 import { newAppWebviewState, type AppWebviewState } from "./AppWebviewState";
 import { useHelpScreen } from "./HelpScreen";
-import { useSimulator, type SimulatorOptions } from "./Simulator";
+import { useSimulator } from "./Simulator";
 
 export interface AppProps {
   extensionBridge: ExtensionBridge<AppWebviewState>;
@@ -50,9 +50,6 @@ function AppWebview(props: AppProps): React.JSX.Element {
     [extensionBridge],
   );
 
-  const simulatorOptions: SimulatorOptions = {
-    initialState: initialState.simulatorState,
-  };
   const {
     computer,
     setComputer,
@@ -80,14 +77,18 @@ function AppWebview(props: AppProps): React.JSX.Element {
     handleDataRegisterChange,
     handleProgramCounterChange,
     handleInputChange,
-  } = useSimulator(simulatorOptions);
+  } = useSimulator({
+    initialState: initialState.simulatorState,
+  });
 
   const {
     helpScreenState,
     handleHelpClick,
     helpScreenSidebarElem,
     helpScreenWindowElem,
-  } = useHelpScreen(initialState.helpScreenState);
+  } = useHelpScreen({
+    initialState: initialState.helpScreenState,
+  });
 
   const [sourceFile, setSourceFile] = React.useState<SourceFile | null>(null);
 
