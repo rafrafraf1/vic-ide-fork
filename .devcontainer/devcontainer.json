@@ -1,0 +1,21 @@
+// See https://containers.dev/implementors/json_reference/ for configuration reference
+{
+	"name": "Untitled Node.js project",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"msjsdiag.vscode-react-native",
+				"nrwl.angular-console",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	},
+  "remoteUser": "node",
+  "postCreateCommand": "npm install"
+}
