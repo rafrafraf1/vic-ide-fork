@@ -12,6 +12,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 750,
   },
   server: {
+    host: "0.0.0.0",
     watch: {
       ignored: [/.vscode-test\/*/, /build\/*/, /build-ext\/*/, /coverage\/*/],
     },
